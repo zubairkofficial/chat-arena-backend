@@ -1,6 +1,4 @@
-import * as ejs from 'ejs';
-import * as path from 'path';
-import { User } from "src/user/entities/user.entity";
+import { User } from "../../user/entities/user.entity";
 
 const nodemailer = require('nodemailer');
 require('dotenv').config();

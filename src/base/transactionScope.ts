@@ -7,8 +7,8 @@ import { OrmUtils } from "typeorm/util/OrmUtils";
 
 
 import { EntityBase } from "./entityBase";
-import { objectState } from "src/common/enums";
-import { logger } from "src/logger";
+import { objectState } from "../common/enums";
+import { logger } from "../logger";
 
 export interface IRawQuery {
   query: string;

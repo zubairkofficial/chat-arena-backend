@@ -8,14 +8,14 @@ import { UserDtos } from './dto/user.dto';
 import { User } from './entities/user.entity';
 import { BaseService } from '../base/base.service';
 import { UserRepository } from './user.repository';
-import { hashPassword, verifyPassword } from 'src/common/utils/bcrypt';
+import { hashPassword, verifyPassword } from '../common/utils/bcrypt';
 import {
   signToken,
   tokenDecoder,
   verifyUserToken,
-} from 'src/common/utils/assign-and-decode-token';
-import { CommonDTOs } from 'src/common/dto';
-import { sendMailToVerifyUser } from 'src/common/utils/send-to-user';
+} from '../common/utils/assign-and-decode-token';
+import { CommonDTOs } from '../common/dto';
+import { sendMailToVerifyUser } from '../common/utils/send-to-user';
 @Injectable()
 export class UserService extends BaseService {
   constructor(private readonly userRepository: UserRepository) {

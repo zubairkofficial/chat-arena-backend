@@ -1,6 +1,6 @@
 import { CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column } from "typeorm";
-import { CommonDTOs } from "src/common/dto";
-import { objectState } from "src/common/enums";
+import { CommonDTOs } from "../common/dto";
+import { objectState } from "../common/enums";
 
 class EntityBase {
   public id: string | number;
