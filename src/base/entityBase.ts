@@ -1,6 +1,5 @@
 import cloneDeep from "lodash/cloneDeep";
 import { CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column } from "typeorm";
-import { TransactionScope } from "./transactionScope";
 import { CommonDTOs } from "src/common/dto";
 import { objectState } from "src/common/enums";
 
