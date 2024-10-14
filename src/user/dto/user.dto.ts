@@ -2,7 +2,7 @@
 import {  IsEmail,  IsNotEmpty,  IsOptional,  IsString } from "class-validator";
 
 export namespace UserDtos {
-  export class RegisterDto {
+  export class CreateUserDto {
     @IsNotEmpty()
     @IsString()
     name: string;
@@ -16,13 +16,18 @@ export namespace UserDtos {
     @IsEmail()
     email: string;
 
-    @IsNotEmpty()
-    @IsString()
-    password: string;
+    
 
     @IsOptional()
     @IsString()
     phoneNumber: string;
+    
+  }
+  export class RegisterUserDto  extends CreateUserDto{
+  
+    @IsNotEmpty()
+    @IsString()
+    password: string;
     
   }
   export class LoginDto {

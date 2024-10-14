@@ -1,10 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserDtos } from './dto/user.dto';
 import { User } from './entities/user.entity';
 import { BaseService } from '../base/base.service';
 import { UserRepository } from './user.repository';
 import { hashPassword, verifyPassword } from 'src/common/utils/bcrypt';
-import { signToken, tokenDecoder, verifyUserToken } from 'src/common/utils/assign-and-decode-token';
+import {
+  signToken,
+  tokenDecoder,
+  verifyUserToken,
+} from 'src/common/utils/assign-and-decode-token';
 import { CommonDTOs } from 'src/common/dto';
 import { sendMailToVerifyUser } from 'src/common/utils/send-to-user';
 @Injectable()
@@ -12,8 +21,23 @@ export class UserService extends BaseService {
   constructor(private readonly userRepository: UserRepository) {
     super();
   }
-  async registerUser(input: UserDtos.RegisterDto) {
 
+   async createUser(
+    input: UserDtos.CreateUserDto,
+    hashedPassword?: string,
+  ) {
+    const newUser = this.userRepository.create({
+      name: input.name,
+      username: input.username,
+      email: input.email,
+      phoneNumber: input.phoneNumber,
+      password: hashedPassword ? hashedPassword : '',
+      isActive: hashedPassword ? false : true,
+    });
+    return await this.userRepository.save(newUser);
+  }
+
+  async registerUser(input: UserDtos.RegisterUserDto) {
     const userExist = await this.getUserByEmail(input.email);
     if (userExist) {
       throw new BadRequestException(`Email already registered`);
@@ -25,16 +49,7 @@ export class UserService extends BaseService {
 
     const hashedPassword = await hashPassword(input.password);
 
-    const newUser = this.userRepository.create({
-      name: input.name,
-      username: input.username,
-      email: input.email,
-      phoneNumber: input.phoneNumber,
-      password: hashedPassword,
-    });
-
-
-    await this.userRepository.save(newUser);
+    const newUser = await this.createUser(input, hashedPassword);
     await this.emailVerification(newUser);
     return {
       message: 'User registered successfully',
@@ -42,34 +57,37 @@ export class UserService extends BaseService {
     };
   }
 
-  async login(input: UserDtos.LoginDto): Promise<{user:Partial<User>,token:string}> {
+  async login(
+    input: UserDtos.LoginDto,
+  ): Promise<{ user: Partial<User>; token: string }> {
     try {
-    const user = await this.getUserByEmail(input.email);
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      const user = await this.getUserByEmail(input.email);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      if (!user.isActive) throw new UnauthorizedException('email not verified');
+      // Compare password
+      const isPasswordValid = await verifyPassword(
+        input.password,
+        user.password,
+      );
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      const payload = {
+        email: user.email,
+        id: user.id,
+        isAdmin: user.isAdmin,
+      };
+      const token = signToken(payload);
+
+      const { password, ...userWithoutPassword } = user;
+
+      return { user: userWithoutPassword, token };
+    } catch (error) {
+      throw new Error(error);
     }
-if(!user.isActive) throw new UnauthorizedException('email not verified')
-    // Compare password
-    const isPasswordValid = await verifyPassword(input.password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    const payload = {
-      email: user.email,
-      id: user.id,
-      isAdmin: user.isAdmin,
-    };
-    const token = signToken(payload);
-
-    const { password, ...userWithoutPassword } = user;
-
-    return { user: userWithoutPassword, token };
-  } catch (error) {
-    throw new Error(error);
   }
-  }
-
-
 
   async getUserByEmail(email: string): Promise<User> {
     try {
@@ -81,14 +99,14 @@ if(!user.isActive) throw new UnauthorizedException('email not verified')
   async emailVerify(token: string): Promise<User> {
     try {
       const decodedUser = tokenDecoder(token);
-      if (!decodedUser) throw new UnauthorizedException("Invalid authorization specified");
+      if (!decodedUser)
+        throw new UnauthorizedException('Invalid authorization specified');
       const user = await this.getUserById(decodedUser.id);
-      if (!user) throw new NotFoundException("Invalid credentials specified");
+      if (!user) throw new NotFoundException('Invalid credentials specified');
 
       if (!user.isActive) user.isActive = true;
-      await this.userRepository.update(user.id,user);                
-      return user
-      // return this.userRepository.getUserByEmail(email).getOne();
+      await this.userRepository.update(user.id, user);
+      return user;
     } catch (error) {
       throw new Error(error);
     }
@@ -111,12 +129,55 @@ if(!user.isActive) throw new UnauthorizedException('email not verified')
   async emailVerification(user: User): Promise<CommonDTOs.MessageResponse> {
     try {
       const token = verifyUserToken(user.id);
-      await sendMailToVerifyUser(user, process.env.BACK_END_URL + "/user/verify?token=" + token);
+      await sendMailToVerifyUser(
+        user,
+        process.env.BACK_END_URL + '/user/verify?token=' + token,
+      );
 
-      return { message: "Check your Email to verify it" };
+      return { message: 'Check your Email to verify it' };
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  async googleLogin(req) {
+    try {
+      
+    
+      if (!req.user) {
+        throw new Error('No user information received from Google.');
+      }
+
+    const user = await this.getUserByEmail(req.user.email);
+   
+    if (!user) {
+      const input = {
+        email: req.user.email,
+         name: `${req.user.firstName} ${req.user.lastName}`, 
+        username: req.user.email,
+        isActive: true,
+        phoneNumber: '',
+      };
+      const newUser = await this.createUser(input);
+      return {
+        message: 'User information from google',
+        user: newUser,
+      };
+    } else {
+      const payload = {
+        email: user.email,
+        id: user.id,
+        isAdmin: user.isAdmin,
+      };
+      const token = signToken(payload);
+
+      const { password, ...userWithoutPassword } = user;
+
+      return { user: userWithoutPassword, token };
+    }
+  } catch (error) {
+    throw new Error(`Google login failed: ${error.message}`);
+  }
   }
 
 }

@@ -1,13 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body,Query, Res} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDtos } from './dto/user.dto';
 import { Response } from 'express';
+
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  registerUser(@Body() input: UserDtos.RegisterDto) {
+  registerUser(@Body() input: UserDtos.RegisterUserDto) {
     return this.userService.registerUser(input);
   }
 
@@ -26,5 +27,4 @@ export class UserController {
     .end();
    
   }
- 
 }
