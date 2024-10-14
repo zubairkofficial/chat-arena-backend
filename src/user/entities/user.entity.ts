@@ -1,4 +1,4 @@
-import { EntityBase } from "src/base/entityBase";
+import { EntityBase } from "../../base/entityBase";
 import { Entity, PrimaryGeneratedColumn, Column} from "typeorm";
 
 
