@@ -19,7 +19,7 @@ export class User extends EntityBase {
   @Column({ name: "phone_number", type: "varchar", nullable: true })
   phoneNumber: string;
 
-  @Column({ name: "password", type: "varchar", nullable: false })
+  @Column({ name: "password", type: "varchar", nullable: true })
   password: string;
 
   @Column({ name: "is_active", type: "boolean", default: false })
