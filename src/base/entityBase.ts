@@ -1,4 +1,3 @@
-import cloneDeep from "lodash/cloneDeep";
 import { CreateDateColumn, UpdateDateColumn, DeleteDateColumn, Column } from "typeorm";
 import { CommonDTOs } from "src/common/dto";
 import { objectState } from "src/common/enums";
@@ -20,9 +19,7 @@ class EntityBase {
 
   public entitySnapshot?: this;
 
-  loadSnapshotForPartialUpdate?() {
-    this.entitySnapshot = cloneDeep(this);
-  }
+ 
 
   getPropertiesToUpdate() {
     const snapshot = this.entitySnapshot;
