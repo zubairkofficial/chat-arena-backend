@@ -1,4 +1,4 @@
-import { STATUS_CODES } from "src/common/constants/status-codes";
+import { STATUS_CODES } from "../common/constants/status-codes";
 
 export class HttpException extends Error {
   public status: number;
