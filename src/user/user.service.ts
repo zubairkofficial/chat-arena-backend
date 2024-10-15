@@ -16,7 +16,7 @@ import {
 } from '../common/utils/assign-and-decode-token';
 import { CommonDTOs } from '../common/dto';
 import { sendMailToVerifyUser } from '../common/utils/send-to-user';
-import { InValidCredentials } from 'src/errors/exceptions';
+import { InValidCredentials } from '../errors/exceptions';
 @Injectable()
 export class UserService extends BaseService {
   constructor(private readonly userRepository: UserRepository) {

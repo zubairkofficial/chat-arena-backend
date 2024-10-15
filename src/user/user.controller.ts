@@ -4,7 +4,7 @@ import { UserDtos } from './dto/user.dto';
 import { Response } from 'express';
 import { AuthGuard } from '../middleware/auth.middleware';
 import { Request } from 'express';
-import { CommonDTOs } from 'src/common/dto';
+import { CommonDTOs } from '../common/dto';
 
 @Controller('user')
 export class UserController {
