@@ -23,6 +23,7 @@ export namespace UserDtos {
     phoneNumber: string;
     
   }
+
   export class RegisterUserDto  extends CreateUserDto{
   
     @IsNotEmpty()
@@ -39,6 +40,26 @@ export namespace UserDtos {
     @IsNotEmpty()
     @IsString()
     password: string;
+    
+  }
+
+  export class UpdateUser {
+    @IsOptional()
+    @IsString()
+    name: string;
+
+    @IsOptional()
+    @IsString()
+    username: string;
+
+
+    @IsOptional()
+    @IsEmail()
+    email: string;
+
+    @IsOptional()
+    @IsString()
+    phoneNumber: string;
     
   }
 }

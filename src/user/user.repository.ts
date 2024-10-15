@@ -27,4 +27,20 @@ export class UserRepository extends Repository<User> {
     .where('user.id = :id', { id });
 
   }
+
+  public getUserByPhoneNumber(phoneNumber: string): SelectQueryBuilder<User> {
+    return this.dataSource
+    .getRepository(User)
+    .createQueryBuilder('user')
+    .where('user.phoneNumber = :phoneNumber', { phoneNumber });
+
+  }
+  public getUserByUsername(username: string): SelectQueryBuilder<User> {
+    return this.dataSource
+    .getRepository(User)
+    .createQueryBuilder('user')
+    .where('user.username = :username', { username });
+
+  }
+
 }

@@ -16,6 +16,7 @@ import {
 } from '../common/utils/assign-and-decode-token';
 import { CommonDTOs } from '../common/dto';
 import { sendMailToVerifyUser } from '../common/utils/send-to-user';
+import { InValidCredentials } from 'src/errors/exceptions';
 @Injectable()
 export class UserService extends BaseService {
   constructor(private readonly userRepository: UserRepository) {
@@ -85,7 +86,7 @@ export class UserService extends BaseService {
 
       return { user: userWithoutPassword, token };
     } catch (error) {
-      throw new Error(error);
+      throw new Error(error.message);
     }
   }
 
@@ -140,7 +141,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async googleLogin(req) {
+  async googleLogin(req: { user: { email: string; firstName: any; lastName: any; }; }) {
     try {
       
     
@@ -179,5 +180,83 @@ export class UserService extends BaseService {
     throw new Error(`Google login failed: ${error.message}`);
   }
   }
+
+  async updateUser(input: UserDtos.UpdateUser, currentUser:CommonDTOs.CurrentUser) {
+    try {
+      const userEmail = currentUser.isAdmin?input.email:currentUser.email;
+  
+      const user = await this.getUserByEmail(userEmail);
+      if (!user) throw new InValidCredentials("Invalid user specified");
+  
+      const updatedUser = await this.updateUserDetails(user.id, input);
+  
+      return {
+        message: 'User updated successfully',
+        user: updatedUser,
+      };
+  
+    } catch (error) {
+      throw new Error(`Failed to update user: ${error.message}`);
+    }
+  }
+  
+  async updateUserDetails(userId: string, input: UserDtos.UpdateUser) {
+    try {
+      const user = await this.getUserById(userId); // Assuming TypeORM
+  
+      if (!user) {
+        throw new Error('User not found');
+      }
+      const emailAlreadyExist = await this.getUserByEmail(input.email);
+      if (emailAlreadyExist) throw new InValidCredentials("Email already Registered");
+      const phoneAlreadyExist = await this.getUserByPhoneNumber(input.phoneNumber);
+      if (phoneAlreadyExist) throw new InValidCredentials("PhoneNumber already exist");
+      const usernameAlreadyExist = await this.getUserByUsername(input.username);
+      if (usernameAlreadyExist) throw new InValidCredentials("username already exist");
+
+   if(input.email)
+      Object.assign(user, input);
+  
+      const updatedUser = await this.userRepository.save(user);
+  
+      return updatedUser; 
+    } catch (error) {
+      throw new Error(`Failed to update user: ${error.message}`);
+    }
+  }
+  
+  async getUserByPhoneNumber(phoneNumber: string): Promise<User> {
+    try {
+      return this.userRepository.getUserByPhoneNumber(phoneNumber).getOne();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  async getUserByUsername(username: string): Promise<User> {
+    try {
+      return this.userRepository.getUserByUsername(username).getOne();
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  async deleteUser(id: string, currentUser: CommonDTOs.CurrentUser): Promise<{ message: string; user: User }> {
+    try {
+
+      const user = await this.getUserById(id);
+  
+      if (!user) throw new InValidCredentials("Invalid credentials specified");
+
+      await this.userRepository.delete({  id });
+  
+      return {
+        message: 'User deleted successfully',
+        user,
+      };
+    } catch (error) {
+      throw new Error(`Failed to delete user: ${error.message}`);
+    }
+  }
+  
 
 }

@@ -8,6 +8,8 @@ export namespace CommonDTOs {
   export class MessageResponse {
     message: string;
   }
+
+  
   
   export class PaginationInput {
     @IsInt()
@@ -36,8 +38,8 @@ export namespace CommonDTOs {
     isAdmin: boolean;
     email: string;
     id: string;
-    password?: string;
-    name: string;
+    // password?: string;
+    // name: string;
   }
 
   
