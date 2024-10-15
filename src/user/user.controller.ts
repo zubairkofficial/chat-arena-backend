@@ -48,12 +48,32 @@ export class UserController {
     }
   }
 
+  @Get()
+  @UseGuards(AuthGuard)
+  async getAllUser(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
+      return this.userService.getAllUser(currentUser);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
   @Delete(':id')
   @UseGuards(AuthGuard)
   async deleteUser(@Req() req: Request,@Param() param) {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
       return this.userService.deleteUser(param.id,currentUser);
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  async getUserById(@Req() req: Request,@Param() param) {
+    try {
+    
+      return this.userService.getUserById(param.id);
     } catch (error) {
       throw new Error(error.message);
     }

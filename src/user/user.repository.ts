@@ -42,5 +42,13 @@ export class UserRepository extends Repository<User> {
     .where('user.username = :username', { username });
 
   }
+  public getAllUser(): SelectQueryBuilder<User> {
+    return this.dataSource
+    .getRepository(User)
+    .createQueryBuilder('user')
+    
+   
+
+  }
 
 }

@@ -49,7 +49,7 @@ export const sendMailToVerifyUser = async (user: User, verifyLink: string) => {
           display: inline-block;
           padding: 15px 20px;
           margin-top: 20px;
-          background-color: #f47c20;
+         background: linear-gradient(180deg, #00ff00, #003300);
           color: white;
           text-decoration: none;
           border-radius: 4px;

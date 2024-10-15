@@ -23,10 +23,7 @@ export class UserService extends BaseService {
     super();
   }
 
-   async createUser(
-    input: UserDtos.CreateUserDto,
-    hashedPassword?: string,
-  ) {
+  async createUser(input: UserDtos.CreateUserDto, hashedPassword?: string) {
     const newUser = this.userRepository.create({
       name: input.name,
       username: input.username,
@@ -141,90 +138,103 @@ export class UserService extends BaseService {
     }
   }
 
-  async googleLogin(req: { user: { email: string; firstName: any; lastName: any; }; }) {
+  async googleLogin(req: {
+    user: { email: string; firstName: any; lastName: any };
+  }) {
     try {
-      
-    
       if (!req.user) {
         throw new Error('No user information received from Google.');
       }
 
-    const user = await this.getUserByEmail(req.user.email);
-   
-    if (!user) {
-      const input = {
-        email: req.user.email,
-         name: `${req.user.firstName} ${req.user.lastName}`, 
-        username: req.user.email,
-        isActive: true,
-        phoneNumber: '',
-      };
-      const newUser = await this.createUser(input);
-      return {
-        message: 'User information from google',
-        user: newUser,
-      };
-    } else {
-      const payload = {
-        email: user.email,
-        id: user.id,
-        isAdmin: user.isAdmin,
-      };
-      const token = signToken(payload);
+      const user = await this.getUserByEmail(req.user.email);
 
-      const { password, ...userWithoutPassword } = user;
+      if (!user) {
+        const input = {
+          email: req.user.email,
+          name: `${req.user.firstName} ${req.user.lastName}`,
+          username: req.user.email,
+          isActive: true,
+          phoneNumber: '',
+        };
+        const newUser = await this.createUser(input);
+        return {
+          message: 'User information from google',
+          user: newUser,
+        };
+      } else {
+        const payload = {
+          email: user.email,
+          id: user.id,
+          isAdmin: user.isAdmin,
+        };
+        const token = signToken(payload);
 
-      return { user: userWithoutPassword, token };
+        const { password, ...userWithoutPassword } = user;
+
+        return { user: userWithoutPassword, token };
+      }
+    } catch (error) {
+      throw new Error(`Google login failed: ${error.message}`);
     }
-  } catch (error) {
-    throw new Error(`Google login failed: ${error.message}`);
-  }
   }
 
-  async updateUser(input: UserDtos.UpdateUser, currentUser:CommonDTOs.CurrentUser) {
+  async updateUser(
+    input: UserDtos.UpdateUser,
+    currentUser: CommonDTOs.CurrentUser,
+  ) {
     try {
-      const userEmail = currentUser.isAdmin?input.email:currentUser.email;
-  
+      const userEmail = currentUser.isAdmin ? input.email : currentUser.email;
+
       const user = await this.getUserByEmail(userEmail);
-      if (!user) throw new InValidCredentials("Invalid user specified");
-  
+      if (!user) throw new InValidCredentials('Invalid user specified');
+
       const updatedUser = await this.updateUserDetails(user.id, input);
-  
+
       return {
         message: 'User updated successfully',
         user: updatedUser,
       };
-  
     } catch (error) {
       throw new Error(`Failed to update user: ${error.message}`);
     }
   }
-  
+
   async updateUserDetails(userId: string, input: UserDtos.UpdateUser) {
     try {
       const user = await this.getUserById(userId); // Assuming TypeORM
-  
+
       if (!user) {
         throw new Error('User not found');
       }
-      const emailAlreadyExist = await this.getUserByEmail(input.email);
-      if (emailAlreadyExist) throw new InValidCredentials("Email already Registered");
-      const phoneAlreadyExist = await this.getUserByPhoneNumber(input.phoneNumber);
-      if (phoneAlreadyExist) throw new InValidCredentials("PhoneNumber already exist");
-      const usernameAlreadyExist = await this.getUserByUsername(input.username);
-      if (usernameAlreadyExist) throw new InValidCredentials("username already exist");
-
-   if(input.email)
+      if (input.email!==user.email) {
+        const emailAlreadyExist = await this.getUserByEmail(input.email);
+        if (emailAlreadyExist)
+          throw new InValidCredentials('Email already Registered');
+      }
+      if (input.phoneNumber!==user.phoneNumber) {
+        const phoneAlreadyExist = await this.getUserByPhoneNumber(
+          input.phoneNumber,
+        );
+        if (phoneAlreadyExist)
+          throw new InValidCredentials('PhoneNumber already exist');
+      }
+      if (input.username!==user.username) {
+        const usernameAlreadyExist = await this.getUserByUsername(
+          input.username,
+        );
+        if (usernameAlreadyExist)
+          throw new InValidCredentials('username already exist');
+      }
       Object.assign(user, input);
-  
+
       const updatedUser = await this.userRepository.save(user);
-  
-      return updatedUser; 
+
+      return updatedUser;
     } catch (error) {
       throw new Error(`Failed to update user: ${error.message}`);
     }
   }
-  
+
   async getUserByPhoneNumber(phoneNumber: string): Promise<User> {
     try {
       return this.userRepository.getUserByPhoneNumber(phoneNumber).getOne();
@@ -240,15 +250,25 @@ export class UserService extends BaseService {
     }
   }
 
-  async deleteUser(id: string, currentUser: CommonDTOs.CurrentUser): Promise<{ message: string; user: User }> {
+  async getAllUser(currentUser: CommonDTOs.CurrentUser): Promise<User[]> {
     try {
+      return this.userRepository.getAllUser().getMany();
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
+  }
 
+  async deleteUser(
+    id: string,
+    currentUser: CommonDTOs.CurrentUser,
+  ): Promise<{ message: string; user: User }> {
+    try {
       const user = await this.getUserById(id);
-  
-      if (!user) throw new InValidCredentials("Invalid credentials specified");
 
-      await this.userRepository.delete({  id });
-  
+      if (!user) throw new InValidCredentials('Invalid credentials specified');
+
+      await this.userRepository.delete({ id });
+
       return {
         message: 'User deleted successfully',
         user,
@@ -257,6 +277,4 @@ export class UserService extends BaseService {
       throw new Error(`Failed to delete user: ${error.message}`);
     }
   }
-  
-
 }
