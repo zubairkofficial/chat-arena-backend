@@ -1,9 +1,7 @@
 import { Controller, Get, Post, Body,Query, Res, UseGuards, Req, Put, Delete, Param} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDtos } from './dto/user.dto';
-import { Response } from 'express';
 import { AuthGuard } from '../middleware/auth.middleware';
-import { Request } from 'express';
 import { CommonDTOs } from '../common/dto';
 
 @Controller('user')
@@ -27,7 +25,7 @@ export class UserController {
   }
 
   @Get('verify')
-  async emailVerify(@Query('token') token: string,@Res() res: Response) {
+  async emailVerify(@Query('token') token: string,@Res() res) {
      await this.userService.emailVerify(token);
     res
     .writeHead(301, {
@@ -39,7 +37,7 @@ export class UserController {
 
   @Put('update')
   @UseGuards(AuthGuard)
-  async updateUser(@Req() req: Request, @Body() input: UserDtos.UpdateUser) {
+  async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser) {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
       return this.userService.updateUser(input,currentUser);
@@ -60,7 +58,7 @@ export class UserController {
   }
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async deleteUser(@Req() req: Request,@Param() param) {
+  async deleteUser(@Req() req,@Param() param) {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
       return this.userService.deleteUser(param.id,currentUser);
