@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, InternalServerError
 import { ArenaTypeRepository } from './arena-type.repository';
 import { ArenaTypeDto } from './dto/arena-type.dto';
 import { ArenaType } from './entities/arena-type.entity';
-import { BaseService } from 'src/base/base.service';
+import { BaseService } from '../base/base.service';
 import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()

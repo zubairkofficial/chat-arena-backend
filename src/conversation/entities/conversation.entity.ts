@@ -1,5 +1,5 @@
-import { Arena } from 'src/arena/entities/arena.entity';
-import { Message } from 'src/message/entities/message.entity';
+import { Arena } from '../../arena/entities/arena.entity';
+import { Message } from '../../message/entities/message.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()

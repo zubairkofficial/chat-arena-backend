@@ -1,10 +1,10 @@
-import { ArenaType } from 'src/arena-type/entities/arena-type.entity';
-import { AIFigure } from 'src/aifigure/entities/aifigure.entity';
-import { Conversation } from 'src/conversation/entities/conversation.entity';
+import { AIFigure } from '../../aifigure/entities/aifigure.entity';
+import { ArenaType } from '../../arena-type/entities/arena-type.entity';
+import { EntityBase } from '../../base/entityBase';
+import { Conversation } from '../../conversation/entities/conversation.entity';
+import { UserArena } from '../../user-arena/entities/user-arena.entity';
+import { User } from '../../user/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne,  OneToMany } from 'typeorm';
-import { UserArena } from 'src/user-arena/entities/user-arena.entity';
-import { EntityBase } from 'src/base/entityBase';
-import { User } from 'src/user/entities/user.entity';
 
 @Entity()
 export class Arena extends EntityBase {

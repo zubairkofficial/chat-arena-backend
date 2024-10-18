@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { AIFigureRepository } from './aifigure.repository';
 import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
-import { BaseService } from 'src/base/base.service';
+import { BaseService } from '../base/base.service';
 import { DataSource } from 'typeorm';
 
 @Injectable()

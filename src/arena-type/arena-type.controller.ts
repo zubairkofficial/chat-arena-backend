@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Delete, Patch, HttpStatus, Put } from '@nestjs/common';
 import { ArenaTypeService } from './arena-type.service';
 import { ArenaTypeDto } from './dto/arena-type.dto';
-import { handleServiceError } from 'src/errors/error-handling';
+import { handleServiceError } from '../errors/error-handling';
 
 @Controller('arena-types')
 export class ArenaTypeController {

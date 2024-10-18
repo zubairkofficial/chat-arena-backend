@@ -3,11 +3,11 @@ import { ArenaRepository } from './arena.repository';
 import { ArenaDtos } from './dto/arena.dto';
 import { Arena } from './entities/arena.entity';
 import { BaseService } from '../base/base.service';
-import { ArenaTypeRepository } from 'src/arena-type/arena-type.repository';
-import { AIFigureRepository } from 'src/aifigure/aifigure.repository';
+import { ArenaTypeRepository } from '../arena-type/arena-type.repository';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 import { DataSource, EntityManager } from 'typeorm';
-import { CommonDTOs } from 'src/common/dto';
-import { UserService } from 'src/user/user.service';
+import { CommonDTOs } from '../common/dto';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ArenaService extends BaseService {

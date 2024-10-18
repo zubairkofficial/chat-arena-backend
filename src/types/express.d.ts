@@ -1,4 +1,4 @@
-// src/types/express.d.ts
+// ../types/express.d.ts
 import { User } from './user.interface'; // Correct the path to your user interface
 
 declare global {

@@ -1,6 +1,6 @@
+import { Arena } from '../../arena/entities/arena.entity';
+import { User } from '../../user/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, JoinColumn } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
-import { Arena } from 'src/arena/entities/arena.entity';
 
 @Entity()
 export class UserArena {

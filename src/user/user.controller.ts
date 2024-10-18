@@ -6,7 +6,7 @@ import { UserService } from './user.service';
 import { UserDtos } from './dto/user.dto';
 import { AuthGuard } from '../middleware/auth.middleware';
 import { CommonDTOs } from '../common/dto';
-import { handleServiceError } from 'src/errors/error-handling';
+import { handleServiceError } from '../errors/error-handling';
 
 @Controller('user')
 export class UserController {

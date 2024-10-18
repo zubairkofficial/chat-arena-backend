@@ -7,20 +7,20 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"../**/*.ts\" \"test/**/*.ts\"",
     "start": "tsc && node dist/main.js",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main.js",
     "typeorm:cli": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint \"{..,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration:generate": "npm run typeorm:cli -- migration:generate -d src/database/data-source.ts -n",
-    "migration:create": "npm run typeorm:cli -- migration:create -d src/database/migrations -n",
+    "migration:generate": "npm run typeorm:cli -- migration:generate -d ../database/data-source.ts -n",
+    "migration:create": "npm run typeorm:cli -- migration:create -d ../database/migrations -n",
     "migration:run": "npm run typeorm:cli -- migration:run",
     "migration:revert": "npm run typeorm:cli -- migration:revert",
     "migration:show": "npm run typeorm:cli -- migration:show",
@@ -84,7 +84,7 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": "..",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"

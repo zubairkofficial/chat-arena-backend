@@ -1,9 +1,9 @@
 import { Achievement } from "src/achievement/entities/achievement.entity";
 import { Arena } from "src/arena/entities/arena.entity";
+import { EntityBase } from "src/base/entityBase";
 import { Persona } from "src/persona/entities/persona.entity";
-import { EntityBase } from "../../base/entityBase";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm";
 import { UserArena } from "src/user-arena/entities/user-arena.entity";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm";
 
 
 @Entity({ name: "user" })

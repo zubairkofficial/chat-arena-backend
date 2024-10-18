@@ -1,5 +1,5 @@
-import { Conversation } from 'src/conversation/entities/conversation.entity';
-import { Reaction } from 'src/reaction/entities/reaction.entity';
+import { Conversation } from '../../conversation/entities/conversation.entity';
+import { Reaction } from '../../reaction/entities/reaction.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()

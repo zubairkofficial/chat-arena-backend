@@ -1,4 +1,4 @@
-import { Arena } from 'src/arena/entities/arena.entity';
+import { Arena } from '../../arena/entities/arena.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 
 @Entity()

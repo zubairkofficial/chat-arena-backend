@@ -2,9 +2,9 @@ import { Controller, Post, Get, Param, Body, Patch, Delete, HttpStatus, Req, Use
 import { ArenaService } from './arena.service';
 import { ArenaDtos } from './dto/arena.dto';
 import { Arena } from './entities/arena.entity';
-import { handleServiceError } from 'src/errors/error-handling';
-import { CommonDTOs } from 'src/common/dto';
-import { AuthGuard } from 'src/middleware/auth.middleware';
+import { handleServiceError } from '../errors/error-handling';
+import { CommonDTOs } from '../common/dto';
+import { AuthGuard } from '../middleware/auth.middleware';
 
 @Controller('arenas')
 export class ArenaController {

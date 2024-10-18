@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Patch, Delete, HttpStatus } from '@
 import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
 import { AIFigureService } from './aifigure.service';
-import { handleServiceError } from 'src/errors/error-handling';
+import { handleServiceError } from '../errors/error-handling';
 
 @Controller('aifigures')
 export class AIFigureController {

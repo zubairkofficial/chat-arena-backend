@@ -1,5 +1,5 @@
-import { Arena } from 'src/arena/entities/arena.entity';
-import { EntityBase } from 'src/base/entityBase';
+import { Arena } from '../../arena/entities/arena.entity';
+import { EntityBase } from '../../base/entityBase';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()

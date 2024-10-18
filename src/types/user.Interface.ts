@@ -1,4 +1,4 @@
-// src/types/user.interface.ts
+// ../types/user.interface.ts
 export interface User {
   id: string;
   email: string;
