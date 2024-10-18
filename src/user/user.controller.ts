@@ -1,81 +1,111 @@
-import { Controller, Get, Post, Body,Query, Res, UseGuards, Req, Put, Delete, Param} from '@nestjs/common';
+import { 
+  Controller, Get, Post, Body, Query, Res, UseGuards, Req, Put, Delete, Param, 
+  HttpStatus
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDtos } from './dto/user.dto';
 import { AuthGuard } from '../middleware/auth.middleware';
 import { CommonDTOs } from '../common/dto';
+import { handleServiceError } from 'src/errors/error-handling';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  registerUser(@Body() input: UserDtos.RegisterUserDto) {
-    return this.userService.registerUser(input);
+  async registerUser(@Body() input: UserDtos.RegisterUserDto) {
+    try {
+      return await this.userService.registerUser(input);
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to register user');
+    }
   }
 
   @Post('login')
   async login(@Body() loginDto: UserDtos.LoginDto) {
     try {
-      
-    
-    return this.userService.login(loginDto);
-    }catch (error) {
-      throw new Error(error.message);
+      return await this.userService.login(loginDto);
+    } catch (error) {
+      handleServiceError(error, HttpStatus.UNAUTHORIZED, 'Login failed');
     }
   }
 
   @Get('verify')
-  async emailVerify(@Query('token') token: string,@Res() res) {
-     await this.userService.emailVerify(token);
-    res
-    .writeHead(301, {
-      Location: `${process.env.FRONTEND_APP_URL}/login`,
-    })
-    .end();
-   
+  async emailVerify(@Query('token') token: string, @Res() res) {
+    try {
+      await this.userService.emailVerify(token);
+      res.writeHead(301, { Location: `${process.env.FRONTEND_APP_URL}/login` }).end();
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Email verification failed');
+    }
+  }
+
+  @Get('resetpassword-verification')
+  async forgotPasswordVerify(@Query('token') token: string, @Res() res) {
+    try {
+      await this.userService.emailVerify(token);
+      res.writeHead(301, { Location: `${process.env.FRONTEND_APP_URL}/reset-password?token=${token}` }).end();
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Password reset verification failed');
+    }
   }
 
   @Put('update')
   @UseGuards(AuthGuard)
   async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
-      return this.userService.updateUser(input,currentUser);
+      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the user object
+      return await this.userService.updateUser(input, currentUser);
     } catch (error) {
-      throw new Error(error.message);
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to update user');
     }
   }
 
-  @Get()
+  @Get('all-users')
   @UseGuards(AuthGuard)
   async getAllUser(@Req() req) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
-      return this.userService.getAllUser(currentUser);
+      return await this.userService.getAllUser();
     } catch (error) {
-      throw new Error(error.message);
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve users');
     }
   }
+
   @Delete(':id')
   @UseGuards(AuthGuard)
-  async deleteUser(@Req() req,@Param() param) {
+  async deleteUser(@Req() req, @Param() param) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the email from the user object
-      return this.userService.deleteUser(param.id,currentUser);
+      return await this.userService.deleteUser(param.id);
     } catch (error) {
-      throw new Error(error.message);
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete user');
     }
   }
+
   @Get(':id')
   @UseGuards(AuthGuard)
-  async getUserById(@Req() req: Request,@Param() param) {
+  async getUserById(@Req() req: Request, @Param() param) {
     try {
-    
-      return this.userService.getUserById(param.id);
+      return await this.userService.getUserById(param.id);
     } catch (error) {
-      throw new Error(error.message);
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve user');
     }
   }
 
+  @Post('forgot-password')
+  async forgotPassword(@Body() input: UserDtos.ForgotPasswordDto) {
+    try {
+      return await this.userService.forgotPassword(input);
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to initiate password reset');
+    }
+  }
 
+  @Post('reset-password')
+  async resetPassword(@Body() input: UserDtos.ResetPasswordDto) {
+    try {
+      return await this.userService.resetPassword(input);
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to reset password');
+    }
+  }
 }

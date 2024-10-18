@@ -1,5 +1,9 @@
+import { Achievement } from "src/achievement/entities/achievement.entity";
+import { Arena } from "src/arena/entities/arena.entity";
+import { Persona } from "src/persona/entities/persona.entity";
 import { EntityBase } from "../../base/entityBase";
-import { Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany} from "typeorm";
+import { UserArena } from "src/user-arena/entities/user-arena.entity";
 
 
 @Entity({ name: "user" })
@@ -27,5 +31,17 @@ export class User extends EntityBase {
 
   @Column({ name: "is_admin", type: "boolean", default: false })
   isAdmin: boolean;
+  
+  @OneToMany(() => Persona, (persona) => persona.user)
+  personas: Persona[];
 
+  @OneToMany(() => UserArena, (userArena) => userArena.user)
+  userArenas: UserArena[];
+
+  // Add the One-to-Many relationship with Achievement entity
+  @OneToMany(() => Achievement, (achievement) => achievement.user)
+  achievements: Achievement[]; 
+
+  @OneToMany(() => Arena, (arena) => arena.createdBy)
+  arenas: Arena[];
 }

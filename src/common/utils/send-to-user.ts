@@ -73,6 +73,66 @@ sendEmail(user.email,"Verify Email",verifyLink,html)
 
 
 }
+
+export const sendMailToResetPassword = async (user: User, resetLink: string) => {
+  const html = `
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Password Reset Request</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f8f8f8;
+          padding: 20px;
+          text-align: center;
+        }
+        .container {
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+          max-width: 600px;
+          margin: 0 auto;
+        }
+        h1 {
+          color: #031a2e;
+        }
+        p {
+          color: #666;
+        }
+        .button {
+          display: inline-block;
+          padding: 15px 20px;
+          margin-top: 20px;
+          background: linear-gradient(180deg, #00ff00, #003300);
+          color: white;
+          text-decoration: none;
+          border-radius: 4px;
+        }
+        .button:hover {
+          background-color: #e66c00;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Password Reset Request</h1>
+        <p>Hi <strong>${user.name}</strong>,</p>
+        <p>We received a request to reset your password. You can reset your password by clicking the button below:</p>
+        <a href="${resetLink}" class="button">Reset Your Password</a>
+        <p>This link will expire in 1 hour.</p>
+      </div>
+    </body>
+  </html>
+`;
+
+  // Send the email using your email service
+  sendEmail(user.email, "Reset Your Password", resetLink, html);
+}
+
 // Send email function
 const sendEmail = async (to: string, subject: string, text: string, html: string) => {
   try {

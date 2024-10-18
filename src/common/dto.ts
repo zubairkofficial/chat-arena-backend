@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import {  IsInt,IsPositive, IsString } from "class-validator";
 
-import { JoinTypes, OrderBy } from "./enums";
+import {  OrderBy } from "./enums";
 import { DEFAULT_PAGE_LIMIT, DEFAULT_PAGE_OFFSET, DEFAULT_FILTER_INPUT_STRING, DEFAULT_ORDER_BY_COLUMN } from "./constants";
 
 export namespace CommonDTOs {

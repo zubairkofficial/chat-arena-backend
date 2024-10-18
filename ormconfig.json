@@ -1,14 +1,13 @@
 {
-    "type": "postgres",
-    "host": "ep-sparkling-truth-a145t3wy-pooler.ap-southeast-1.aws.neon.tech",
-    "port": 5432,
-    "username": "neondb_owner",
-    "password": "4GpuRjAck1ad",
-    "database": "neondb",
-    "entities": ["src/**/*.entity.ts"],
-   "migrations": ["src/**/migration/*.ts"],
-   "seeds": ["src/**/seeders/*.ts"],
-   "cli": { "migrationsDir": "src/database/migrations" },
-    "synchronize": false
-  }
-  
+  "type": "postgres",
+  "host": "ep-sparkling-truth-a145t3wy-pooler.ap-southeast-1.aws.neon.tech",
+  "port": 5432,
+  "username": "neondb_owner",
+  "password": "4GpuRjAck1ad",
+  "database": "neondb",
+  "entities": ["src/**/*.entity.ts"],
+  "migrations": ["dist/**/migrations/*.js"],
+  "seeds": ["dist/**/seeders/*.js"],
+  "synchronize": false,
+  "logging": true
+}

@@ -18,4 +18,5 @@ export const databaseConfig: TypeOrmModuleOptions = {
   },
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   synchronize: true, // Set to false in production
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 };

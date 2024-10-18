@@ -15,12 +15,13 @@ import {
   verifyUserToken,
 } from '../common/utils/assign-and-decode-token';
 import { CommonDTOs } from '../common/dto';
-import { sendMailToVerifyUser } from '../common/utils/send-to-user';
+import { sendMailToResetPassword, sendMailToVerifyUser } from '../common/utils/send-to-user';
 import { InValidCredentials } from '../errors/exceptions';
+import { DataSource } from 'typeorm';
 @Injectable()
 export class UserService extends BaseService {
-  constructor(private readonly userRepository: UserRepository) {
-    super();
+  constructor(private readonly userRepository: UserRepository, dataSource: DataSource) {
+    super(dataSource);
   }
 
   async createUser(input: UserDtos.CreateUserDto, hashedPassword?: string) {
@@ -83,7 +84,7 @@ export class UserService extends BaseService {
 
       return { user: userWithoutPassword, token };
     } catch (error) {
-      throw new Error(error.message);
+      throw new Error(error);
     }
   }
 
@@ -250,7 +251,7 @@ export class UserService extends BaseService {
     }
   }
 
-  async getAllUser(currentUser: CommonDTOs.CurrentUser): Promise<User[]> {
+  async getAllUser(): Promise<User[]> {
     try {
       return this.userRepository.getAllUser().getMany();
     } catch (error) {
@@ -260,7 +261,6 @@ export class UserService extends BaseService {
 
   async deleteUser(
     id: string,
-    currentUser: CommonDTOs.CurrentUser,
   ): Promise<{ message: string; user: User }> {
     try {
       const user = await this.getUserById(id);
@@ -277,4 +277,45 @@ export class UserService extends BaseService {
       throw new Error(`Failed to delete user: ${error.message}`);
     }
   }
+
+  async forgotPassword(input: UserDtos.ForgotPasswordDto): Promise<{ message: string }> {
+    const user = await this.getUserByEmail(input.email);
+
+    if (!user) {
+      throw new NotFoundException(`No user found with the email ${input.email}`);
+    }
+
+    const payload={
+      id:user.id,
+      email:user.email,
+      isAdmin:user.isAdmin,
+    }
+    const resetToken = signToken(payload); // Generate reset token
+
+
+    // Send email to user with reset token
+    await sendMailToResetPassword(user, `${process.env.BACK_END_URL}/user/resetpassword-verification?token=${resetToken}`);
+
+    return { message: 'Password reset link sent to your email' };
+  }
+
+  async resetPassword(input: UserDtos.ResetPasswordDto): Promise<{ message: string }> {
+    const decodedToken = tokenDecoder(input.token); // Decode the token
+    const user = await this.getUserById(decodedToken.id); // Get the user by decoded token's ID
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+
+    // Hash the new password
+    const hashedPassword = await hashPassword(input.newPassword);
+
+    // Update user's password and clear the reset token
+    user.password = hashedPassword;
+    await this.userRepository.save(user);
+
+    return { message: 'Password reset successful' };
+  }
+
+
 }

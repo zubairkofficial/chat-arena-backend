@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { getManager } from "typeorm";
+import { DataSource, EntityManager, getManager } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { RemoveOptions } from "typeorm/repository/RemoveOptions";
 import { SaveOptions } from "typeorm/repository/SaveOptions";
@@ -51,8 +51,14 @@ export class TransactionScopeObject {
 export class TransactionScope {
   private _transaction_objects: TransactionScopeObject[] = [];
   private _hooks: HooksMetaData[] = [];
+  private dataSource: DataSource; // Add a field for DataSource
+
   get transaction_objects(): TransactionScopeObject[] {
     return this._transaction_objects;
+  }
+
+  constructor(dataSource: DataSource) { // Accept DataSource in constructor
+    this.dataSource = dataSource; // Assign it to the field
   }
 
   public addRawQuery(query: string, parameters: any[]) {
@@ -220,9 +226,9 @@ export class TransactionScope {
     return [entity_collection, raw_query_collection];
   }
 
-  public async commit(saveOptions?: SaveOptions, removeOptions?: RemoveOptions, performEntityBulkUpsert = false): Promise<void> {
+  public async commit(entityManager: EntityManager, saveOptions?: SaveOptions, removeOptions?: RemoveOptions, performEntityBulkUpsert = false): Promise<void> {
     try {
-      await getManager().transaction(async (transactionEntityManager) => {
+        await entityManager.transaction(async (transactionEntityManager) => {
         if (performEntityBulkUpsert) {
           const [entity_collection, raw_query_collection] = this.extractCollectionsFromTransactions(this.transaction_objects);
 
