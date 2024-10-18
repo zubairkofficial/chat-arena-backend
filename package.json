@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+     "postinstall": "rimraf dist && npm run build",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
     "format": "prettier --write \"../**/*.ts\" \"test/**/*.ts\"",
