@@ -6,8 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "clean": "rimraf dist",
-    "build": "npm run clean && tsc",
+    "build": "tsc",
     "format": "prettier --write \"../**/*.ts\" \"test/**/*.ts\"",
     "start": "tsc && node dist/main.js",
     "start:dev": "nest start --watch",
