@@ -1,14 +1,26 @@
 {
   "compilerOptions": {
-    "target": "es6", // Set the target version
-    "module": "commonjs", // Module system to use
-    "outDir": "./dist", // Output directory for compiled files
-    "rootDir": "./src", // Root directory of input files
-    "strict": true, // Enable strict type checking
-    "esModuleInterop": true, // Enable compatibility for ES Modules
-    "skipLibCheck": true, // Skip type checking for declaration files
-    "forceConsistentCasingInFileNames": true // Disallow inconsistencies in casing
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "typeRoots": ["./node_modules/@types", "./src/types"], 
+    
   },
-  "include": ["src/**/*.ts"], // Include all .ts files in the src directory
-  "exclude": ["node_modules", "dist"] // Exclude these folders from compilation
+  "include": ["src/**/*", "src/langchain-prompts.d.ts"], // Include the declaration file if necessary
+   
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
