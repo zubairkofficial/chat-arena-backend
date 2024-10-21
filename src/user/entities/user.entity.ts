@@ -1,4 +1,3 @@
-import { Achievement } from 'src/achievement/entities/achievement.entity';
 import { Arena } from 'src/arena/entities/arena.entity';
 import { EntityBase } from 'src/base/entityBase';
 import { Persona } from 'src/persona/entities/persona.entity';
@@ -38,8 +37,6 @@ export class User extends EntityBase {
   userArenas: UserArena[];
 
   // Add the One-to-Many relationship with Achievement entity
-  @OneToMany(() => Achievement, (achievement) => achievement.user)
-  achievements: Achievement[];
 
   @OneToMany(() => Arena, (arena) => arena.createdBy)
   arenas: Arena[];

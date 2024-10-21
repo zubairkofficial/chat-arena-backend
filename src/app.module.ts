@@ -10,7 +10,6 @@ import { ArenaModule } from './arena/arena.module';
 import { AifigureModule } from './aifigure/aifigure.module';
 import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
-import { AchievementModule } from './achievement/achievement.module';
 import { ReactionModule } from './reaction/reaction.module';
 import { ResponseStyleModule } from './response-style/response-style.module';
 import { ArenaTypeModule } from './arena-type/arena-type.module';
@@ -29,7 +28,6 @@ import { LangChainService } from './langchain/langchain.service';
     AifigureModule,
     ConversationModule,
     MessageModule,
-    AchievementModule,
     ReactionModule,
     ResponseStyleModule,
     ArenaTypeModule,
