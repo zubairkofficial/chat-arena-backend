@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
-import { openAI, TEMPLATES } from 'src/utils/constant/openAI.constants';
+import { openAI, TEMPLATES } from '../utils/constant/openAI.constants';
 import { HttpResponseOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
 

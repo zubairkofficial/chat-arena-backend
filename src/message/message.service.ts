@@ -8,8 +8,8 @@ import { Message } from './entities/message.entity';
 import { BaseService } from '../base/base.service';
 import { MessageDto } from './dto/message.dto';
 import { MessageRepository } from './message.repository';
-import { handleServiceError } from 'src/errors/error-handling';
-import { ConversationService } from 'src/conversation/conversation.service';
+import { handleServiceError } from '../errors/error-handling';
+import { ConversationService } from '../conversation/conversation.service';
 
 @Injectable()
 export class MessageService extends BaseService {

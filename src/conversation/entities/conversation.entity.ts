@@ -1,4 +1,4 @@
-import { EntityBase } from 'src/base/entityBase';
+import { EntityBase } from '../../base/entityBase';
 import { Arena } from '../../arena/entities/arena.entity';
 import { Message } from '../../message/entities/message.entity';
 import {

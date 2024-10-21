@@ -8,7 +8,7 @@ import { Conversation } from './entities/conversation.entity';
 import {  DataSource, EntityManager } from 'typeorm';
 import { ConversationDto } from './dto/conversation.dto';
 import { BaseService } from '../base/base.service';
-import { ArenaService } from 'src/arena/arena.service';
+import { ArenaService } from '../arena/arena.service';
 import { ConversationRepository } from './conversation.repository';
 
 @Injectable()

@@ -1,4 +1,4 @@
-import { EntityBase } from 'src/base/entityBase';
+import { EntityBase } from '../../base/entityBase';
 import { Conversation } from '../../conversation/entities/conversation.entity';
 import { Reaction } from '../../reaction/entities/reaction.entity';
 import {

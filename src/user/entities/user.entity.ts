@@ -1,7 +1,7 @@
-import { Arena } from 'src/arena/entities/arena.entity';
-import { EntityBase } from 'src/base/entityBase';
-import { Persona } from 'src/persona/entities/persona.entity';
-import { UserArena } from 'src/user-arena/entities/user-arena.entity';
+import { Arena } from '../../arena/entities/arena.entity';
+import { EntityBase } from '../../base/entityBase';
+import { Persona } from '../../persona/entities/persona.entity';
+import { UserArena } from '../../user-arena/entities/user-arena.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity({ name: 'user' })

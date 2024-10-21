@@ -6,13 +6,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
-import { AIFigureService } from 'src/aifigure/aifigure.service';
-import { AIFigure } from 'src/aifigure/entities/aifigure.entity';
+import { AIFigureService } from '../aifigure/aifigure.service';
+import { AIFigure } from '../aifigure/entities/aifigure.entity';
 import { Message } from './entities/message.entity';
 import { Cron } from '@nestjs/schedule';
 
-import { ConversationService } from 'src/conversation/conversation.service';
-import { LangChainService } from 'src/langchain/langchain.service';
+import { ConversationService } from '../conversation/conversation.service';
+import { LangChainService } from '../langchain/langchain.service';
 
 
 
