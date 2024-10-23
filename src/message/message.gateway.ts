@@ -69,7 +69,7 @@ return this.langchainService.processMessage(context,conversationTopic,prompt)
     this.activeConversations.add(conversationId);
   }
 
-  @Cron('*/20 * * * * *') // Runs every 20 seconds
+  @Cron('0 0 */4 * * *')
   async handleCron() {
     console.log('Cron job triggered');
 

@@ -9,6 +9,7 @@ import {
   HttpStatus,
   Req,
   UseGuards,
+  Put,
 } from '@nestjs/common';
 import { ArenaService } from './arena.service';
 import { ArenaDtos } from './dto/arena.dto';
@@ -24,11 +25,19 @@ export class ArenaController {
   @Post()
   @UseGuards(AuthGuard)
   async createArena(
-    @Body() createArenaDto: ArenaDtos.CreateArenaDto,
+    @Body() input: ArenaDtos.CreateArenaDto,
     @Req() req,
   ): Promise<Arena> {
     const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
-    return await this.arenaService.createArena(createArenaDto, user);
+    return await this.arenaService.createArena(input, user);
+  }
+  @Post('join-arena')
+  async joinArena(
+    @Body() input: ArenaDtos.JoinArenaDto,
+    @Req() req,
+  ): Promise<Arena> {
+    const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
+    return await this.arenaService.joinArena(input, user);
   }
 
   @Get(':id')
@@ -53,7 +62,7 @@ export class ArenaController {
     }
   }
 
-  @Patch(':id')
+  @Put(':id')
   async updateArena(
     @Param('id') id: string,
     @Body() updateArenaDto: ArenaDtos.UpdateArenaDto,

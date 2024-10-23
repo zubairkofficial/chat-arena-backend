@@ -37,6 +37,13 @@ export namespace ArenaDtos {
     @IsInt()
     aiFigureId: string; // Reference to a valid AIFigure ID, required.
   }
+  export class JoinArenaDto {
+    @IsNotEmpty()
+    @IsString()
+    arenaId: string; 
+
+    
+  }
 
   export class UpdateArenaDto {
     name?: string;

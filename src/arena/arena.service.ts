@@ -70,6 +70,25 @@ export class ArenaService extends BaseService {
     await transactionScope.commit(this.entityManager); // Use entityManager for transaction
     return arena;
   }
+  async joinArena(
+    input: ArenaDtos.JoinArenaDto,
+    user: CommonDTOs.CurrentUser
+  ): Promise<Arena> {
+    const existUser = await this.userService.getUserById(user.id);
+    if (!existUser) throw new NotFoundException('Invalid user specified');
+    // Validate ArenaType
+    const arena = await this.getArenaById(
+      input.arenaId,
+    );
+    if (!arena) {
+      throw new BadRequestException(
+        `Arena with ID ${input.arenaId} does not exist`,
+      );
+    }
+
+    // Validate AIFigure
+     return arena;
+  }
 
   // Get Arena by ID
   async getArenaById(id: string): Promise<Arena> {
