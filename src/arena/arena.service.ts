@@ -13,7 +13,7 @@ import { DataSource, EntityManager, In } from 'typeorm';
 import { CommonDTOs } from '../common/dto';
 import { UserService } from '../user/user.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
-import { ArenaAIFigure } from 'src/arena-ai-figure/entities/arena-ai-figure.entity';
+import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 
 @Injectable()
 export class ArenaService extends BaseService {

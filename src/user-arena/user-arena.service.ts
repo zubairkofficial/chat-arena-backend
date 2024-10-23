@@ -3,7 +3,7 @@ import { UpdateUserArenaDto } from './dto/update-user-arena.dto';
 import { Arena } from '../arena/entities/arena.entity';
 import { User } from '../user/entities/user.entity';
 import { UserArena } from './entities/user-arena.entity';
-import { BaseService } from 'src/base/base.service';
+import { BaseService } from '../base/base.service';
 import { DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
