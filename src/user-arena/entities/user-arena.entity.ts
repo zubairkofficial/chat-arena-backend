@@ -1,3 +1,4 @@
+import { EntityBase } from '../../base/entityBase';
 import { Arena } from '../../arena/entities/arena.entity';
 import { User } from '../../user/entities/user.entity';
 import {
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class UserArena {
+export class UserArena extends EntityBase {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 

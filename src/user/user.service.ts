@@ -21,12 +21,14 @@ import {
 } from '../common/utils/send-to-user';
 import { InValidCredentials } from '../errors/exceptions';
 import { DataSource, EntityManager } from 'typeorm';
+import { UserArenaService } from '../user-arena/user-arena.service';
 @Injectable()
 export class UserService extends BaseService {
   constructor(
     private readonly userRepository: UserRepository,
     dataSource: DataSource,
     private readonly entityManager: EntityManager,
+    private readonly userArenaService: UserArenaService,
   ) {
     super(dataSource);
   }
@@ -265,6 +267,8 @@ export class UserService extends BaseService {
       throw new Error(`${error.message}`);
     }
   }
+
+ 
 
   async deleteUser(id: string): Promise<{ message: string; user: User }> {
     try {

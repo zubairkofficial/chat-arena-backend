@@ -13,7 +13,7 @@ import { AIFigure } from './entities/aifigure.entity';
 import { AIFigureService } from './aifigure.service';
 import { handleServiceError } from '../errors/error-handling';
 
-@Controller('aifigures')
+@Controller('ai-figures')
 export class AIFigureController {
   constructor(private readonly aiFigureService: AIFigureService) {}
 

@@ -32,11 +32,12 @@ export class ArenaController {
     return await this.arenaService.createArena(input, user);
   }
   @Post('join-arena')
+  @UseGuards(AuthGuard)
   async joinArena(
     @Body() input: ArenaDtos.JoinArenaDto,
     @Req() req,
   ): Promise<Arena> {
-    const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
+    const user = req.user as CommonDTOs.CurrentUser; 
     return await this.arenaService.joinArena(input, user);
   }
 

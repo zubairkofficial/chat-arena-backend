@@ -1,4 +1,4 @@
-import { AIFigure } from '../../aifigure/entities/aifigure.entity';
+import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
 import { ArenaType } from '../../arena-type/entities/arena-type.entity';
 import { EntityBase } from '../../base/entityBase';
 import { Conversation } from '../../conversation/entities/conversation.entity';
@@ -44,12 +44,13 @@ export class Arena extends EntityBase {
 
   // List of AI figures in the arena
 
-  @ManyToOne(() => AIFigure, (aiFigures) => aiFigures.arenas)
-  aiFigures: AIFigure;
 
   @OneToMany(() => Conversation, (conversation) => conversation.arena)
   conversations: Conversation[]; // Arena conversation history
 
   @ManyToOne(() => ArenaType, (arenaType) => arenaType.arenas)
   arenaType: ArenaType; // The type of the arena
+
+  @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.arena)
+  arenaAIFigures: ArenaAIFigure[];
 }

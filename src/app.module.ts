@@ -8,7 +8,6 @@ import { GoogleAuthModule } from './google-auth/google-auth.module';
 import { PersonaModule } from './persona/persona.module';
 import { ArenaModule } from './arena/arena.module';
 import { AifigureModule } from './aifigure/aifigure.module';
-import { ConversationModule } from './conversation/conversation.module';
 import { MessageModule } from './message/message.module';
 import { ReactionModule } from './reaction/reaction.module';
 import { ResponseStyleModule } from './response-style/response-style.module';
@@ -26,7 +25,6 @@ import { LangChainService } from './langchain/langchain.service';
     PersonaModule,
     ArenaModule,
     AifigureModule,
-    ConversationModule,
     MessageModule,
     ReactionModule,
     ResponseStyleModule,

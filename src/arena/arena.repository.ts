@@ -34,8 +34,33 @@ export class ArenaRepository extends Repository<Arena> {
       .getRepository(Arena)
       .createQueryBuilder('arena')
       .leftJoinAndSelect('arena.arenaType', 'arenaType')
-      .leftJoinAndSelect('arena.aiFigures', 'aiFigures')
+      .leftJoinAndSelect('arena.arenaAIFigures', 'arenaAIFigures')
+      .leftJoinAndSelect('arenaAIFigures.aiFigure', 'aiFigure')
       .leftJoinAndSelect('arena.userArenas', 'userArenas')
       .leftJoinAndSelect('arena.conversations', 'conversations');
   }
+  public getUserArenaList(arenaId: string): SelectQueryBuilder<Arena> {
+    return this.dataSource
+      .getRepository(Arena)
+      .createQueryBuilder('arena')
+      .leftJoinAndSelect('arena.arenaType', 'arenaType')
+      .leftJoinAndSelect('arena.arenaAIFigures', 'arenaAIFigures')
+      .leftJoinAndSelect('arenaAIFigures.aiFigure', 'aiFigure')
+      .leftJoinAndSelect('arena.userArenas', 'userArenas')
+      .leftJoinAndSelect('userArenas.user', 'user')  // Join the User entity from userArenas
+      .leftJoinAndSelect('arena.conversations', 'conversations')
+      .where('arena.id = :arenaId', { arenaId });
+}
+
+
+public getArenaByIdAndJoin(arenaId: string): SelectQueryBuilder<Arena> {
+  return this.dataSource
+    .getRepository(Arena)
+    .createQueryBuilder('arena')
+    .leftJoinAndSelect('arena.userArenas', 'userArena') // Correct relation name
+    .leftJoinAndSelect('userArena.user', 'user') // Join and select the User entity
+    .where('arena.id = :arenaId', { arenaId }) // Filter on arena.id
+}
+
+
 }

@@ -9,9 +9,11 @@ import { Arena } from './entities/arena.entity';
 import { BaseService } from '../base/base.service';
 import { ArenaTypeRepository } from '../arena-type/arena-type.repository';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource, EntityManager, In } from 'typeorm';
 import { CommonDTOs } from '../common/dto';
 import { UserService } from '../user/user.service';
+import { UserArenaService } from '../user-arena/user-arena.service';
+import { ArenaAIFigure } from 'src/arena-ai-figure/entities/arena-ai-figure.entity';
 
 @Injectable()
 export class ArenaService extends BaseService {
@@ -19,23 +21,23 @@ export class ArenaService extends BaseService {
     private readonly arenaRepository: ArenaRepository,
     private readonly aiFigureRepository: AIFigureRepository,
     private readonly arenaTypeRepository: ArenaTypeRepository,
+    private readonly userArenaService: UserArenaService,
     dataSource: DataSource,
     private readonly entityManager: EntityManager,
     private readonly userService: UserService,
+   
   ) {
     super(dataSource);
   }
-
-
 
   async createArena(
     input: ArenaDtos.CreateArenaDto,
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
     const transactionScope = this.getTransactionScope();
-    const arena = new Arena();
     const existUser = await this.userService.getUserById(user.id);
     if (!existUser) throw new NotFoundException('Invalid user specified');
+  
     // Validate ArenaType
     const arenaType = await this.arenaTypeRepository.findOneById(
       input.arenaTypeId,
@@ -45,49 +47,95 @@ export class ArenaService extends BaseService {
         `ArenaType with ID ${input.arenaTypeId} does not exist`,
       );
     }
-
-    // Validate AIFigure
-    const aiFigure = await this.aiFigureRepository.findOneBy({
-      id: input.aiFigureId,
+  
+    // Validate AIFigures
+    const aiFigures = await this.aiFigureRepository.find({
+      where: { id: In(input.aiFigureId) },
     });
-    if (!aiFigure) {
-      throw new BadRequestException(
-        `AIFigure with ID ${input.aiFigureId} does not exist`,
-      );
+    if (aiFigures.length !== input.aiFigureId.length) {
+      throw new BadRequestException('Some AIFigure IDs are invalid.');
     }
-
+  
     // Create the Arena object
+    const arena = new Arena();
     arena.name = input.name;
     arena.description = input.description;
     arena.expiryTime = input.expiryTime;
     arena.maxParticipants = input.maxParticipants;
-    arena.status = input.status;
+    arena.status = input.status || 'open';
     arena.arenaType = arenaType;
-    arena.aiFigures = aiFigure;
-    arena.createdBy = existUser; // Set the createdBy field to the user who is creating the a
+    arena.createdBy = existUser;
 
+
+    const now = new Date();
+      const delay = arena.expiryTime.getTime() - now.getTime();
+
+      // if (delay > 0) {
+      //   setTimeout(() => {
+      //     this.messageGateway.handleArenaExpiration(arena.id);
+      //   }, delay);
+      // } else {
+      //   // If expiryTime is in the past, handle immediately
+      //   this.messageGateway.handleArenaExpiration(arena.id);
+      // }
+  
+    // Add the arena to the transaction scope
     transactionScope.add(arena);
-    await transactionScope.commit(this.entityManager); // Use entityManager for transaction
+  
+    // Commit the transaction to save the arena and obtain its ID
+  
+    // Create ArenaAIFigure entries
+    const arenaAIFigures = aiFigures.map((aiFigure) => {
+      const arenaAiFigure = new ArenaAIFigure();
+      arenaAiFigure.arena = arena;
+      arenaAiFigure.aiFigure = aiFigure;
+
+      return arenaAiFigure;
+    });
+  
+    // Save the ArenaAIFigure entries
+     transactionScope.addCollection(arenaAIFigures);
+    await transactionScope.commit(this.entityManager);
+
+  
     return arena;
   }
+
   async joinArena(
     input: ArenaDtos.JoinArenaDto,
-    user: CommonDTOs.CurrentUser
+    user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
     const existUser = await this.userService.getUserById(user.id);
     if (!existUser) throw new NotFoundException('Invalid user specified');
     // Validate ArenaType
-    const arena = await this.getArenaById(
-      input.arenaId,
-    );
+    const arena = await this.getArenaById(input.arenaId);
     if (!arena) {
       throw new BadRequestException(
         `Arena with ID ${input.arenaId} does not exist`,
       );
     }
+    const getArenaUsers = await this.getUsersByArenaId(input.arenaId);
+    const numberOfUsers = getArenaUsers.userArenas.length;
 
+    if (arena.maxParticipants <= numberOfUsers) {
+      throw new BadRequestException(
+        `Cannot join Arena ${arena.name}. Maximum participants reached`,
+      );
+    }
+    await this.userArenaService.createUserArena(arena, existUser);
+    const userArenaList = await this.arenaRepository
+      .getUserArenaList(input.arenaId)
+      .getOne();
     // Validate AIFigure
-     return arena;
+    return userArenaList;
+  }
+
+  async getUsersByArenaId(arenaId: string): Promise<Arena> {
+    try {
+      return this.arenaRepository.getArenaByIdAndJoin(arenaId).getOne();
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
   }
 
   // Get Arena by ID
@@ -95,7 +143,7 @@ export class ArenaService extends BaseService {
     // Retrieve arena with its relations
     const arena = await this.arenaRepository.findOne({
       where: { id },
-      relations: ['arenaType', 'aiFigures', 'userArenas', 'conversations'],
+      relations: ['arenaType', 'arenaAIFigures', 'userArenas', 'conversations'],
     });
 
     if (!arena) {
@@ -108,7 +156,7 @@ export class ArenaService extends BaseService {
   // Get all Arenas
   async getAllArenas(): Promise<Arena[]> {
     return await this.arenaRepository.find({
-      relations: ['arenaType', 'aiFigures', 'userArenas', 'conversations'],
+      relations: ['arenaType',"arenaAIFigures", 'userArenas','createdBy'],
     });
   }
 
@@ -133,17 +181,17 @@ export class ArenaService extends BaseService {
     }
 
     // Validate AIFigure if it has been provided for an update
-    if (input.aiFigureId && input.aiFigureId !== arena.aiFigures.id) {
-      const aiFigure = await this.aiFigureRepository.findOne({
-        where: { id: input.aiFigureId },
-      });
-      if (!aiFigure) {
-        throw new BadRequestException(
-          `AIFigure with ID ${input.aiFigureId} does not exist`,
-        );
-      }
-      arena.aiFigures = aiFigure;
-    }
+    // if (input.aiFigureId && input.aiFigureId !== arena.aiFigures.id) {
+    //   const aiFigure = await this.aiFigureRepository.findOne({
+    //     where: { id: input.aiFigureId },
+    //   });
+    //   if (!aiFigure) {
+    //     throw new BadRequestException(
+    //       `AIFigure with ID ${input.aiFigureId} does not exist`,
+    //     );
+    //   }
+    //   arena.aiFigures = aiFigure;
+    // }
 
     // Assign the rest of the fields
     Object.assign(arena, input);

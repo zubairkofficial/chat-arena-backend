@@ -5,6 +5,10 @@ import {
   IsDate,
   IsInt,
   IsEnum,
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
+  IsUUID,
 } from 'class-validator';
 
 export namespace ArenaDtos {
@@ -34,8 +38,11 @@ export namespace ArenaDtos {
     arenaTypeId: string; // Reference to a valid ArenaType ID, required.
 
     @IsNotEmpty()
-    @IsInt()
-    aiFigureId: string; // Reference to a valid AIFigure ID, required.
+    @IsArray()
+    @ArrayMinSize(1)
+    @ArrayMaxSize(3)
+    @IsUUID('all', { each: true })
+    aiFigureId: string[]; 
   }
   export class JoinArenaDto {
     @IsNotEmpty()

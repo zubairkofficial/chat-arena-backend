@@ -1,4 +1,4 @@
-import { Arena } from '../../arena/entities/arena.entity';
+import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -21,6 +21,7 @@ export class AIFigure {
   @Column()
   prompt: string;
 
-  @OneToMany(() => Arena, (arena) => arena.aiFigures)
-  arenas: Arena[];
+  @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
+  arenaAIFigures: ArenaAIFigure[];
+
 }
