@@ -27,9 +27,9 @@ export class MessageService extends BaseService {
     const transactionScope = this.getTransactionScope();
     const message=new Message()    
     try {
-      const conversation=await this.conversationService.getConversationById(input.conversationId)
+      // const conversation=await this.conversationService.getConversationById(input.conversationId)
       message.content=input.content
-      message.conversation=conversation
+      // message.conversation=conversation
       message.senderType=input.senderType
       message.senderId=input.senderId
       transactionScope.add(message);
