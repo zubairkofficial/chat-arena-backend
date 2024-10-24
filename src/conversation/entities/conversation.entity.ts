@@ -20,6 +20,6 @@ export class Conversation extends EntityBase {
   @ManyToOne(() => Arena, (arena) => arena.conversations)
   arena: Arena;
 
-  @OneToMany(() => Message, (message) => message.conversation)
+  @OneToMany(() => Message, (message) => message.arenas)
   messages: Message[];
 }

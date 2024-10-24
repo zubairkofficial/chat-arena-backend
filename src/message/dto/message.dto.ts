@@ -4,7 +4,6 @@ export namespace MessageDto {
       senderType: string; // 'user' or 'ai'
       senderId: string;
       content: string;
-      conversationId: string; // Reference to the conversation
     }
   
     export class UpdateMessageDto {

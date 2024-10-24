@@ -9,5 +9,12 @@ export class UserArenaRepository extends Repository<UserArena> {
   }
 
 
+ public getUserAndArena(arenaId: string,userId:string): SelectQueryBuilder<UserArena> {
+    return this.dataSource
+      .getRepository(UserArena)
+      .createQueryBuilder('userArena')
+      .where('userArena.arenaId = :arenaId', { arenaId })
+      .andWhere('userArena.userId = :userId', { userId });
+  }
  
 }

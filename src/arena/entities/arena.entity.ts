@@ -1,3 +1,4 @@
+import { Message } from '../../message/entities/message.entity';
 import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
 import { ArenaType } from '../../arena-type/entities/arena-type.entity';
 import { EntityBase } from '../../base/entityBase';
@@ -53,4 +54,7 @@ export class Arena extends EntityBase {
 
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.arena)
   arenaAIFigures: ArenaAIFigure[];
+
+  @OneToMany(() => Message, (message) => message.arenas)
+  messages: Message[];
 }

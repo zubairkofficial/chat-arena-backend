@@ -14,9 +14,10 @@ import { MessageGateway } from './message.gateway';
 import { AIFigureService } from '../aifigure/aifigure.service';
 import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
+import { UserArenaRepository } from '../user-arena/user-arena.repository';
 
 @Module({
   controllers: [MessageController],
-  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService],
+  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository],
 })
 export class MessageModule {}

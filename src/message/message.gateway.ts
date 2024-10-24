@@ -8,7 +8,17 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
-// ... other imports
+import { UserService } from '../user/user.service';
+import { ArenaService } from '../arena/arena.service';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { UserArenaService } from '../user-arena/user-arena.service';
+import { ArenaRepository } from '../arena/arena.repository';
+import { Cron } from '@nestjs/schedule';
+import { Message } from './entities/message.entity';
+import { ConversationService } from '../conversation/conversation.service';
+import { LangChainService } from '../langchain/langchain.service';
+import { AIFigure } from '../aifigure/entities/aifigure.entity';
+import { AIFigureService } from '../aifigure/aifigure.service';
 
 @WebSocketGateway({
   cors: {
@@ -20,12 +30,22 @@ import { MessageService } from './message.service';
 })
 export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
-  private activeRooms: Set<string> = new Set(); // Track active chat rooms
+  private activeRooms: Set<string> = new Set();
   private connectedUsers: Map<string, { socketId: string; rooms: Set<string> }> = new Map();
+  private activeConversations: Set<string> = new Set(); // Track active conversations
 
   constructor(
     private readonly messageService: MessageService,
-    // ... other services
+    private readonly userService: UserService,
+    private readonly arenaService: ArenaService,
+    private readonly userArenaService: UserArenaService,
+    private readonly arenaRepository: ArenaRepository,
+    private readonly conversationService: ConversationService,
+    private readonly langchainService: LangChainService,
+    private readonly aiFigureService: AIFigureService,
+
+
+
   ) {}
 
   afterInit(server: Server) {
@@ -38,7 +58,6 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
 
   handleDisconnect(client: Socket) {
     console.log(`Client disconnected: ${client.id}`);
-    // Remove user from all rooms they are part of
     this.connectedUsers.forEach(({ socketId, rooms }, userId) => {
       if (socketId === client.id) {
         rooms.forEach(room => this.server.to(room).emit('userLeft', userId));
@@ -48,47 +67,151 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
   }
 
   @SubscribeMessage('joinRoom')
-  handleJoinRoom(client: Socket, { userId, roomId }: { userId: string; roomId: string }) {
-    if (!this.connectedUsers.has(userId)) {
-      this.connectedUsers.set(userId, { socketId: client.id, rooms: new Set() });
-    }
+  async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; arenaId: string }) {
+    try {
+      // Validate User
+      const existUser = await this.userService.getUserById(userId);
+      if (!existUser) throw new NotFoundException('Invalid user specified');
+  
+      // Validate Arena
+      const arena = await this.arenaService.getArenaById(arenaId);
+      if (!arena) {
+        throw new BadRequestException(`Arena with ID ${arenaId} does not exist`);
+      }
+  
+      // Check if the user is already connected to the arena
+      const arenaUser = await this.userArenaService.getUserAndArena(arenaId, userId);
+      const userArenaList = await this.arenaRepository.getUserArenaList(arenaId).getOne();
 
-    const userInfo = this.connectedUsers.get(userId);
-    userInfo.rooms.add(roomId);
-    client.join(roomId);
-    console.log(`User ${userId} joined room: ${roomId}`);
-    this.server.to(roomId).emit('userJoined', userId);
+      if (arenaUser) {
+        // User is already connected, reuse existing connection
+        client.join(arenaId);
+        console.log(`User ${userId} rejoined room: ${arenaId}`);
+        this.server.to(arenaId).emit('userRejoined', { userId, ...userArenaList });
+        return; // Exit early as user is already connected
+      }
+  
+      const getArenaUsers = await this.arenaService.getUsersByArenaId(arenaId);
+      const numberOfUsers = getArenaUsers.userArenas.length;
+  
+      if (arena.maxParticipants <= numberOfUsers) {
+        throw new BadRequestException(`Cannot join Arena ${arena.name}. Maximum participants reached`);
+      }
+  
+      await this.userArenaService.createUserArena(arena, existUser);
+  
+      // Proceed to join room
+      if (!this.connectedUsers.has(userId)) {
+        this.connectedUsers.set(userId, { socketId: client.id, rooms: new Set() });
+      }
+  
+      const userInfo = this.connectedUsers.get(userId);
+      userInfo.rooms.add(arenaId);
+      client.join(arenaId);
+      console.log(`User ${userId} joined room: ${arenaId}`);
+      this.server.to(arenaId).emit('userJoined', { userId, userArenaList });
+      this.activeConversations.add(arenaId);
+    } catch (error) {
+      console.error('Error joining room:', error);
+      client.emit('error', error.message || 'Failed to join room');
+    }
   }
+  
 
   @SubscribeMessage('leaveRoom')
-  handleLeaveRoom(client: Socket, { userId, roomId }: { userId: string; roomId: string }) {
+  handleLeaveRoom(client: Socket, { userId, arenaId }: { userId: string; arenaId: string }) {
     const userInfo = this.connectedUsers.get(userId);
     if (userInfo) {
-      userInfo.rooms.delete(roomId);
-      client.leave(roomId);
-      console.log(`User ${userId} left room: ${roomId}`);
-      this.server.to(roomId).emit('userLeft', userId);
+      userInfo.rooms.delete(arenaId);
+      client.leave(arenaId);
+      console.log(`User ${userId} left room: ${arenaId}`);
+      this.server.to(arenaId).emit('userLeft', userId);
+      if (userInfo.rooms.size === 0) {
+        this.activeConversations.delete(arenaId);
+      }
     }
   }
 
   @SubscribeMessage('sendMessage')
-  async handleSendMessage(client: Socket, { userId, roomId, content }: { userId: string; roomId: string; content: string }) {
+  async handleSendMessage(client: Socket, { userId, arenaId, content }: { userId: string; arenaId: string; content: string }) {
     try {
       const message = await this.messageService.createMessage({
         senderId: userId,
         content: content,
-        conversationId: roomId, // Treat roomId as conversationId
         senderType: 'user',
       });
 
       // Emit the message to the specific room
-      this.server.to(roomId).emit('receiveMessage', message);
+      this.server.to(arenaId).emit('receiveMessage', message);
     } catch (error) {
       console.error('Error handling sendMessage:', error);
-      client.emit('error', 'Failed to send message');
+      client.emit('error', error.message || 'Failed to send message');
     }
   }
+  @Cron('*/20 * * * * *')
+  // Runs every 20 seconds
+    async handleCron() {
+      console.log('Cron job triggered');
+  
+      for (const arenaId of this.activeConversations) {
+        const previousMessages = await this.messageService.getPreviousMessages(arenaId, 7);
+        const aiFigureId = '1d2695db-5607-4f77-b951-fb7c539497dd'; // Example AI figure ID
+        const aiFigure = await this.getAIFigure(aiFigureId);
+  
+        const aiResponse = await this.generateAIResponse(arenaId, previousMessages, aiFigure.prompt);
+  
+        // Create and emit the AI response
+        const aiMessage = await this.messageService.createMessage({
+          senderId: aiFigure.id,
+          content: aiResponse,
+          senderType: 'ai',
+        });
+  
+        console.log(`Sending AI message to conversation: ${arenaId}`);
+        this.server.to(arenaId).emit('receiveMessage', aiMessage);
+      }
+    }
+  
+  
+
+    async generateAIResponse(
+          arenaId: string,
+          previousMessages: Message[],
+          prompt: string,
+        ): Promise<string> {
+          // Fetch conversation topic from the database
+          const arena = await this.arenaService.getArenaById(
+            arenaId,
+          );
+          const conversationTopic = arena.name || 'No specific topic'; // Fallback if no topic is found
+      
+          // Build the context from previous messages
+          const context = previousMessages
+            .map((msg) => `${msg.senderType}: ${msg.content}`)
+            .join('\n');
+      
+          return this.langchainService.processMessage(
+            context,
+            conversationTopic,
+            prompt,
+          );
+        }
+        async getAIFigure(aiFigureId: string): Promise<AIFigure> {
+              const aiFigure = await this.aiFigureService.getAIFigureById(aiFigureId);
+              if (!aiFigure) {
+                throw new Error(`AIFigure with ID ${aiFigureId} not found`);
+              }
+              return aiFigure;
+            }
+
+           
+
 }
+
+
+
+
+
 
 
 // import {

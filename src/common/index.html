@@ -34,8 +34,8 @@
     <input type="text" id="userId" placeholder="Enter your user ID">
     <br>
 
-    <label for="roomId">Room ID:</label>
-    <input type="text" id="roomId" placeholder="Enter room ID">
+    <label for="arenaId">Room ID:</label>
+    <input type="text" id="arenaId" placeholder="Enter room ID">
     <br>
     
     <button id="joinButton">Join Room</button>
@@ -54,14 +54,14 @@
         const joinButton = document.getElementById('joinButton');
         const leaveButton = document.getElementById('leaveButton');
         let userId;
-        let roomId;
+        let arenaId;
 
         joinButton.addEventListener('click', () => {
             userId = document.getElementById('userId').value;
-            roomId = document.getElementById('roomId').value;
+            arenaId = document.getElementById('arenaId').value;
 
-            if (userId && roomId) {
-                socket.emit('joinRoom', { userId, roomId });
+            if (userId && arenaId) {
+                socket.emit('joinRoom', { userId, arenaId });
                 messageInput.disabled = false;
                 sendButton.disabled = false;
                 leaveButton.disabled = false;
@@ -70,7 +70,7 @@
         });
 
         leaveButton.addEventListener('click', () => {
-            socket.emit('leaveRoom', { userId, roomId });
+            socket.emit('leaveRoom', { userId, arenaId });
             messageInput.disabled = true;
             sendButton.disabled = true;
             leaveButton.disabled = true;
@@ -80,7 +80,7 @@
         sendButton.addEventListener('click', () => {
             const messageContent = messageInput.value;
             if (messageContent) {
-                socket.emit('sendMessage', { userId, roomId, content: messageContent });
+                socket.emit('sendMessage', { userId, arenaId, content: messageContent });
                 messageInput.value = '';
             }
         });

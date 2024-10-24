@@ -1,3 +1,4 @@
+import { Arena } from '../../arena/entities/arena.entity';
 import { EntityBase } from '../../base/entityBase';
 import { Conversation } from '../../conversation/entities/conversation.entity';
 import { Reaction } from '../../reaction/entities/reaction.entity';
@@ -23,8 +24,8 @@ export class Message extends EntityBase {
   @Column()
   content: string;
 
-  @ManyToOne(() => Conversation, (conversation) => conversation.messages)
-  conversation: Conversation;
+  @ManyToOne(() => Arena, (arena) => arena.messages)
+  arenas: Arena;
 
   // Add One-to-Many relationship with Reaction entity
   @OneToMany(() => Reaction, (reaction) => reaction.message)

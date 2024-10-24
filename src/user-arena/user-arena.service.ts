@@ -1,3 +1,4 @@
+import { UserArenaRepository } from './user-arena.repository';
 import { Injectable } from '@nestjs/common';
 import { UpdateUserArenaDto } from './dto/update-user-arena.dto';
 import { Arena } from '../arena/entities/arena.entity';
@@ -10,6 +11,7 @@ import { DataSource, EntityManager } from 'typeorm';
 export class UserArenaService extends BaseService  {
   constructor(
     private readonly entityManager: EntityManager,
+    private readonly userArenaRepository: UserArenaRepository,
     dataSource: DataSource,
   ) {
     super(dataSource)
@@ -27,6 +29,9 @@ export class UserArenaService extends BaseService  {
 
   
 
+  getUserAndArena(arenaId: string,userId:string) {
+    return this.userArenaRepository.getUserAndArena(arenaId,userId).getOne();
+  }
   findOne(id: string) {
     return `This action returns a #${id} userArena`;
   }
