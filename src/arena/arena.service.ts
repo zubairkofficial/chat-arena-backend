@@ -66,18 +66,6 @@ export class ArenaService extends BaseService {
     arena.arenaType = arenaType;
     arena.createdBy = existUser;
 
-
-    const now = new Date();
-      const delay = arena.expiryTime.getTime() - now.getTime();
-
-      // if (delay > 0) {
-      //   setTimeout(() => {
-      //     this.messageGateway.handleArenaExpiration(arena.id);
-      //   }, delay);
-      // } else {
-      //   // If expiryTime is in the past, handle immediately
-      //   this.messageGateway.handleArenaExpiration(arena.id);
-      // }
   
     // Add the arena to the transaction scope
     transactionScope.add(arena);
