@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Room Chat</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            max-width: 600px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        .message {
+            margin: 5px 0;
+        }
+        .user-joined, .user-left {
+            font-style: italic;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <h1>Multi-Room Chat</h1>
+    
+    <label for="userId">User ID:</label>
+    <input type="text" id="userId" placeholder="Enter your user ID">
+    <br>
+
+    <label for="arenaId">Room ID:</label>
+    <input type="text" id="arenaId" placeholder="Enter room ID">
+    <br>
+    
+    <button id="joinButton">Join Room</button>
+    <button id="leaveButton" disabled>Leave Room</button>
+    
+    <div id="messages"></div>
+    
+    <input type="text" id="messageInput" placeholder="Type a message" disabled>
+    <button id="sendButton" disabled>Send</button>
+
+    <script>
+        const socket = io('http://localhost:8080/'); // Adjust to your server's URL
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const joinButton = document.getElementById('joinButton');
+        const leaveButton = document.getElementById('leaveButton');
+        let userId;
+        let arenaId;
+
+        joinButton.addEventListener('click', () => {
+            userId = document.getElementById('userId').value;
+            arenaId = document.getElementById('arenaId').value;
+
+            if (userId && arenaId) {
+                socket.emit('joinRoom', { userId, arenaId });
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                leaveButton.disabled = false;
+                joinButton.disabled = true;
+            }
+        });
+
+        leaveButton.addEventListener('click', () => {
+            socket.emit('leaveRoom', { userId, arenaId });
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+            leaveButton.disabled = true;
+            joinButton.disabled = false;
+        });
+
+        sendButton.addEventListener('click', () => {
+            const messageContent = messageInput.value;
+            if (messageContent) {
+                socket.emit('sendMessage', { userId, arenaId, content: messageContent });
+                messageInput.value = '';
+            }
+        });
+
+        socket.on('receiveMessage', (message) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.textContent = `${message.senderId}: ${message.content}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the bottom
+        });
+
+        socket.on('userJoined', (joinedUserId) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('user-joined');
+            messageElement.textContent = `${joinedUserId} joined the room.`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        socket.on('userLeft', (leftUserId) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('user-left');
+            messageElement.textContent = `${leftUserId} left the room.`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+    </script>
+</body>
+</html>

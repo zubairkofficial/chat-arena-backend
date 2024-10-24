@@ -97,12 +97,9 @@ export class ArenaService extends BaseService {
     if (!existUser) throw new NotFoundException('Invalid user specified');
     // Validate ArenaType
     const arena = await this.getArenaById(input.arenaId);
-    if (!arena) {
-      throw new BadRequestException(
-        `Arena with ID ${input.arenaId} does not exist`,
-      );
-    }
-    const getArenaUsers = await this.getUsersByArenaId(input.arenaId);
+    if (!arena) throw new BadRequestException( `Arena with ID ${input.arenaId} does not exist`);
+
+     const getArenaUsers = await this.getUsersByArenaId(input.arenaId);
     const numberOfUsers = getArenaUsers.userArenas.length;
 
     if (arena.maxParticipants <= numberOfUsers) {
@@ -110,7 +107,7 @@ export class ArenaService extends BaseService {
         `Cannot join Arena ${arena.name}. Maximum participants reached`,
       );
     }
-    await this.userArenaService.createUserArena(arena, existUser);
+    // await this.userArenaService.createUserArena(arena, existUser);
     const userArenaList = await this.arenaRepository
       .getUserArenaList(input.arenaId)
       .getOne();
@@ -168,20 +165,7 @@ export class ArenaService extends BaseService {
       arena.arenaType = arenaType;
     }
 
-    // Validate AIFigure if it has been provided for an update
-    // if (input.aiFigureId && input.aiFigureId !== arena.aiFigures.id) {
-    //   const aiFigure = await this.aiFigureRepository.findOne({
-    //     where: { id: input.aiFigureId },
-    //   });
-    //   if (!aiFigure) {
-    //     throw new BadRequestException(
-    //       `AIFigure with ID ${input.aiFigureId} does not exist`,
-    //     );
-    //   }
-    //   arena.aiFigures = aiFigure;
-    // }
-
-    // Assign the rest of the fields
+  
     Object.assign(arena, input);
 
     return await this.arenaRepository.save(arena);

@@ -8,6 +8,7 @@ import { UserService } from '../user/user.service';
 import { UserModule } from '../user/user.module';
 import { UserRepository } from '../user/user.repository';
 import { UserArenaService } from '../user-arena/user-arena.service';
+import { UserArenaRepository } from '../user-arena/user-arena.repository';
 
 @Module({
   imports: [UserModule],
@@ -20,6 +21,7 @@ import { UserArenaService } from '../user-arena/user-arena.service';
     UserService,
     UserRepository,
     UserArenaService,
+    UserArenaRepository
   ],
 })
 export class ArenaModule {}

@@ -39,7 +39,6 @@ export namespace CommonDTOs {
     isAdmin: boolean;
     email: string;
     id: string;
-    // password?: string;
-    // name: string;
+   
   }
 }

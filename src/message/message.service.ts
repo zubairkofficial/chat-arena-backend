@@ -27,9 +27,8 @@ export class MessageService extends BaseService {
     const transactionScope = this.getTransactionScope();
     const message=new Message()    
     try {
-      const conversation=await this.conversationService.getConversationById(input.conversationId)
+      // const conversation=await this.conversationService.getConversationById(input.conversationId)
       message.content=input.content
-      message.conversation=conversation
       message.senderType=input.senderType
       message.senderId=input.senderId
       transactionScope.add(message);
@@ -41,11 +40,11 @@ export class MessageService extends BaseService {
   }
 
 
-  async getPreviousMessages(conversationId: string, limit: number): Promise<Message[]> {
+  async getPreviousMessages(arenaId: string, limit: number): Promise<Message[]> {
     return await this.messageRepository.find({
       where: {
-        conversation: {
-          id: conversationId, // Access the conversation ID through the relationship
+        arenas: {
+          id: arenaId, // Access the conversation ID through the relationship
         },
       },
       take: limit,
@@ -60,7 +59,7 @@ export class MessageService extends BaseService {
   // Get all messages for a conversation
   async getMessagesByConversationId(conversationId: string): Promise<Message[]> {
     const messages = await this.messageRepository.find({
-      where: { conversation: { id: conversationId } },
+      where: { arenas: { id: conversationId } },
       relations: ['reactions'],
     });
 
