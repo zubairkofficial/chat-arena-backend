@@ -24,7 +24,7 @@ export class AIFigureService extends BaseService {
   async createAIFigure(file,input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
     // Validate required fields
     if (file) {
-      const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8080';
+      const baseUrl = this.configService.get('BACK_END_BASE_URL') || 'http://localhost:8080';
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
     if (!input.name) {

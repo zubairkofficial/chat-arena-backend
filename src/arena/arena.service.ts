@@ -39,7 +39,7 @@ export class ArenaService extends BaseService {
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
     if (file) {
-      const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8080';
+      const baseUrl = this.configService.get('BACK_END_BASE_URL') || 'http://localhost:8080';
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
     const transactionScope = this.getTransactionScope();
