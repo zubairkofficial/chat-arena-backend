@@ -16,7 +16,7 @@ export class UploadController {
             }
         })
     }))
-    uploadSingle(@UploadedFile() file: Express.Multer.File) {
+    uploadSingle(@UploadedFile() file) {
         return {
             originalname: file.originalname,
             filename: file.filename,
@@ -34,7 +34,7 @@ export class UploadController {
             }
         })
     }))
-    uploadMultiple(@UploadedFiles() files: Express.Multer.File[]) {
+    uploadMultiple(@UploadedFiles() files) {
         return files.map(file => ({
             originalname: file.originalname,
             filename: file.filename,

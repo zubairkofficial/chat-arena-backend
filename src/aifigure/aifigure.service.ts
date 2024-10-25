@@ -21,7 +21,7 @@ export class AIFigureService extends BaseService {
   }
 
   // Create a new AIFigure
-  async createAIFigure(file: Express.Multer.File,input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
+  async createAIFigure(file,input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
     // Validate required fields
     if (file) {
       const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8080';

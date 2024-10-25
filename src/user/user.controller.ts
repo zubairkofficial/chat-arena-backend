@@ -87,7 +87,7 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file', {
     storage: storageConfig('./uploads'), // Specify the uploads directory
   }))
-  async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser, @UploadedFile() file: Express.Multer.File, // Handle the uploaded file
+  async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser, @UploadedFile() file, // Handle the uploaded file
 ) {
     try {
       

@@ -34,7 +34,7 @@ export class ArenaService extends BaseService {
   }
 
   async createArena(
-    file: Express.Multer.File,
+    file,
     input: ArenaDtos.CreateArenaDto,
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {

@@ -35,7 +35,7 @@ export class ArenaController {
 
   async createArena(
     @Body() input: ArenaDtos.CreateArenaDto,
-    @UploadedFile() file: Express.Multer.File, // Handle the uploaded file
+    @UploadedFile() file, // Handle the uploaded file
     @Req() req,
   ): Promise<Arena> {
     const user = req.user as CommonDTOs.CurrentUser; // Extract user from request

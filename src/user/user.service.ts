@@ -193,7 +193,7 @@ export class UserService extends BaseService {
   async updateUser(
     input: UserDtos.UpdateUser,
     currentUser: CommonDTOs.CurrentUser,
-    file: Express.Multer.File,
+    file,
   ) {
     try {
       const userEmail = currentUser.isAdmin ? input.email : currentUser.email;

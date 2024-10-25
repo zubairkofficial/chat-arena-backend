@@ -28,7 +28,7 @@ export class AIFigureController {
     }))
   async createAIFigure(
     @Body() createAIFigureDto: AIFigureDtos.CreateAIFigureDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file,
   ): Promise<AIFigure> {
     try {
       return await this.aiFigureService.createAIFigure(file,createAIFigureDto);
