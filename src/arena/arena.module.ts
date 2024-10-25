@@ -9,9 +9,13 @@ import { UserModule } from '../user/user.module';
 import { UserRepository } from '../user/user.repository';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { UserArenaRepository } from '../user-arena/user-arena.repository';
+import { ConfigService } from '@nestjs/config';
+
 
 @Module({
-  imports: [UserModule],
+  imports: [UserModule, 
+   
+],
   controllers: [ArenaController],
   providers: [
     ArenaService,
@@ -21,7 +25,8 @@ import { UserArenaRepository } from '../user-arena/user-arena.repository';
     UserService,
     UserRepository,
     UserArenaService,
-    UserArenaRepository
+    UserArenaRepository,
+    ConfigService
   ],
 })
 export class ArenaModule {}

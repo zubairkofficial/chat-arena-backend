@@ -15,9 +15,10 @@ import { AIFigureService } from '../aifigure/aifigure.service';
 import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { UserArenaRepository } from '../user-arena/user-arena.repository';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [MessageController],
-  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository],
+  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService],
 })
 export class MessageModule {}

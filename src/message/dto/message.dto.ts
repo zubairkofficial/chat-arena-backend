@@ -3,6 +3,7 @@ export namespace MessageDto {
     export class CreateMessageDto {
       senderType: string; // 'user' or 'ai'
       senderId: string;
+      arenaId: string;
       content: string;
     }
   

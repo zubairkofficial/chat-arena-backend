@@ -12,6 +12,9 @@ export class User extends EntityBase {
   @Column({ name: 'name', type: 'varchar', nullable: false })
   name: string;
 
+  @Column({ nullable: true }) // Make image optional
+  image?: string;
+
   @Column({ name: 'user_name', type: 'varchar', nullable: false, unique: true })
   username: string;
 

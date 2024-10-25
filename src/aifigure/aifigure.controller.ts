@@ -7,11 +7,15 @@ import {
   Patch,
   Delete,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
 import { AIFigureService } from './aifigure.service';
 import { handleServiceError } from '../errors/error-handling';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storageConfig } from '../utils/file-upload.utils';
 
 @Controller('ai-figures')
 export class AIFigureController {
@@ -19,11 +23,15 @@ export class AIFigureController {
 
   // Create a new AIFigure
   @Post()
+  @UseInterceptors(FileInterceptor('file', {
+      storage: storageConfig('./uploads'), // Specify the uploads directory
+    }))
   async createAIFigure(
     @Body() createAIFigureDto: AIFigureDtos.CreateAIFigureDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<AIFigure> {
     try {
-      return await this.aiFigureService.createAIFigure(createAIFigureDto);
+      return await this.aiFigureService.createAIFigure(file,createAIFigureDto);
     } catch (error) {
       handleServiceError(
         error,

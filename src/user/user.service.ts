@@ -21,14 +21,16 @@ import {
 } from '../common/utils/send-to-user';
 import { InValidCredentials } from '../errors/exceptions';
 import { DataSource, EntityManager } from 'typeorm';
-import { UserArenaService } from '../user-arena/user-arena.service';
+import { ConfigService } from '@nestjs/config';
+import { BASE_URL } from '../common/constants';
+
 @Injectable()
 export class UserService extends BaseService {
   constructor(
     private readonly userRepository: UserRepository,
     dataSource: DataSource,
     private readonly entityManager: EntityManager,
-    private readonly userArenaService: UserArenaService,
+    private readonly configService: ConfigService,
   ) {
     super(dataSource);
   }
@@ -191,12 +193,18 @@ export class UserService extends BaseService {
   async updateUser(
     input: UserDtos.UpdateUser,
     currentUser: CommonDTOs.CurrentUser,
+    file: Express.Multer.File,
   ) {
     try {
       const userEmail = currentUser.isAdmin ? input.email : currentUser.email;
 
       const user = await this.getUserByEmail(userEmail);
       if (!user) throw new InValidCredentials('Invalid user specified');
+
+      if (file) {
+        const baseUrl = this.configService.get('BASE_URL') || BASE_URL;
+        input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
+      }
 
       const updatedUser = await this.updateUserDetails(user.id, input);
 
@@ -268,8 +276,6 @@ export class UserService extends BaseService {
     }
   }
 
- 
-
   async deleteUser(id: string): Promise<{ message: string; user: User }> {
     try {
       const user = await this.getUserById(id);
@@ -335,21 +341,24 @@ export class UserService extends BaseService {
   }
   async changePassword(
     input: UserDtos.ChangePasswordDto,
-    currentUser:CommonDTOs.CurrentUser,
+    currentUser: CommonDTOs.CurrentUser,
   ): Promise<{ message: string }> {
-   const transactionScop=this.getTransactionScope()
-    const user=await this.getUserById(currentUser.id)
+    const transactionScop = this.getTransactionScope();
+    const user = await this.getUserById(currentUser.id);
     if (!user) {
       throw new InValidCredentials('Invalid user specified');
     }
-    const isPasswordValid = await verifyPassword(input.oldPassword, user.password);
+    const isPasswordValid = await verifyPassword(
+      input.oldPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new InValidCredentials('Old password is incorrect');
     }
     const hashedPassword = await hashPassword(input.newPassword);
     user.password = hashedPassword;
-    transactionScop.add(user)
-    transactionScop.commit(this.entityManager)
+    transactionScop.add(user);
+    transactionScop.commit(this.entityManager);
     return { message: 'Password changed successfully' };
   }
 }

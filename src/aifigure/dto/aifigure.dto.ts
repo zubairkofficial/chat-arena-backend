@@ -1,15 +1,24 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { AIFigureType } from '../../common/enums';
 
 export namespace AIFigureDtos {
   export class CreateAIFigureDto {
     @IsNotEmpty()
     @IsString()
     name: string;
-
-    @IsNotEmpty()
+  
+    @IsOptional() // Image is optional
     @IsString()
-    role: string; // The Instructor, The Moderator, etc.
-
+    image?: string;
+  
+    @IsOptional() // Description is optional
+    @IsString()
+    description?: string;
+  
+    @IsNotEmpty()
+    @IsEnum(AIFigureType) // Ensure type is a valid enum value
+    type: AIFigureType;
+  
     @IsNotEmpty()
     @IsString()
     prompt: string;

@@ -8,30 +8,39 @@ import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
 import { BaseService } from '../base/base.service';
 import { DataSource } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AIFigureService extends BaseService {
   constructor(
     private readonly aiFigureRepository: AIFigureRepository,
+    private readonly configService: ConfigService,
     dataSource: DataSource,
   ) {
     super(dataSource);
   }
 
   // Create a new AIFigure
-  async createAIFigure(
-    input: AIFigureDtos.CreateAIFigureDto,
-  ): Promise<AIFigure> {
-    // Ensure name and role are not empty (manual validation for additional checks)
-    if (!input.name || !input.role) {
-      throw new BadRequestException('Name and role are required fields.');
+  async createAIFigure(file: Express.Multer.File,input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
+    // Validate required fields
+    if (file) {
+      const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8080';
+      input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
-
+    if (!input.name) {
+      throw new BadRequestException('Name is required field.');
+    }
+  
+    // Handle base64 image data if provided
+    if (input.image) { // Assume the DTO has `image` for base64 data
+     
+    }
+  
     try {
       const newAIFigure = await this.aiFigureRepository.save(input);
       return newAIFigure;
     } catch (error) {
-      throw new BadRequestException('Error occurred while creating AIFigure.');
+      throw new BadRequestException(`${error.message}`);
     }
   }
 

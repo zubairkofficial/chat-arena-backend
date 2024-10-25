@@ -11,12 +11,16 @@ import {
   HttpStatus,
   Req,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDtos } from './dto/user.dto';
 import { AuthGuard } from '../middleware/auth.middleware';
 import { CommonDTOs } from '../common/dto';
 import { handleServiceError } from '../errors/error-handling';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { storageConfig } from '../utils/file-upload.utils';
 
 @Controller('user')
 export class UserController {
@@ -80,10 +84,15 @@ export class UserController {
 
   @Put('update')
   @UseGuards(AuthGuard)
-  async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser) {
+  @UseInterceptors(FileInterceptor('file', {
+    storage: storageConfig('./uploads'), // Specify the uploads directory
+  }))
+  async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser, @UploadedFile() file: Express.Multer.File, // Handle the uploaded file
+) {
     try {
+      
       const currentUser = req.user as CommonDTOs.CurrentUser; // Access the user object
-      return await this.userService.updateUser(input, currentUser);
+      return await this.userService.updateUser(input, currentUser,file);
     } catch (error) {
       handleServiceError(
         error,

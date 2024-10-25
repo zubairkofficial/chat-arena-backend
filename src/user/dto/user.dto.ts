@@ -48,6 +48,10 @@ export namespace UserDtos {
 
     @IsOptional()
     @IsString()
+    image: string;
+
+    @IsOptional()
+    @IsString()
     username: string;
 
     @IsOptional()

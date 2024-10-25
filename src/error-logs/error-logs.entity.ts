@@ -1,7 +1,8 @@
+import { EntityBase } from '../base/entityBase';
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('error_logs')
-export class ErrorLog {
+export class ErrorLog extends EntityBase{
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -10,7 +11,5 @@ export class ErrorLog {
 
   @Column({ type: 'text' })
   stack: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+  
 }

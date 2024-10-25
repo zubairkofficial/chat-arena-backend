@@ -18,3 +18,12 @@ export enum JoinTypes {
   INNER_JOIN = 'INNER JOIN',
   LEFT_JOIN = 'LEFT JOIN',
 }
+
+
+export enum AIFigureType {
+  CREATIVE = 'creative',
+  ANIME = 'anime',
+  FAMOUS_PEOPLE = 'famous people',
+  FICTIONAL_CHARACTER = 'fictional character',
+}
+

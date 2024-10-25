@@ -4,12 +4,13 @@ import {
   Get,
   Param,
   Body,
-  Patch,
   Delete,
   HttpStatus,
   Req,
   UseGuards,
   Put,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ArenaService } from './arena.service';
 import { ArenaDtos } from './dto/arena.dto';
@@ -17,20 +18,31 @@ import { Arena } from './entities/arena.entity';
 import { handleServiceError } from '../errors/error-handling';
 import { CommonDTOs } from '../common/dto';
 import { AuthGuard } from '../middleware/auth.middleware';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
+import { storageConfig } from '../utils/file-upload.utils';
 
 @Controller('arenas')
 export class ArenaController {
-  constructor(private readonly arenaService: ArenaService) {}
+  constructor(private readonly arenaService: ArenaService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file', {
+    storage: storageConfig('./uploads'), // Specify the uploads directory
+  }))
+
   async createArena(
     @Body() input: ArenaDtos.CreateArenaDto,
+    @UploadedFile() file: Express.Multer.File, // Handle the uploaded file
     @Req() req,
   ): Promise<Arena> {
     const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
-    return await this.arenaService.createArena(input, user);
+
+    return await this.arenaService.createArena(file,input, user);
   }
+
   @Post('join-arena')
   @UseGuards(AuthGuard)
   async joinArena(

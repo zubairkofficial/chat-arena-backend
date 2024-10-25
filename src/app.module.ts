@@ -15,9 +15,14 @@ import { ArenaTypeModule } from './arena-type/arena-type.module';
 import { UserArenaModule } from './user-arena/user-arena.module';
 import { ScheduleModule } from '@nestjs/schedule';  // Import ScheduleModule for cron jobs
 import { LangChainService } from './langchain/langchain.service';
-
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', // Files will be accessible via /uploads
+    }),
     TypeOrmModule.forRoot(databaseConfig),
     ScheduleModule.forRoot(), // Enable ScheduleModule for cron jobs
     UserModule,

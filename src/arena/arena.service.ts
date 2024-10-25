@@ -14,6 +14,7 @@ import { CommonDTOs } from '../common/dto';
 import { UserService } from '../user/user.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ArenaService extends BaseService {
@@ -25,15 +26,22 @@ export class ArenaService extends BaseService {
     dataSource: DataSource,
     private readonly entityManager: EntityManager,
     private readonly userService: UserService,
+    private readonly configService: ConfigService,
+
    
   ) {
     super(dataSource);
   }
 
   async createArena(
+    file: Express.Multer.File,
     input: ArenaDtos.CreateArenaDto,
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
+    if (file) {
+      const baseUrl = this.configService.get('BASE_URL') || 'http://localhost:8080';
+      input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
+    }
     const transactionScope = this.getTransactionScope();
     const existUser = await this.userService.getUserById(user.id);
     if (!existUser) throw new NotFoundException('Invalid user specified');
@@ -65,6 +73,7 @@ export class ArenaService extends BaseService {
     arena.status = input.status || 'open';
     arena.arenaType = arenaType;
     arena.createdBy = existUser;
+   if(input.image) arena.image=input.image
 
   
     // Add the arena to the transaction scope
@@ -118,6 +127,13 @@ export class ArenaService extends BaseService {
   async getUsersByArenaId(arenaId: string): Promise<Arena> {
     try {
       return this.arenaRepository.getArenaByIdAndJoin(arenaId).getOne();
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
+  }
+  async getArenaWithAIFigure(arenaId: string): Promise<Arena> {
+    try {
+      return this.arenaRepository.getArenaWithAIFigure(arenaId).getOne();
     } catch (error) {
       throw new Error(`${error.message}`);
     }

@@ -1,11 +1,6 @@
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { AIFigureType } from '../../common/enums';
 
 @Entity()
 export class AIFigure {
@@ -15,13 +10,21 @@ export class AIFigure {
   @Column()
   name: string;
 
+  @Column({ nullable: true }) // Make image optional
+  image?: string;
+
   @Column()
-  role: string; // e.g., The Instructor, The Moderator, etc.
+  description: string;
+
+  @Column({
+    type: 'enum',
+    enum: AIFigureType,
+  })
+  type: AIFigureType; // Use enum type here
 
   @Column()
   prompt: string;
 
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
   arenaAIFigures: ArenaAIFigure[];
-
 }

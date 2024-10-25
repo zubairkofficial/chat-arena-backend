@@ -9,7 +9,7 @@ import { BaseService } from '../base/base.service';
 import { MessageDto } from './dto/message.dto';
 import { MessageRepository } from './message.repository';
 import { handleServiceError } from '../errors/error-handling';
-import { ConversationService } from '../conversation/conversation.service';
+import { ArenaService } from '../arena/arena.service';
 
 @Injectable()
 export class MessageService extends BaseService {
@@ -17,7 +17,7 @@ export class MessageService extends BaseService {
     private readonly messageRepository: MessageRepository,
     dataSource: DataSource,
     private readonly entityManager: EntityManager,
-    private readonly conversationService: ConversationService,
+    private readonly arenaService: ArenaService,
   ) {
     super(dataSource);
   }
@@ -27,10 +27,12 @@ export class MessageService extends BaseService {
     const transactionScope = this.getTransactionScope();
     const message=new Message()    
     try {
-      // const conversation=await this.conversationService.getConversationById(input.conversationId)
+
+      const arena=await this.arenaService.getArenaById(input.arenaId)
       message.content=input.content
       message.senderType=input.senderType
       message.senderId=input.senderId
+      message.arenas=arena
       transactionScope.add(message);
       await transactionScope.commit(this.entityManager);
       return message;

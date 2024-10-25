@@ -19,7 +19,13 @@ export class Arena extends EntityBase {
   id: string;
 
   @Column()
-  name: string; // Arena name
+  name: string; // Arena 
+  
+  @Column({ nullable: true }) // Make image optional
+  image: string;
+
+  @Column({  type: 'timestamp',nullable: true }) // Make image optional
+  arenaStart: Date;
 
   @Column({ type: 'text', nullable: true })
   description: string; // Description of the arena

@@ -1,4 +1,3 @@
-// src/arena-ai-figure/entities/arena-ai-figure.entity.ts
 
 import { EntityBase } from '../../base/entityBase';
 import { Arena } from '../../arena/entities/arena.entity';

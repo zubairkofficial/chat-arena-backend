@@ -17,6 +17,10 @@ export namespace ArenaDtos {
     @IsString()
     name: string; // Arena name must be a non-empty string.
 
+    @IsNotEmpty()
+    @IsString()
+    image: string;
+    
     @IsOptional()
     @IsString()
     description?: string; // Description can be empty but must be a string if provided.
