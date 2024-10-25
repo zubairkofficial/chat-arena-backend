@@ -202,7 +202,7 @@ export class UserService extends BaseService {
       if (!user) throw new InValidCredentials('Invalid user specified');
 
       if (file) {
-        const baseUrl = this.configService.get('BASE_URL') || BASE_URL;
+        const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
       }
 
