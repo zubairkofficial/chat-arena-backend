@@ -3,16 +3,24 @@ import { AppModule } from './app.module';
 import { logger } from './logger';
 import { RequestMethod } from '@nestjs/common';
 import * as dotenv from 'dotenv';
+import { AllExceptionsFilter } from './errors/http-exception.filter';
+import { ErrorLogService } from './error-logs/error-logs.service';
 
 dotenv.config();
 
 async function bootstrap() {
+  
   const app = await NestFactory.create(AppModule);
   const excludedRoutes = [
     { path: 'google-auth/', method: RequestMethod.GET },
     { path: 'google-auth/redirect', method: RequestMethod.GET },
   ];
   app.enableCors();
+  
+  const errorLogService = app.get(ErrorLogService);
+
+  app.useGlobalFilters(new AllExceptionsFilter(errorLogService)); // Apply the filter
+
   app.setGlobalPrefix('api/v1', {
     exclude: excludedRoutes,
   });

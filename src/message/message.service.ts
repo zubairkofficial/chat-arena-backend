@@ -25,39 +25,38 @@ export class MessageService extends BaseService {
   // Create a new message
   async createMessage(input: MessageDto.CreateMessageDto): Promise<Message> {
     const transactionScope = this.getTransactionScope();
-    const message=new Message()    
-    try {
+    const message = new Message();    
 
-      const arena=await this.arenaService.getArenaById(input.arenaId)
-      message.content=input.content
-      message.senderType=input.senderType
-      message.senderId=input.senderId
-      message.arenas=arena
+    try {
+      const arena = await this.arenaService.getArenaById(input.arenaId);
+      message.content = input.content;
+      message.senderType = input.senderType;
+      message.senderId = input.senderId;
+      message.arenas = arena;
+
       transactionScope.add(message);
       await transactionScope.commit(this.entityManager);
       return message;
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to create message');
+      throw handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to create message');
     }
   }
 
-
+  // Get previous messages for an arena
   async getPreviousMessages(arenaId: string, limit: number): Promise<Message[]> {
     return await this.messageRepository.find({
       where: {
         arenas: {
-          id: arenaId, // Access the conversation ID through the relationship
+          id: arenaId,
         },
       },
       take: limit,
       order: {
-        createdAt: 'DESC', // Assuming you have a timestamp for ordering
+        createdAt: 'DESC',
       },
     });
   }
-  
 
-  
   // Get all messages for a conversation
   async getMessagesByConversationId(conversationId: string): Promise<Message[]> {
     const messages = await this.messageRepository.find({
@@ -89,7 +88,7 @@ export class MessageService extends BaseService {
       await transactionScope.commit(this.entityManager);
       return message;
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to update message');
+      throw handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to update message');
     }
   }
 
@@ -106,7 +105,7 @@ export class MessageService extends BaseService {
       transactionScope.delete(message);
       await transactionScope.commit(this.entityManager);
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete message');
+      throw handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete message');
     }
   }
 }

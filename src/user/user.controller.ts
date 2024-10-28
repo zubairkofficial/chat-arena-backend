@@ -24,7 +24,10 @@ import { storageConfig } from '../utils/file-upload.utils';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+
+  ) { }
 
   @Post('register')
   async registerUser(@Body() input: UserDtos.RegisterUserDto) {
@@ -47,6 +50,7 @@ export class UserController {
       handleServiceError(error, HttpStatus.UNAUTHORIZED, 'Login failed');
     }
   }
+
 
   @Get('verify')
   async emailVerify(@Query('token') token: string, @Res() res) {
@@ -88,11 +92,11 @@ export class UserController {
     storage: storageConfig('./uploads'), // Specify the uploads directory
   }))
   async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser, @UploadedFile() file, // Handle the uploaded file
-) {
+  ) {
     try {
-      
+
       const currentUser = req.user as CommonDTOs.CurrentUser; // Access the user object
-      return await this.userService.updateUser(input, currentUser,file);
+      return await this.userService.updateUser(input, currentUser, file);
     } catch (error) {
       handleServiceError(
         error,
@@ -171,10 +175,10 @@ export class UserController {
   }
   @Post('change-password')
   @UseGuards(AuthGuard)
-  async changePassword(@Req() req,@Body() input: UserDtos.ChangePasswordDto) {
+  async changePassword(@Req() req, @Body() input: UserDtos.ChangePasswordDto) {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser;
-      return await this.userService.changePassword(input,currentUser);
+      return await this.userService.changePassword(input, currentUser);
     } catch (error) {
       handleServiceError(
         error,

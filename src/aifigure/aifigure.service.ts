@@ -9,20 +9,22 @@ import { AIFigure } from './entities/aifigure.entity';
 import { BaseService } from '../base/base.service';
 import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
+import { LangChainService } from '../langchain/langchain.service';
+import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
 
 @Injectable()
 export class AIFigureService extends BaseService {
   constructor(
     private readonly aiFigureRepository: AIFigureRepository,
     private readonly configService: ConfigService,
+    private readonly langchainService: LangChainService,
     dataSource: DataSource,
   ) {
     super(dataSource);
   }
 
   // Create a new AIFigure
-  async createAIFigure(file,input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
-    // Validate required fields
+  async createAIFigure(file: Express.Multer.File, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
     if (file) {
       const baseUrl = this.configService.get('BACK_END_BASE_URL') || 'http://localhost:8080';
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
@@ -30,17 +32,24 @@ export class AIFigureService extends BaseService {
     if (!input.name) {
       throw new BadRequestException('Name is required field.');
     }
-  
-    // Handle base64 image data if provided
-    if (input.image) { // Assume the DTO has `image` for base64 data
-     
-    }
-  
+
     try {
       const newAIFigure = await this.aiFigureRepository.save(input);
       return newAIFigure;
     } catch (error) {
-      throw new BadRequestException(`${error.message}`);
+      throw new AllExceptionsFilter(error);
+    }
+  }
+
+  async aiFigureMessage(figureId: string, message: string): Promise<string> {
+    const aiFigure = await this.getAIFigureById(figureId);
+    if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
+
+    try {
+      const response = await this.langchainService.aiFigureMessage(aiFigure.type, aiFigure.prompt, message);
+      return response;
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -49,19 +58,21 @@ export class AIFigureService extends BaseService {
     try {
       return await this.aiFigureRepository.find();
     } catch (error) {
-      throw new BadRequestException('Error fetching AIFigures.');
+      throw new AllExceptionsFilter(error);
     }
   }
 
   // Get AIFigure by ID
   async getAIFigureById(id: string): Promise<AIFigure> {
-    const aiFigure = await this.aiFigureRepository.findOne({ where: { id } });
-
-    if (!aiFigure) {
-      throw new NotFoundException(`AIFigure with ID ${id} not found.`);
+    try {
+      const aiFigure = await this.aiFigureRepository.findOne({ where: { id } });
+      if (!aiFigure) {
+        throw new NotFoundException(`AIFigure with ID ${id} not found.`);
+      }
+      return aiFigure;
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
-
-    return aiFigure;
   }
 
   // Update an existing AIFigure
@@ -69,17 +80,13 @@ export class AIFigureService extends BaseService {
     id: string,
     input: AIFigureDtos.UpdateAIFigureDto,
   ): Promise<AIFigure> {
-    // Fetch the existing AI figure
     const aiFigure = await this.getAIFigureById(id);
 
-    // Perform the update
     try {
       Object.assign(aiFigure, input);
       return await this.aiFigureRepository.save(aiFigure);
     } catch (error) {
-      throw new BadRequestException(
-        `Error occurred while updating AIFigure with ID ${id}.`,
-      );
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -91,7 +98,7 @@ export class AIFigureService extends BaseService {
       await this.aiFigureRepository.remove(aiFigure);
       return { message: `AIFigure with ID ${id} deleted successfully.` };
     } catch (error) {
-      throw new BadRequestException(`Failed to delete AIFigure with ID ${id}.`);
+      throw new AllExceptionsFilter(error);
     }
   }
 }

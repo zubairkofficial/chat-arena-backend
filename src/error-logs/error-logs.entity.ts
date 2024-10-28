@@ -9,6 +9,12 @@ export class ErrorLog extends EntityBase{
   @Column()
   message: string;
 
+  @Column()
+  path: string;
+
+  @Column()
+  status: number;
+
   @Column({ type: 'text' })
   stack: string;
   

@@ -87,7 +87,55 @@ export class LangChainService {
       return `${filler} ${response}`;
   }
   
-  
+  async aiFigureMessage(
+    topic: string,
+    prompt: string,
+    message: string
+): Promise<string> {
+    try {
+        // Simplified prompt without previous conversation context
+        const promptTemplateString = `
+            Topic: ${topic}\n
+            Prompt: ${prompt}\n
+            Message: ${message}\n
+            Instructions: Respond naturally to the message, using varied phrases and a friendly tone.
+        `;
+
+        // Set up the template for LangChain processing
+        const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);
+        const outputParser = new HttpResponseOutputParser();
+        const chain = promptTemplate.pipe(this.model).pipe(outputParser);
+
+        // Adjust temperature and top-p for more human-like responses
+        const response = await chain.invoke({
+            input: message,
+            temperature: 0.8,
+            top_p: 0.9,
+        }) as string | Uint8Array;
+
+        let responseString: string;
+
+        if (response instanceof Uint8Array) {
+            responseString = new TextDecoder().decode(response).trim();
+        } else if (typeof response === 'string') {
+            responseString = response.trim();
+        } else {
+            // Default message if response type is unexpected
+            responseString = "I'm sorry, but I couldn't generate a response.";
+        }
+
+        // Ensure response includes variations or human-like phrasing
+        return this.addHumanlikeVariations(responseString);
+    } catch (error) {
+        console.error('Error in LangChain processing:', error);
+        throw new HttpException(
+            `An error occurred while processing the request: ${error.message}`,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+    }
+}
+
+ 
   
   
 

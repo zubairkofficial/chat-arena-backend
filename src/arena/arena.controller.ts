@@ -24,23 +24,20 @@ import { storageConfig } from '../utils/file-upload.utils';
 
 @Controller('arenas')
 export class ArenaController {
-  constructor(private readonly arenaService: ArenaService,
-  ) {}
+  constructor(private readonly arenaService: ArenaService) {}
 
   @Post()
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', {
     storage: storageConfig('./uploads'), // Specify the uploads directory
   }))
-
   async createArena(
     @Body() input: ArenaDtos.CreateArenaDto,
-    @UploadedFile() file, // Handle the uploaded file
+    @UploadedFile() file,
     @Req() req,
   ): Promise<Arena> {
     const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
-
-    return await this.arenaService.createArena(file,input, user);
+    return await this.arenaService.createArena(file, input, user);
   }
 
   @Post('join-arena')
@@ -67,11 +64,7 @@ export class ArenaController {
     try {
       return await this.arenaService.getAllArenas();
     } catch (error) {
-      handleServiceError(
-        error,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        'Failed to retrieve arenas',
-      );
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve arenas');
     }
   }
 
@@ -83,11 +76,7 @@ export class ArenaController {
     try {
       return await this.arenaService.updateArena(id, updateArenaDto);
     } catch (error) {
-      handleServiceError(
-        error,
-        HttpStatus.BAD_REQUEST,
-        'Failed to update arena',
-      );
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to update arena');
     }
   }
 
@@ -96,11 +85,7 @@ export class ArenaController {
     try {
       return await this.arenaService.deleteArena(id);
     } catch (error) {
-      handleServiceError(
-        error,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-        'Failed to delete arena',
-      );
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete arena');
     }
   }
 }

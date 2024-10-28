@@ -10,12 +10,11 @@ import { UserRepository } from '../user/user.repository';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { UserArenaRepository } from '../user-arena/user-arena.repository';
 import { ConfigService } from '@nestjs/config';
+import { ErrorLogModule } from '../error-logs/error-logs.module';
 
 
 @Module({
-  imports: [UserModule, 
-   
-],
+  imports: [UserModule,ErrorLogModule],
   controllers: [ArenaController],
   providers: [
     ArenaService,

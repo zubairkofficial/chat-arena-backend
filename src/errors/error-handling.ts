@@ -7,5 +7,6 @@ export function handleServiceError(
 ) {
   const status = error.status || defaultStatus;
   const message = error.message || defaultMessage;
+  
   throw new HttpException(message, status);
 }

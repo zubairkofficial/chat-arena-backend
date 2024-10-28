@@ -41,6 +41,23 @@ export class AIFigureController {
     }
   }
 
+
+  @Post('chat/:id')
+  async aiFigureMessage(
+    @Param('id') id: string,
+    @Body() message: string,
+  ): Promise<string> {
+    try {
+      return await this.aiFigureService.aiFigureMessage(id,message);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.BAD_REQUEST,
+        'Failed to create AI figure',
+      );
+    }
+  }
+
   // Get all AIFigures
   @Get()
   async getAllAIFigures(): Promise<AIFigure[]> {

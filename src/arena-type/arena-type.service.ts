@@ -9,6 +9,7 @@ import { ArenaTypeDto } from './dto/arena-type.dto';
 import { ArenaType } from './entities/arena-type.entity';
 import { BaseService } from '../base/base.service';
 import { DataSource, EntityManager } from 'typeorm';
+import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
 
 @Injectable()
 export class ArenaTypeService extends BaseService {
@@ -48,7 +49,7 @@ export class ArenaTypeService extends BaseService {
       await transactionScope.commit(this.entityManager); // Use entityManager for transaction
       return arenaType;
     } catch (error) {
-      this.handleServiceError(error, 'Failed to create arena type');
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -74,7 +75,7 @@ export class ArenaTypeService extends BaseService {
       await transactionScope.commit(this.entityManager); // Commit all at once
       return arenaTypes;
     } catch (error) {
-      this.handleServiceError(error, 'Failed to create multiple arena types');
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -83,7 +84,7 @@ export class ArenaTypeService extends BaseService {
     try {
       return await this.arenaTypeRepository.findAll();
     } catch (error) {
-      this.handleServiceError(error, 'Failed to retrieve arena types');
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -96,7 +97,7 @@ export class ArenaTypeService extends BaseService {
       }
       return arenaType;
     } catch (error) {
-      this.handleServiceError(error, `Failed to find arena type with ID ${id}`);
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -119,7 +120,7 @@ export class ArenaTypeService extends BaseService {
       await transactionScope.commit(this.entityManager); // Commit changes
       return arenaType;
     } catch (error) {
-      this.handleServiceError(error, 'Failed to update arena type');
+      throw new AllExceptionsFilter(error);
     }
   }
 
@@ -132,7 +133,7 @@ export class ArenaTypeService extends BaseService {
       transactionScope.delete(arenaType); // Use delete method in the transaction scope
       await transactionScope.commit(this.entityManager); // Commit deletion
     } catch (error) {
-      this.handleServiceError(error, 'Failed to delete arena type');
+      throw new AllExceptionsFilter(error);
     }
   }
 }
