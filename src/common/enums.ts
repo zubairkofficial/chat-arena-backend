@@ -23,7 +23,7 @@ export enum JoinTypes {
 export enum AIFigureType {
   CREATIVE = 'creative',
   ANIME = 'anime',
-  FAMOUS_PEOPLE = 'famous people',
-  FICTIONAL_CHARACTER = 'fictional character',
+  FAMOUS_PEOPLE = 'famous_people',
+  FICTIONAL_CHARACTER = 'fictional_character',
 }
 

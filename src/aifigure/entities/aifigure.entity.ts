@@ -27,4 +27,6 @@ export class AIFigure {
 
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
   arenaAIFigures: ArenaAIFigure[];
+  // @OneToMany(() => UserAIFigure, (userAIFigure) => userAIFigure.aiFigure)
+  // userAIFigure: UserAIFigure[];
 }

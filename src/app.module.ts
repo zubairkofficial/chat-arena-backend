@@ -10,7 +10,6 @@ import { ArenaModule } from './arena/arena.module';
 import { AifigureModule } from './aifigure/aifigure.module';
 import { MessageModule } from './message/message.module';
 import { ReactionModule } from './reaction/reaction.module';
-import { ResponseStyleModule } from './response-style/response-style.module';
 import { ArenaTypeModule } from './arena-type/arena-type.module';
 import { UserArenaModule } from './user-arena/user-arena.module';
 import { ScheduleModule } from '@nestjs/schedule';  // Import ScheduleModule for cron jobs
@@ -32,7 +31,6 @@ import { join } from 'path';
     AifigureModule,
     MessageModule,
     ReactionModule,
-    ResponseStyleModule,
     ArenaTypeModule,
     UserArenaModule,
   ],

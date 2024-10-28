@@ -9,6 +9,8 @@ import {
   HttpStatus,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
@@ -16,6 +18,8 @@ import { AIFigureService } from './aifigure.service';
 import { handleServiceError } from '../errors/error-handling';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from '../utils/file-upload.utils';
+import { CommonDTOs } from '../common/dto';
+import { AuthGuard } from '../middleware/auth.middleware';
 
 @Controller('ai-figures')
 export class AIFigureController {
@@ -42,13 +46,18 @@ export class AIFigureController {
   }
 
 
-  @Post('chat/:id')
+  @Post('chat/:figureId')
+  @UseGuards(AuthGuard)
   async aiFigureMessage(
-    @Param('id') id: string,
-    @Body() message: string,
+    @Req() req,
+    @Param('figureId') figureId: string,
+    @Body() input: AIFigureDtos.MessageDto,
   ): Promise<string> {
     try {
-      return await this.aiFigureService.aiFigureMessage(id,message);
+
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+
+      return await this.aiFigureService.aiFigureMessage(figureId,input.message,currentUser);
     } catch (error) {
       handleServiceError(
         error,

@@ -7,6 +7,7 @@ import { ArenaService } from '../arena/arena.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
 import { LangChainService } from '../langchain/langchain.service';
+import { UserArenaService } from '../user-arena/user-arena.service';
 require('dotenv').config();
 @WebSocketGateway({
   cors: {
@@ -18,7 +19,7 @@ require('dotenv').config();
 })
 export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
-  private activeRooms: Set<string> = new Set();
+  private activeRooms: Map<string, { expiry: number; users: Set<string> }> = new Map();
   private connectedUsers: Map<string, { socketId: string; rooms: Set<string> }> = new Map();
   private activeConversations: Set<string> = new Set(); // Track active conversations
   private lastMessageTimestamps: Map<string, number> = new Map(); // Track last message times
@@ -29,6 +30,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     private readonly userService: UserService,
     private readonly arenaService: ArenaService,
     private readonly langchainService: LangChainService,
+    private readonly userArenaService: UserArenaService,
     
   ) {
     
@@ -52,26 +54,72 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     });
   }
 
+
+
+
+  @SubscribeMessage('leaveRoom')
+async handleLeaveRoom(client: Socket, { userId, arenaId }: { userId: string; arenaId: string }) {
+  try {
+    // Ensure the user is leaving the correct room
+    const userArena = await this.userArenaService.getUserAndArena(arenaId, userId);
+    
+    if (userArena) {
+      // Remove user from the arena
+      client.leave(arenaId);
+      this.server.to(arenaId).emit('userLeft', { userId });
+      
+      // Optionally, remove the user-arena association
+      await this.userArenaService.removeUserArena(userId, arenaId);
+    }
+  } catch (error) {
+    console.error('Error leaving room:', error);
+    client.emit('error', error.message || 'Failed to leave room');
+  }
+}
+
+
+
+
   @SubscribeMessage('joinRoom')
-  async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; arenaId: string }) {
-    try {
-      const existUser = await this.userService.getUserById(userId);
-      if (!existUser) throw new NotFoundException('Invalid user specified');
+async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; arenaId: string }) {
+  try {
+    const existUser = await this.userService.getUserById(userId);
+    if (!existUser) throw new NotFoundException('Invalid user specified');
 
-      const arena = await this.arenaService.getArenaById(arenaId);
-      if (!arena) throw new BadRequestException(`Arena with ID ${arenaId} does not exist`);
+    const arena = await this.arenaService.getArenaById(arenaId);
+    if (!arena) throw new BadRequestException(`Arena with ID ${arenaId} does not exist`);
 
+    const userArena=await this.userArenaService.getUserAndArena(arenaId,userId)
+    const room = this.activeRooms.get(arenaId);
+    if (!room) {
+      // Set room expiry for 1 hour from joining time
+      this.activeRooms.set(arenaId, { expiry: Date.now() + 120000, users: new Set([userId]) });
+    } else {
+      room.users.add(userId);
+      room.expiry = Date.now() + 120000; // Extend expiry on reactivation
+    }
+this.arenaService.joinArena(arenaId,userId)
+    // Check if the user is already in the arena
+    if ( userArena) {
+      // Emit an event indicating the user has rejoined
+      client.emit('userRejoined', { userId });
+    } else {
+      await this.userArenaService.createUserArena(arena,existUser)
+
+      // User is not in the room, so they can join
       client.join(arenaId);
       this.server.to(arenaId).emit('userJoined', { userId });
-
+      
       // Add to activeConversations and initialize last message timestamp
       this.addActiveConversation(arenaId);
-
-    } catch (error) {
-      console.error('Error joining room:', error);
-      client.emit('error', error.message || 'Failed to join room');
     }
+
+  } catch (error) {
+    console.error('Error joining room:', error);
+    client.emit('error', error.message || 'Failed to join room');
   }
+}
+
 
   @SubscribeMessage('sendMessage')
   async handleSendMessage(client: Socket, { userId, arenaId, content }: { userId: string; arenaId: string; content: string }) {
@@ -92,6 +140,19 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
       console.error('Error handling sendMessage:', error);
       client.emit('error', error.message || 'Failed to send message');
     }
+  }
+
+  @Cron('*/10 * * * * *') // Checks every minute
+  handleExpiryCron() {
+    const now = Date.now();
+    this.activeRooms.forEach((room, arenaId) => {
+      if (now > room.expiry) {
+        console.log(`Expiring room: ${arenaId}`);
+        this.arenaService.deleteArena(arenaId)
+        this.server.to(arenaId).emit('roomExpired', { arenaId });
+        this.activeRooms.delete(arenaId);
+      }
+    });
   }
 
   @Cron(process.env.CRON_SCHEDULE || '*/20 * * * * *')

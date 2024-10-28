@@ -43,4 +43,14 @@ export class UserArenaService extends BaseService  {
   remove(id: string) {
     return `This action removes a #${id} userArena`;
   }
+
+  async removeUserArena(userId: string,arenaId:string) {
+    const transactionScop=this.getTransactionScope()
+    
+   const userArena= await this.getUserAndArena(arenaId,userId)
+   transactionScop.delete(userArena)
+   await transactionScop.commit(this.entityManager)
+
+    return `userArena remove successfully`;
+  }
 }

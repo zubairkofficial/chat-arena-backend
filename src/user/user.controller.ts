@@ -148,6 +148,20 @@ export class UserController {
     }
   }
 
+  @Get('/history/:id')
+  @UseGuards(AuthGuard)
+  async getHistoryId(@Req() req, @Param() param) {
+    try {
+      return await this.userService.getUserById(param.id);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve user',
+      );
+    }
+  }
+
   @Post('forgot-password')
   async forgotPassword(@Body() input: UserDtos.ForgotPasswordDto) {
     try {

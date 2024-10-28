@@ -15,6 +15,7 @@ import { UserService } from '../user/user.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { ConfigService } from '@nestjs/config';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
+import { UserArenaService } from '../user-arena/user-arena.service';
 
 @Injectable()
 export class ArenaService extends BaseService {
@@ -26,6 +27,7 @@ export class ArenaService extends BaseService {
     private readonly entityManager: EntityManager,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
+    private readonly userArenaService: UserArenaService,
   ) {
     super(dataSource);
   }
@@ -89,18 +91,18 @@ export class ArenaService extends BaseService {
   }
 
   async joinArena(
-    input: ArenaDtos.JoinArenaDto,
-    user: CommonDTOs.CurrentUser,
+    arenaId:string,
+    userId: string,
   ): Promise<Arena> {
     try {
-      const existUser = await this.userService.getUserById(user.id);
+      const existUser = await this.userService.getUserById(userId);
       if (!existUser) throw new NotFoundException('Invalid user specified');
 
       // Validate Arena
-      const arena = await this.getArenaById(input.arenaId);
-      if (!arena) throw new BadRequestException(`Arena with ID ${input.arenaId} does not exist`);
+      const arena = await this.getArenaById(arenaId);
+      if (!arena) throw new BadRequestException(`Arena with ID ${arenaId} does not exist`);
 
-      const getArenaUsers = await this.getUsersByArenaId(input.arenaId);
+      const getArenaUsers = await this.getUsersByArenaId(arenaId);
       const numberOfUsers = getArenaUsers.userArenas.length;
 
       if (arena.maxParticipants <= numberOfUsers) {
@@ -109,7 +111,7 @@ export class ArenaService extends BaseService {
 
       // Logic to add user to arena...
 
-      const userArenaList = await this.arenaRepository.getUserArenaList(input.arenaId).getOne();
+      const userArenaList = await this.arenaRepository.getUserArenaList(arenaId).getOne();
       return userArenaList;
     } catch (error) {
       throw new AllExceptionsFilter(error);
@@ -136,7 +138,7 @@ export class ArenaService extends BaseService {
     try {
       const arena = await this.arenaRepository.findOne({
         where: { id },
-        relations: ['arenaType', 'arenaAIFigures', 'userArenas', 'conversations'],
+        relations: ['arenaType', 'arenaAIFigures', 'userArenas'],
       });
 
       if (!arena) {
@@ -182,10 +184,21 @@ export class ArenaService extends BaseService {
     }
   }
 
-  async deleteArena(id: string): Promise<{ message: string }> {
+  async deleteArena(arenaId: string): Promise<{ message: string }> {
     try {
-      const arena = await this.getArenaById(id);
-      await this.arenaRepository.remove(arena);
+
+
+      const transactionScop=this.getTransactionScope()
+    
+      const arena= await this.getUsersByArenaId(arenaId)
+
+      transactionScop.deleteCollection(arena.userArenas)
+      transactionScop.delete(arena)
+      await transactionScop.commit(this.entityManager)
+
+
+      // const arena = await this.getArenaById(id);
+      // await this.arenaRepository.remove(arena);
       return { message: 'Arena deleted successfully' };
     } catch (error) {
       throw new AllExceptionsFilter(error);

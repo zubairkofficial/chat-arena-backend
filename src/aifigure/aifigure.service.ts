@@ -11,6 +11,7 @@ import { DataSource } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { LangChainService } from '../langchain/langchain.service';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
+import { CommonDTOs } from '../common/dto';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -41,13 +42,14 @@ export class AIFigureService extends BaseService {
     }
   }
 
-  async aiFigureMessage(figureId: string, message: string): Promise<string> {
+  async aiFigureMessage(figureId: string, message: string,currentUser: CommonDTOs.CurrentUser): Promise<string> {
     const aiFigure = await this.getAIFigureById(figureId);
     if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
 
     try {
-      const response = await this.langchainService.aiFigureMessage(aiFigure.type, aiFigure.prompt, message);
-      return response;
+      // const userAiFigure=this.
+    return await this.langchainService.aiFigureMessage(aiFigure.type, aiFigure.prompt, message);
+
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

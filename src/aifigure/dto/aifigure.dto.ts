@@ -34,4 +34,10 @@ export namespace AIFigureDtos {
     @IsString()
     prompt?: string;
   }
+  export class MessageDto {
+    @IsString()
+    message: string;
+
+   
+  }
 }

@@ -47,7 +47,7 @@ export class ArenaController {
     @Req() req,
   ): Promise<Arena> {
     const user = req.user as CommonDTOs.CurrentUser; 
-    return await this.arenaService.joinArena(input, user);
+    return await this.arenaService.joinArena(input.arenaId, user.id);
   }
 
   @Get(':id')
