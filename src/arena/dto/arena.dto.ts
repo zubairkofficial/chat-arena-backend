@@ -17,6 +17,7 @@ export namespace ArenaDtos {
     @IsString()
     name: string; // Arena name must be a non-empty string.
 
+    
     @IsNotEmpty()
     @IsString()
     image: string;
@@ -40,6 +41,13 @@ export namespace ArenaDtos {
     @IsNotEmpty()
     @IsInt()
     arenaTypeId: string; // Reference to a valid ArenaType ID, required.
+
+
+    @IsNotEmpty()
+    @IsArray()
+    @IsUUID('all', { each: true })
+    aiFigureRoles: string[];
+
 
     @IsNotEmpty()
     @IsArray()

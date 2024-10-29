@@ -17,10 +17,12 @@ import { UserArenaService } from '../user-arena/user-arena.service';
 import { UserArenaRepository } from '../user-arena/user-arena.repository';
 import { ConfigService } from '@nestjs/config';
 import { ErrorLogModule } from '../error-logs/error-logs.module';
+import { FigureRoleService } from '../figure-role/figure-role.service';
+import { FigureRoleRepository } from '../figure-role/figure-role.repository';
 
 @Module({
   controllers: [MessageController],
-  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService],
+  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService,FigureRoleService,FigureRoleRepository],
   imports: [ErrorLogModule],
 
 })

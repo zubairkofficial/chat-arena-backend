@@ -8,6 +8,8 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
 import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
+import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
+import { Arena } from '../arena/entities/arena.entity';
 require('dotenv').config();
 @WebSocketGateway({
   cors: {
@@ -62,11 +64,12 @@ async handleLeaveRoom(client: Socket, { userId, arenaId }: { userId: string; are
   try {
     // Ensure the user is leaving the correct room
     const userArena = await this.userArenaService.getUserAndArena(arenaId, userId);
+ const leftArena= await this.arenaService.joinArena(arenaId,userId)
     
     if (userArena) {
       // Remove user from the arena
       client.leave(arenaId);
-      this.server.to(arenaId).emit('userLeft', { userId });
+      this.server.to(arenaId).emit('userLeft', { userId, leftArena});
       
       // Optionally, remove the user-arena association
       await this.userArenaService.removeUserArena(userId, arenaId);
@@ -92,23 +95,23 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
     const userArena=await this.userArenaService.getUserAndArena(arenaId,userId)
     const room = this.activeRooms.get(arenaId);
     if (!room) {
+      const arenaExpiryInMillisecond=new Date(arena.expiryTime).getTime()
       // Set room expiry for 1 hour from joining time
-      this.activeRooms.set(arenaId, { expiry: Date.now() + 120000, users: new Set([userId]) });
-    } else {
-      room.users.add(userId);
-      room.expiry = Date.now() + 120000; // Extend expiry on reactivation
-    }
-this.arenaService.joinArena(arenaId,userId)
+      this.activeRooms.set(arenaId, { expiry: arenaExpiryInMillisecond, users: new Set([userId]) });
+    } 
+  
+ const joinArena= await this.arenaService.joinArena(arenaId,userId)
     // Check if the user is already in the arena
     if ( userArena) {
       // Emit an event indicating the user has rejoined
-      client.emit('userRejoined', { userId });
+      client.emit('userRejoined', { userId ,joinArena});
     } else {
       await this.userArenaService.createUserArena(arena,existUser)
 
       // User is not in the room, so they can join
       client.join(arenaId);
-      this.server.to(arenaId).emit('userJoined', { userId });
+
+      this.server.to(arenaId).emit('userJoined', { userId,joinArena });
       
       // Add to activeConversations and initialize last message timestamp
       this.addActiveConversation(arenaId);
@@ -142,47 +145,55 @@ this.arenaService.joinArena(arenaId,userId)
     }
   }
 
-  @Cron('*/10 * * * * *') // Checks every minute
-  handleExpiryCron() {
-    const now = Date.now();
-    this.activeRooms.forEach((room, arenaId) => {
-      if (now > room.expiry) {
-        console.log(`Expiring room: ${arenaId}`);
-        this.arenaService.deleteArena(arenaId)
-        this.server.to(arenaId).emit('roomExpired', { arenaId });
-        this.activeRooms.delete(arenaId);
-      }
-    });
-  }
+  // @Cron(process.env.ARENA_ROOM_EXPIRY ||'*/10 * * * * *') // Checks every minute
+  // handleExpiryCron() {
+  //   const now = Date.now();
+  //   this.activeRooms.forEach((room, arenaId) => {
+  //     if (now > room.expiry) {
+  //       console.log(`Expiring room: ${arenaId}`);
+  //       this.arenaService.deleteArena(arenaId)
+  //       this.server.to(arenaId).emit('roomExpired', { arenaId });
+  //       this.activeRooms.delete(arenaId);
+  //     }
+  //   });
+  // }
 
   @Cron(process.env.CRON_SCHEDULE || '*/20 * * * * *')
   async handleCron() {
     console.log('Cron job triggered with activeConversations:', Array.from(this.activeConversations));
-
+  
     for (const arenaId of this.activeConversations) {
       const lastMessageTime = this.lastMessageTimestamps.get(arenaId);
-
+  
       // Check if a message was received within the last 20 seconds
       if (lastMessageTime && Date.now() - lastMessageTime <= 20000) {
         try {
           const arena = await this.arenaService.getArenaWithAIFigure(arenaId);
-          const previousMessages = await this.messageService.getPreviousMessages(arenaId, process.env.NUMBER_OF_Previous_Messages?+process.env.NUMBER_OF_Previous_Messages:7);
-
+          const previousMessages = await this.messageService.getPreviousMessages(arenaId, process.env.NUMBER_OF_Previous_Messages ? +process.env.NUMBER_OF_Previous_Messages : 7);
+  
           if (Array.isArray(arena.arenaAIFigures)) {
+            // Send one message after 20 seconds
             for (const arenaAiFigure of arena.arenaAIFigures) {
               const aiFigure = arenaAiFigure.aiFigure;
               if (aiFigure) {
-                const aiResponse = await this.generateAIResponse(arena.name, previousMessages,arenaId, aiFigure.prompt);
-
-                const aiMessage = await this.messageService.createMessage({
-                  senderId: aiFigure.id,
-                  content: aiResponse,
-                  arenaId,
-                  senderType: 'ai',
-                });
-
-                console.log(`Sending AI message from ${aiFigure.name} in arena: ${arenaId}`);
-                this.server.to(arenaId).emit('receiveMessage', aiMessage);
+                // Introduce a delay before sending the AI response
+                setTimeout(async () => {
+                  try {
+                    const aiResponse = await this.generateAIResponse(arena, previousMessages, arenaAiFigure);
+                    const aiMessage = await this.messageService.createMessage({
+                      senderId: aiFigure.id,
+                      content: aiResponse,
+                      arenaId,
+                      senderType: 'ai',
+                    });
+  
+                    console.log(`Sending AI message from ${aiFigure.name} in arena: ${arenaId}`);
+                    this.server.to(arenaId).emit('receiveMessage', aiMessage);
+                  } catch (responseError) {
+                    console.error(`Error generating AI response for ${aiFigure.name} in arena ${arenaId}:`, responseError);
+                  }
+                }, 20000); // Delay of 20 seconds
+                break; // Exit after scheduling the first message
               }
             }
           }
@@ -196,6 +207,7 @@ this.arenaService.joinArena(arenaId,userId)
       }
     }
   }
+  
 
   addActiveConversation(arenaId: string) {
     if (!this.activeConversations.has(arenaId)) {
@@ -205,16 +217,15 @@ this.arenaService.joinArena(arenaId,userId)
   }
 
   async generateAIResponse(
-    topic: string,
+    arena: Arena,
     previousMessages: Message[],
-    arenaId: string,
-    prompt: string
+    arenaAiFigure: ArenaAIFigure
   ): Promise<string> {
       // Concatenate previous messages to form the conversation context
       const context = previousMessages.map((msg) => `${msg.senderType}: ${msg.content}`).join('\n');
   
       // Pass all relevant data to langchainService's processMessage method
-      return this.langchainService.processMessage( topic, arenaId, prompt, context);
+      return this.langchainService.processMessage( arena,  arenaAiFigure, context);
   }
   
 }

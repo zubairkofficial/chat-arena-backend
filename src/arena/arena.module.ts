@@ -11,6 +11,10 @@ import { UserArenaService } from '../user-arena/user-arena.service';
 import { UserArenaRepository } from '../user-arena/user-arena.repository';
 import { ConfigService } from '@nestjs/config';
 import { ErrorLogModule } from '../error-logs/error-logs.module';
+import { FigureRoleService } from '../figure-role/figure-role.service';
+import { FigureRoleRepository } from '../figure-role/figure-role.repository';
+import { AIFigureService } from '../aifigure/aifigure.service';
+import { LangChainService } from '../langchain/langchain.service';
 
 
 @Module({
@@ -25,7 +29,11 @@ import { ErrorLogModule } from '../error-logs/error-logs.module';
     UserRepository,
     UserArenaService,
     UserArenaRepository,
-    ConfigService
+    ConfigService,
+    FigureRoleService,
+    FigureRoleRepository,
+    AIFigureService,
+    LangChainService
   ],
 })
 export class ArenaModule {}

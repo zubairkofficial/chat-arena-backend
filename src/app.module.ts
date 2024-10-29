@@ -16,6 +16,7 @@ import { ScheduleModule } from '@nestjs/schedule';  // Import ScheduleModule for
 import { LangChainService } from './langchain/langchain.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { FigureRoleModule } from './figure-role/figure-role.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -33,6 +34,7 @@ import { join } from 'path';
     ReactionModule,
     ArenaTypeModule,
     UserArenaModule,
+    FigureRoleModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

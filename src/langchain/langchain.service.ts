@@ -1,8 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { ChatOpenAI } from '@langchain/openai';
-import { openAI, TEMPLATES } from '../utils/constant/openAI.constants';
+import { openAI } from '../utils/constant/openAI.constants';
 import { HttpResponseOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
+import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
+import { Arena } from '../arena/entities/arena.entity';
 
 @Injectable()
 export class LangChainService {
@@ -22,21 +24,41 @@ export class LangChainService {
   // private firestore = getFirestore();
 
   async processMessage(
-    topic: string,
-    arenaId: string,
-    prompt: string,
+    arena: Arena,
+    arenaAiFigure: ArenaAIFigure,
     context: string,
   ): Promise<string> {
     try {
-      // Introduce variations in prompt for more natural, human-like responses
-      const promptTemplateString = `
-        Previous conversation:\n${context}\n\n
-        Topic: ${topic}\n
-        Arena ID: ${arenaId}\n
-        Prompt: ${prompt}\n
-        Instructions: See topic prompt previous message and answer relevant see previous message and answer. If the message is off topic and not provided in the prompt, simply excuse the user by saying. This is not my field of expertise so you cannot provide any information on this.
 
-          `;
+
+
+      // Introduce variations in prompt for more natural, human-like responses
+      const promptTemplateString = 
+ `
+ 
+You are ${arenaAiFigure.aiFigure.name}, You are described as:  ${arenaAiFigure.aiFigure.description},
+In this interaction, you are taking on the role of ${arenaAiFigure.figureRole.roleName} in the MultiMind Arena.
+Role Objective: ${arenaAiFigure.figureRole.roleObjective}
+Arena Context:
+- Previous conversation:\n${context}\n\n
+- Arena Type: ${arena.arenaType}
+- Current Topic/Activity: ${arena.name}
+Your tasks as ${arenaAiFigure.figureRole.roleName}:
+Remember to stay true to your historical/fictional persona while fulfilling your role.
+Your unique background and personality should influence how you approach your tasks.
+Your response or action (in character and aligned with your role):
+`;
+
+      // `
+      //   Previous conversation:\n${context}\n\n
+      //   Topic: ${topic}\n
+      //   Arena ID: ${arenaId}\n
+      //   Prompt: ${arenaAiFigure.aiFigure.prompt}\n
+      //   Role: ${arenaAiFigure.figureRole.roleName}\n
+      //   Role Objective: ${arenaAiFigure.figureRole.roleObjective}\n
+      //   Instructions: See topic prompt previous message and answer relevant see previous message and answer. If the message is off topic and not provided in the prompt, simply excuse the user by saying. This is not my field of expertise so you cannot provide any information on this.
+
+      //     `;
 
       // Set up the template for LangChain processing
       const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);
@@ -101,7 +123,7 @@ export class LangChainService {
             Topic: ${topic}\n
             Prompt: ${prompt}\n
             Message: ${message}\n
-            Instructions: See topic prompt message and answer relevant. If the message is off topic and not provided in the prompt. Simply excuse to the user by saying This is not your field of expertise so you can not provide any information on this.
+            Instructions: See topic prompt message and answer relevant. If the message is off topic and not provided in the prompt. Simply excuse to the user and ask them to talk about your field.
         `;
 
       // Set up the template for LangChain processing

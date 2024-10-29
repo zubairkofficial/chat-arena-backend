@@ -15,7 +15,8 @@ import { UserService } from '../user/user.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { ConfigService } from '@nestjs/config';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
-import { UserArenaService } from '../user-arena/user-arena.service';
+import { FigureRoleService } from '../figure-role/figure-role.service';
+import { AIFigureService } from '../aifigure/aifigure.service';
 
 @Injectable()
 export class ArenaService extends BaseService {
@@ -27,7 +28,8 @@ export class ArenaService extends BaseService {
     private readonly entityManager: EntityManager,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
-    private readonly userArenaService: UserArenaService,
+    private readonly figureRoleService: FigureRoleService,
+    private readonly aiFigureService: AIFigureService,
   ) {
     super(dataSource);
   }
@@ -37,58 +39,78 @@ export class ArenaService extends BaseService {
     input: ArenaDtos.CreateArenaDto,
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
+    const transactionScope = this.getTransactionScope();
+    
     try {
+      // Set the image URL if a file is provided
       if (file) {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || 'http://localhost:8080';
-        input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
+        input.image = `${baseUrl}/uploads/${file.filename}`;
       }
-      const transactionScope = this.getTransactionScope();
+  
+      // Validate the user
       const existUser = await this.userService.getUserById(user.id);
       if (!existUser) throw new NotFoundException('Invalid user specified');
-
+  
       // Validate ArenaType
       const arenaType = await this.arenaTypeRepository.findOneById(input.arenaTypeId);
       if (!arenaType) {
         throw new BadRequestException(`ArenaType with ID ${input.arenaTypeId} does not exist`);
       }
-
+  
       // Validate AIFigures
       const aiFigures = await this.aiFigureRepository.find({ where: { id: In(input.aiFigureId) } });
       if (aiFigures.length !== input.aiFigureId.length) {
         throw new BadRequestException('Some AIFigure IDs are invalid.');
       }
-
+  
       // Create the Arena object
       const arena = new Arena();
-      arena.name = input.name;
-      arena.description = input.description;
-      arena.expiryTime = input.expiryTime;
-      arena.maxParticipants = input.maxParticipants;
-      arena.status = input.status || 'open';
-      arena.arenaType = arenaType;
-      arena.createdBy = existUser;
-      if (input.image) arena.image = input.image;
-
+      Object.assign(arena, {
+        name: input.name,
+        description: input.description,
+        expiryTime: input.expiryTime,
+        maxParticipants: input.maxParticipants,
+        status: input.status || 'open',
+        arenaType,
+        createdBy: existUser,
+        image: input.image,
+      });
+  
       // Add the arena to the transaction scope
       transactionScope.add(arena);
-
+  
       // Create ArenaAIFigure entries
-      const arenaAIFigures = aiFigures.map((aiFigure) => {
+      const arenaAIFiguresPromises = Object.entries(input.aiFigureRoles).map(async ([aiFigureId, figureRoleId]) => {
+        // Fetch the figure role and AI figure based on the IDs
+        const figureRole = await this.figureRoleService.figureRoleById(figureRoleId);
+        const aiFigure = await this.aiFigureService.getAIFigureById(aiFigureId);
+      
+        // Create the ArenaAIFigure instance
         const arenaAiFigure = new ArenaAIFigure();
         arenaAiFigure.arena = arena;
         arenaAiFigure.aiFigure = aiFigure;
+        arenaAiFigure.figureRole = figureRole;
+      
         return arenaAiFigure;
       });
-
-      // Save the ArenaAIFigure entries
+      
+  
+      const arenaAIFigures = await Promise.all(arenaAIFiguresPromises);
+  
+      // Add ArenaAIFigure entries to the transaction scope
       transactionScope.addCollection(arenaAIFigures);
+      
+      
+      // Commit the transaction
       await transactionScope.commit(this.entityManager);
-
+  
       return arena;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
+  
 
   async joinArena(
     arenaId:string,
