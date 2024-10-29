@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
 import { FigureRoleService } from '../figure-role/figure-role.service';
 import { AIFigureService } from '../aifigure/aifigure.service';
+import { BASE_URL } from '../common/constants';
 
 @Injectable()
 export class ArenaService extends BaseService {
@@ -44,7 +45,7 @@ export class ArenaService extends BaseService {
     try {
       // Set the image URL if a file is provided
       if (file) {
-        const baseUrl = this.configService.get('BACK_END_BASE_URL') || 'http://localhost:8080';
+        const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`;
       }
   

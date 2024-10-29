@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { LangChainService } from '../langchain/langchain.service';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
 import { CommonDTOs } from '../common/dto';
+import { BASE_URL } from '../common/constants';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -25,9 +26,9 @@ export class AIFigureService extends BaseService {
   }
 
   // Create a new AIFigure
-  async createAIFigure(file: Express.Multer.File, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
+  async createAIFigure(file, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
     if (file) {
-      const baseUrl = this.configService.get('BACK_END_BASE_URL') || 'http://localhost:8080';
+      const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
     if (!input.name) {

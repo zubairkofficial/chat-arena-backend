@@ -145,18 +145,18 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
     }
   }
 
-  // @Cron(process.env.ARENA_ROOM_EXPIRY ||'*/10 * * * * *') // Checks every minute
-  // handleExpiryCron() {
-  //   const now = Date.now();
-  //   this.activeRooms.forEach((room, arenaId) => {
-  //     if (now > room.expiry) {
-  //       console.log(`Expiring room: ${arenaId}`);
-  //       this.arenaService.deleteArena(arenaId)
-  //       this.server.to(arenaId).emit('roomExpired', { arenaId });
-  //       this.activeRooms.delete(arenaId);
-  //     }
-  //   });
-  // }
+  @Cron(process.env.ARENA_ROOM_EXPIRY ||'*/60 * * * * *') // Checks every minute
+  handleExpiryCron() {
+    const now = Date.now();
+    this.activeRooms.forEach((room, arenaId) => {
+      if (now > room.expiry) {
+        console.log(`Expiring room: ${arenaId}`);
+        this.arenaService.deleteArena(arenaId)
+        this.server.to(arenaId).emit('roomExpired', { arenaId });
+        this.activeRooms.delete(arenaId);
+      }
+    });
+  }
 
   @Cron(process.env.CRON_SCHEDULE || '*/20 * * * * *')
   async handleCron() {
