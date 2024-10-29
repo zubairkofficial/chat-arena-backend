@@ -5,7 +5,6 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Response, Request } from 'express'; // Update import statement
 import { ErrorLogService } from '../error-logs/error-logs.service';
 
 @Catch()
@@ -14,8 +13,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
 
     const status =
       exception instanceof HttpException
