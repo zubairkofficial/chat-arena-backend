@@ -42,4 +42,19 @@ export class UserRepository extends Repository<User> {
   public getAllUser(): SelectQueryBuilder<User> {
     return this.dataSource.getRepository(User).createQueryBuilder('user');
   }
+  
+  public getHistoryByUserId(userId: string): SelectQueryBuilder<User> {
+    return this.dataSource
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.userArenas', 'userArenas') // Join userArenas
+      .leftJoinAndSelect('userArenas.arena', 'arena')     // Join arena from userArena
+      .leftJoinAndSelect('arena.messages', 'messages')    // Join messages from arena
+      .addSelect('messages.content')                      // Select the content of each message
+      .where('user.id = :userId', { userId });
+  }
+  
+  
+  
+  
 }

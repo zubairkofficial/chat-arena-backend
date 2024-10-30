@@ -258,6 +258,13 @@ export class UserService extends BaseService {
       throw new AllExceptionsFilter(error);
     }
   }
+  async getHistoryByUserId(id:string): Promise<User[]> {
+    try {
+      return this.userRepository.getHistoryByUserId(id).getMany();
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
 
   async deleteUser(id: string): Promise<{ message: string; user: User }> {
     try {

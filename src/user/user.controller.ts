@@ -148,11 +148,12 @@ export class UserController {
     }
   }
 
-  @Get('/history/:id')
+  @Get('/history/all')
   @UseGuards(AuthGuard)
-  async getHistoryId(@Req() req, @Param() param) {
+  async getHistoryByUserId(@Req() req) {
     try {
-      return await this.userService.getUserById(param.id);
+      const currentUser = req.user as CommonDTOs.CurrentUser; 
+      return await this.userService.getHistoryByUserId(currentUser.id);
     } catch (error) {
       handleServiceError(
         error,
