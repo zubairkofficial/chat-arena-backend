@@ -11,7 +11,6 @@ import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { Arena } from '../arena/entities/arena.entity';
-import { parseToUTC } from '../common/utils/dateTime';
 require('dotenv').config();
 @WebSocketGateway({
   cors: {
@@ -159,19 +158,36 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
   async handleExpiryCron() {
     const now = Date.now(); // Current UTC time in milliseconds
     const arenas = await this.arenaService.getAllArenas();
-  
+
     arenas.forEach(async (room) => {
-      // Parse the expiry time string as UTC
-      const expiryTime = parseToUTC(room.expiryTime);
-  
-      if (now > expiryTime) {
-        console.log(`Expiring room: ${room.id}`);
-        await this.arenaService.deleteArena(room.id);
-        this.server.to(room.id).emit('roomExpired', { roomId: room.id });
-        this.activeRooms.delete(room.id);
-      }
+        try {
+            // Check if expiryTime is a string, if not, convert it to string
+            const expiryTimeString = typeof room.expiryTime === 'string'
+                ? room.expiryTime
+                : room.expiryTime.toString(); // Ensure it's a string
+
+            // Convert expiry time to milliseconds
+            const expiryTime = Date.parse(expiryTimeString);
+
+            // Check if the parsing was successful
+            if (isNaN(expiryTime)) {
+                throw new Error(`Invalid expiry time for room ${room.id}`);
+            }
+
+            // Compare current time with expiry time
+            if (now > expiryTime) {
+                console.log(`Expiring room: ${room.id}`);
+                await this.arenaService.deleteArena(room.id);
+                this.server.to(room.id).emit('roomExpired', { roomId: room.id });
+                this.activeRooms.delete(room.id);
+            }
+        } catch (error) {
+            console.error(`Error processing room ${room.id}:`, error);
+        }
     });
-  }
+}
+
+
 
 
  

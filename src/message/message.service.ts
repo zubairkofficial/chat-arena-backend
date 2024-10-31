@@ -29,6 +29,7 @@ export class MessageService extends BaseService {
 
     try {
       const arena = await this.arenaService.getArenaById(input.arenaId);
+      if(!arena)throw new NotFoundException("Invalid arena specified")
       message.content = input.content;
       message.senderType = input.senderType;
       message.senderId = input.senderId;
