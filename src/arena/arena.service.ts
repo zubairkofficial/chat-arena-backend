@@ -71,7 +71,7 @@ export class ArenaService extends BaseService {
         name: input.name,
         description: input.description,
         expiryTime: input.expiryTime,
-        maxParticipants: input.maxParticipants,
+        maxParticipants: Number(input.maxParticipants),
         status: input.status || 'open',
         arenaType,
         createdBy: existUser,
