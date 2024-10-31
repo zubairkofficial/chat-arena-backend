@@ -11,6 +11,7 @@ import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { Arena } from '../arena/entities/arena.entity';
+import { parseToUTC } from '../common/utils/dateTime';
 require('dotenv').config();
 @WebSocketGateway({
   cors: {
@@ -156,11 +157,12 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
   @Cron(process.env.ARENA_ROOM_EXPIRY || '*/60 * * * * *') // Checks every minute
   async handleExpiryCron() {
-    const now = Date.now();
+    const now = Date.now(); // Current UTC time in milliseconds
     const arenas = await this.arenaService.getAllArenas();
-    
+  
     arenas.forEach(async (room) => {
-      const expiryTime = room.expiryTime instanceof Date ? room.expiryTime.getTime() : room.expiryTime;
+      // Parse the expiry time string as UTC
+      const expiryTime = parseToUTC(room.expiryTime);
   
       if (now > expiryTime) {
         console.log(`Expiring room: ${room.id}`);
@@ -170,6 +172,10 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
       }
     });
   }
+
+
+ 
+  
   
   @Cron(process.env.CRON_SCHEDULE || '*/20 * * * * *')
   async handleCron() {

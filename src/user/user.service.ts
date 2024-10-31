@@ -30,7 +30,6 @@ export class UserService extends BaseService {
   constructor(
     private readonly userRepository: UserRepository,
     dataSource: DataSource,
-    private readonly entityManager: EntityManager,
     private readonly configService: ConfigService,
   ) {
     super(dataSource);

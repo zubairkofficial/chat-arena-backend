@@ -158,7 +158,7 @@ export class UserController {
       handleServiceError(
         error,
         HttpStatus.INTERNAL_SERVER_ERROR,
-        'Failed to retrieve user',
+        'Failed to retrieve user history',
       );
     }
   }

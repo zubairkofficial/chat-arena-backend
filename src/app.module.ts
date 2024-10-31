@@ -17,6 +17,7 @@ import { LangChainService } from './langchain/langchain.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FigureRoleModule } from './figure-role/figure-role.module';
+import { UserAifigureMessageModule } from './user-aifigure-message/user-aifigure-message.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -34,7 +35,8 @@ import { FigureRoleModule } from './figure-role/figure-role.module';
     ReactionModule,
     ArenaTypeModule,
     UserArenaModule,
-    FigureRoleModule
+    FigureRoleModule,
+    UserAifigureMessageModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],
