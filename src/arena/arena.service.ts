@@ -71,7 +71,7 @@ export class ArenaService extends BaseService {
         name: input.name,
         description: input.description,
         expiryTime: input.expiryTime,
-        maxParticipants: input.maxParticipants,
+        maxParticipants: Number(input.maxParticipants),
         status: input.status || 'open',
         arenaType,
         createdBy: existUser,
@@ -128,7 +128,7 @@ export class ArenaService extends BaseService {
       const getArenaUsers = await this.getUsersByArenaId(arenaId);
       const numberOfUsers = getArenaUsers.userArenas.length;
 
-      if (arena.maxParticipants <= numberOfUsers) {
+      if (arena.maxParticipants!==0 && arena.maxParticipants < numberOfUsers) {
         throw new BadRequestException(`Cannot join Arena ${arena.name}. Maximum participants reached`);
       }
 

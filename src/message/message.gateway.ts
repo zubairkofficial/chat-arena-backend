@@ -162,16 +162,17 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
     arenas.forEach(async (room) => {
         try {
             // Check if expiryTime is a string, if not, convert it to string
-            const expiryTimeString = typeof room.expiryTime === 'string'
-                ? room.expiryTime
-                : room.expiryTime.toString(); // Ensure it's a string
+            const expiryTimeString = room.expiryTime
+    ? (typeof room.expiryTime === 'string' ? room.expiryTime : room.expiryTime.toString())
+    : ''; // Default to an empty string or another fallback if expiryTime is null or undefined
+
 
             // Convert expiry time to milliseconds
             const expiryTime = Date.parse(expiryTimeString);
 
             // Check if the parsing was successful
             if (isNaN(expiryTime)) {
-                throw new Error(`Invalid expiry time for room ${room.id}`);
+              return; 
             }
 
             // Compare current time with expiry time
