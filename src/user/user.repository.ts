@@ -47,14 +47,12 @@ export class UserRepository extends Repository<User> {
     return this.dataSource
       .getRepository(User)
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.userArenas', 'userArenas') // Join userArenas
-      .leftJoinAndSelect('userArenas.arena', 'arena')     // Join arena from userArena
-      .leftJoinAndSelect('arena.messages', 'messages')    // Join messages from arena
-      .addSelect('messages.content')                      // Select the content of each message
+      .leftJoinAndSelect('user.userArenas', 'userArenas')
+      .leftJoinAndSelect('userArenas.arena', 'arena')
+      .leftJoinAndSelect('arena.messages', 'messages')
+      .addSelect('messages.content')
+      .withDeleted()  // Include soft-deleted records
       .where('user.id = :userId', { userId });
-  }
-  
-  
-  
-  
+}
+ 
 }
