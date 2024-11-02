@@ -27,8 +27,7 @@ export namespace ArenaDtos {
     description?: string; // Description can be empty but must be a string if provided.
 
     @IsOptional()
-    @IsDate()
-    expiryTime?: Date; // Expiry time must be a valid date if provided.
+    expiryTime?: Date|string; // Expiry time must be a valid date if provided.
 
     @IsNotEmpty()
     @IsInt()

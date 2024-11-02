@@ -1,3 +1,4 @@
+import { UserAifigureMessageService } from './../user-aifigure-message/user-aifigure-message.service';
 import {
   Injectable,
   BadRequestException,
@@ -20,6 +21,7 @@ export class AIFigureService extends BaseService {
     private readonly aiFigureRepository: AIFigureRepository,
     private readonly configService: ConfigService,
     private readonly langchainService: LangChainService,
+    private readonly userAifigureMessageService: UserAifigureMessageService,
     dataSource: DataSource,
   ) {
     super(dataSource);
@@ -46,12 +48,20 @@ export class AIFigureService extends BaseService {
   async aiFigureMessage(figureId: string, message: string,currentUser: CommonDTOs.CurrentUser): Promise<string> {
     const aiFigure = await this.getAIFigureById(figureId);
     if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
-
+const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessage(figureId,process.env.NUMBER_OF_Previous_Messages ? +process.env.NUMBER_OF_Previous_Messages: 10)
+const context = userAiFigureContext.map((message) => ({
+  sendMessage: message.sendMessage,
+  receiveMessage: message.receiveMessage,
+}));
     try {
-      // const userAiFigure=this.
-    return await this.langchainService.aiFigureMessage(aiFigure.type, aiFigure.prompt, message);
+      
+    const langChainMessage= await this.langchainService.aiFigureMessage(aiFigure.description, aiFigure.prompt, message,context);
+   await this.userAifigureMessageService.createUserAiFigure(aiFigure,message,langChainMessage,currentUser)
+   return langChainMessage
+   
 
-    } catch (error) {
+  
+  } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
@@ -84,6 +94,8 @@ export class AIFigureService extends BaseService {
     input: AIFigureDtos.UpdateAIFigureDto,
   ): Promise<AIFigure> {
     const aiFigure = await this.getAIFigureById(id);
+    if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
+
 
     try {
       Object.assign(aiFigure, input);
@@ -94,12 +106,13 @@ export class AIFigureService extends BaseService {
   }
 
   // Delete AIFigure by ID
-  async deleteAIFigure(id: string): Promise<{ message: string }> {
-    const aiFigure = await this.getAIFigureById(id); // Ensure the AI figure exists
-
+  async deleteAIFigure(aiFigureId: string): Promise<{ message: string }> {
+    const aiFigure = await this.getAIFigureById(aiFigureId); // Ensure the AI figure exists
+    if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
+const userAiFigureMessage=await this.userAifigureMessageService.deleteUserAiFigure(aiFigureId)
     try {
-      await this.aiFigureRepository.remove(aiFigure);
-      return { message: `AIFigure with ID ${id} deleted successfully.` };
+      await this.aiFigureRepository.softRemove(aiFigure);
+      return { message: `AIFigure with ID deleted successfully.` };
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

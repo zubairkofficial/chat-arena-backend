@@ -123,7 +123,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
   } catch (error) {
     console.error('Error joining room:', error);
-    client.emit('error', error.message || 'Failed to join room');
+    client.emit('error', error || 'Failed to join room');
   }
 }
 

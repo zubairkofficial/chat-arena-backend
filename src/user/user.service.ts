@@ -264,6 +264,13 @@ export class UserService extends BaseService {
       throw new AllExceptionsFilter(error);
     }
   }
+  async getFigureByUserId(id:string): Promise<User[]> {
+    try {
+      return this.userRepository.getFigureByUserId(id).getMany();
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
 
   async deleteUser(id: string): Promise<{ message: string; user: User }> {
     try {

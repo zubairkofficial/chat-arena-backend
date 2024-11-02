@@ -47,12 +47,25 @@ export class UserRepository extends Repository<User> {
     return this.dataSource
       .getRepository(User)
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.userArenas', 'userArenas')
-      .leftJoinAndSelect('userArenas.arena', 'arena')
-      .leftJoinAndSelect('arena.messages', 'messages')
-      .addSelect('messages.content')
-      .withDeleted()  // Include soft-deleted records
+      .leftJoinAndSelect('user.userAifigureMessage', 'userAifigureMessage')
+      .withDeleted()
+      .leftJoinAndSelect('userAifigureMessage.aiFigure', 'aiFigure')
+      .withDeleted()
       .where('user.id = :userId', { userId });
 }
+
+public getFigureByUserId(userId: string): SelectQueryBuilder<User> {
+  return this.dataSource
+    .getRepository(User)
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.userAifigureMessage', 'userAifigureMessage')
+    .withDeleted() // Include soft-deleted records for userAifigureMessage
+    .leftJoinAndSelect('userAifigureMessage.aiFigure', 'aiFigure')
+    .withDeleted() // Include soft-deleted records for aiFigure
+    .select(['user.id', 'userAifigureMessage.id', 'aiFigure.name']) // Ensure that the aiFigure.name is explicitly included
+    .where('user.id = :userId', { userId })
+    .distinct(true);
+}
+
  
 }

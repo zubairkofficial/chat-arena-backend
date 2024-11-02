@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
 import { AIFigureType } from '../../common/enums';
+import { UserAifigureMessage } from '../../user-aifigure-message/entities/user-aifigure-message.entity';
 
 @Entity()
 export class AIFigure {
@@ -27,6 +28,7 @@ export class AIFigure {
 
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
   arenaAIFigures: ArenaAIFigure[];
-  // @OneToMany(() => UserAIFigure, (userAIFigure) => userAIFigure.aiFigure)
-  // userAIFigure: UserAIFigure[];
+
+  @OneToMany(() => UserAifigureMessage, (userAifigureMessage) => userAifigureMessage.aiFigure)
+  userAifigureMessage: UserAifigureMessage[];
 }

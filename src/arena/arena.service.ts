@@ -70,7 +70,7 @@ export class ArenaService extends BaseService {
       Object.assign(arena, {
         name: input.name,
         description: input.description,
-        expiryTime: input.expiryTime,
+        expiryTime: input.expiryTime == 'null' ? null : input.expiryTime,
         maxParticipants: Number(input.maxParticipants),
         status: input.status || 'open',
         arenaType,

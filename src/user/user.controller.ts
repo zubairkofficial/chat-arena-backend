@@ -148,12 +148,27 @@ export class UserController {
     }
   }
 
-  @Get('/history/all')
+  @Get('history/all')
   @UseGuards(AuthGuard)
   async getHistoryByUserId(@Req() req) {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser; 
       return await this.userService.getHistoryByUserId(currentUser.id);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve user history',
+      );
+    }
+  }
+
+  @Get('history/figure-list')
+  @UseGuards(AuthGuard)
+  async getFigureByUserId(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser; 
+      return await this.userService.getFigureByUserId(currentUser.id);
     } catch (error) {
       handleServiceError(
         error,

@@ -1,3 +1,4 @@
+import { UserAifigureMessage } from '../../user-aifigure-message/entities/user-aifigure-message.entity';
 import { Arena } from '../../arena/entities/arena.entity';
 import { EntityBase } from '../../base/entityBase';
 import { Persona } from '../../persona/entities/persona.entity';
@@ -43,4 +44,7 @@ export class User extends EntityBase {
 
   @OneToMany(() => Arena, (arena) => arena.createdBy)
   arenas: Arena[];
+  
+  @OneToMany(() => UserAifigureMessage, (userAifigureMessage) => userAifigureMessage.user)
+  userAifigureMessage: UserAifigureMessage[];
 }

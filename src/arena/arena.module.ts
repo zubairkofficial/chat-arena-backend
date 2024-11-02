@@ -15,6 +15,8 @@ import { FigureRoleService } from '../figure-role/figure-role.service';
 import { FigureRoleRepository } from '../figure-role/figure-role.repository';
 import { AIFigureService } from '../aifigure/aifigure.service';
 import { LangChainService } from '../langchain/langchain.service';
+import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigure-message.service';
+import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 
 
 @Module({
@@ -33,7 +35,9 @@ import { LangChainService } from '../langchain/langchain.service';
     FigureRoleService,
     FigureRoleRepository,
     AIFigureService,
-    LangChainService
+    LangChainService,
+    UserAifigureMessageService,
+    UserAifigureMessageRepository
   ],
 })
 export class ArenaModule {}

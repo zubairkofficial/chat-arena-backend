@@ -49,17 +49,6 @@ Your unique background and personality should influence how you approach your ta
 Your response or action (in character and aligned with your role):
 `;
 
-      // `
-      //   Previous conversation:\n${context}\n\n
-      //   Topic: ${topic}\n
-      //   Arena ID: ${arenaId}\n
-      //   Prompt: ${arenaAiFigure.aiFigure.prompt}\n
-      //   Role: ${arenaAiFigure.figureRole.roleName}\n
-      //   Role Objective: ${arenaAiFigure.figureRole.roleObjective}\n
-      //   Instructions: See topic prompt previous message and answer relevant see previous message and answer. If the message is off topic and not provided in the prompt, simply excuse the user by saying. This is not my field of expertise so you cannot provide any information on this.
-
-      //     `;
-
       // Set up the template for LangChain processing
       const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);
       const outputParser = new HttpResponseOutputParser();
@@ -84,7 +73,7 @@ Your response or action (in character and aligned with your role):
       }
 
       // Ensure response includes variations or human-like phrasing
-      return this.addHumanlikeVariations(responseString);
+      return responseString;
     } catch (error) {
       console.error('Error in LangChain processing:', error);
       throw new HttpException(
@@ -94,37 +83,64 @@ Your response or action (in character and aligned with your role):
     }
   }
 
-  // Helper function to add human-like conversational elements to the response
-  addHumanlikeVariations(response: string): string {
-    const conversationalFillers = [
-      "Let's see...",
-      'Well, I think...',
-      'From what I gather,',
-      'If I’m not mistaken,',
-      'Here’s what I’ve found:',
-      'Interesting point! Here’s more on that:',
-    ];
-
-    // Add a random conversational filler at the beginning
-    const filler =
-      conversationalFillers[
-        Math.floor(Math.random() * conversationalFillers.length)
-      ];
-    return `${filler} ${response}`;
-  }
+ 
 
   async aiFigureMessage(
-    topic: string,
+    description: string,
     prompt: string,
     message: string,
+    context: { sendMessage: string; receiveMessage: string; }[]
   ): Promise<string> {
     try {
-      const promptTemplateString = `
-            Topic: ${topic}\n
-            Prompt: ${prompt}\n
-            Message: ${message}\n
-            Instructions: See topic prompt message and answer relevant. If the message is off topic and not provided in the prompt. Simply excuse to the user and ask them to talk about your field.
-        `;
+
+      const contextFormatted = context
+      .map((msg) => {
+          // Check if there is a user message or an AI message and format accordingly
+          if (msg.sendMessage) {
+              return `User: "${msg.sendMessage}"`;
+          } else if (msg.receiveMessage) {
+              return `AI: "${msg.receiveMessage}"`;
+          }
+          return ''; // Return an empty string if neither is present
+      })
+      .filter((line) => line) // Remove any empty lines
+      .join('\n');
+  
+  const promptTemplateString = `
+    You are an AI figure designed to assist users with specific tasks. Here are the details of your configuration:
+
+    *Description:*
+    ${description}
+
+    *Base Prompt:*
+    ${prompt}
+
+    *User Interaction:*
+    The user will communicate with you by entering messages. Below is the user's current query:
+
+    *User Message:*
+    "${message}"
+
+    *Instructions:*
+    - Respond to the user message in a helpful and informative manner.
+    - Provide clear, concise answers and, if applicable, include examples or additional resources.
+    - Maintain a friendly and supportive tone throughout the conversation.
+    
+    *Context:*
+    - Previous conversation:
+${contextFormatted}
+
+    Ensure that your responses are relevant to the user's query, and feel free to ask clarifying questions if the user's input is ambiguous.
+
+    *Response Format:*
+    Your response should:
+    1. Start with a greeting.
+    2. Acknowledge the user's message and incorporate relevant information from the previous conversation context.
+    3. Answer the question directly, adding examples if needed.
+    4. End with an offer for further assistance.
+
+    *Response:*
+`;
 
       // Set up the template for LangChain processing
       const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);

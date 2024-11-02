@@ -22,4 +22,7 @@ export class ErrorLogService {
 
     await this.errorLogRepository.save(errorLog);
   }
+  async getAllError() {
+   return this.errorLogRepository.find();
+  }
 }

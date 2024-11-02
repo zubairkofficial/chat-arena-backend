@@ -18,6 +18,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { FigureRoleModule } from './figure-role/figure-role.module';
 import { UserAifigureMessageModule } from './user-aifigure-message/user-aifigure-message.module';
+import { ErrorLogModule } from './error-logs/error-logs.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -36,7 +37,8 @@ import { UserAifigureMessageModule } from './user-aifigure-message/user-aifigure
     ArenaTypeModule,
     UserArenaModule,
     FigureRoleModule,
-    UserAifigureMessageModule
+    UserAifigureMessageModule,
+    ErrorLogModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],
