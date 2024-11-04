@@ -14,7 +14,7 @@ export class UserAifigureMessageRepository extends Repository<UserAifigureMessag
       .getRepository(UserAifigureMessage)
       .createQueryBuilder('userAifigureMessage')
       
-      .where('aiFigure.id = :aiFigureId', { aiFigureId });
+      .where('userAifigureMessage.aiFigure_id = :aiFigureId', { aiFigureId });
 }
 
 }

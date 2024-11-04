@@ -61,6 +61,7 @@ public getArenaByIdAndJoin(arenaId: string): SelectQueryBuilder<Arena> {
     .leftJoinAndSelect('userArena.user', 'user') // Join and select the User entity
     .where('arena.id = :arenaId', { arenaId }) // Filter on arena.id
 }
+
 public getArenaWithAIFigure(arenaId: string): SelectQueryBuilder<Arena> {
   return this.dataSource
     .getRepository(Arena)

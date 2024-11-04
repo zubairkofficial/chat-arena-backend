@@ -8,6 +8,7 @@ import { AIFigure } from '../aifigure/entities/aifigure.entity';
 import { CommonDTOs } from '../common/dto';
 import { UserService } from '../user/user.service';
 import { UserAifigureMessageRepository } from './user-aifigure-message.repository';
+import { TransactionScope } from 'src/base/transactionScope';
 
 @Injectable()
 export class UserAifigureMessageService extends BaseService {
@@ -35,12 +36,13 @@ export class UserAifigureMessageService extends BaseService {
   }
  
  async deleteUserAiFigure(id: string) {
-    const transactionScope=this.getTransactionScope()
+    
 const userAiFigure=await this.userAifigureMessageRepository.getUserAiFigureById(id).getMany()
-transactionScope.deleteCollection(userAiFigure)
+
+return userAiFigure
   }
   
- async getPreviousMessage(id: string,limit) {
+ async getPreviousMessage(id: string,limit: number) {
   return await this.userAifigureMessageRepository.find({
     where: {
       aiFigure: {

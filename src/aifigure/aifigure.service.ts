@@ -8,7 +8,7 @@ import { AIFigureRepository } from './aifigure.repository';
 import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
 import { BaseService } from '../base/base.service';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { LangChainService } from '../langchain/langchain.service';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
@@ -21,6 +21,7 @@ export class AIFigureService extends BaseService {
     private readonly aiFigureRepository: AIFigureRepository,
     private readonly configService: ConfigService,
     private readonly langchainService: LangChainService,
+    private readonly entityManager: EntityManager,
     private readonly userAifigureMessageService: UserAifigureMessageService,
     dataSource: DataSource,
   ) {
@@ -55,7 +56,7 @@ const context = userAiFigureContext.map((message) => ({
 }));
     try {
       
-    const langChainMessage= await this.langchainService.aiFigureMessage(aiFigure.description, aiFigure.prompt, message,context);
+    const langChainMessage= await this.langchainService.aiFigureMessage(aiFigure, message,context);
    await this.userAifigureMessageService.createUserAiFigure(aiFigure,message,langChainMessage,currentUser)
    return langChainMessage
    
@@ -78,7 +79,7 @@ const context = userAiFigureContext.map((message) => ({
   // Get AIFigure by ID
   async getAIFigureById(id: string): Promise<AIFigure> {
     try {
-      const aiFigure = await this.aiFigureRepository.findOne({ where: { id } });
+      const aiFigure = await this.aiFigureRepository.getAIFigureByIdWithRole(id).getOne();
       if (!aiFigure) {
         throw new NotFoundException(`AIFigure with ID ${id} not found.`);
       }
@@ -107,11 +108,14 @@ const context = userAiFigureContext.map((message) => ({
 
   // Delete AIFigure by ID
   async deleteAIFigure(aiFigureId: string): Promise<{ message: string }> {
-    const aiFigure = await this.getAIFigureById(aiFigureId); // Ensure the AI figure exists
-    if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
-const userAiFigureMessage=await this.userAifigureMessageService.deleteUserAiFigure(aiFigureId)
-    try {
-      await this.aiFigureRepository.softRemove(aiFigure);
+       try {
+        const transactionScop=this.getTransactionScope()
+        const aiFigure = await this.getAIFigureById(aiFigureId); // Ensure the AI figure exists
+        if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
+       const userAiFigureMessage=await this.userAifigureMessageService.deleteUserAiFigure(aiFigureId)    
+      transactionScop.deleteCollection(userAiFigureMessage)
+      transactionScop.delete(aiFigure)
+      await transactionScop.commit(this.entityManager)
       return { message: `AIFigure with ID deleted successfully.` };
     } catch (error) {
       throw new AllExceptionsFilter(error);

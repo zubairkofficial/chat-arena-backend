@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
 import { AIFigureType } from '../../common/enums';
 import { UserAifigureMessage } from '../../user-aifigure-message/entities/user-aifigure-message.entity';
+import { EntityBase } from '../../base/entityBase';
 
 @Entity()
-export class AIFigure {
+export class AIFigure extends EntityBase {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: string;
 

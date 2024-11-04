@@ -15,6 +15,15 @@ export class AIFigureRepository extends Repository<AIFigure> {
       .where('aifigure.id = :id', { id });
   }
 
+  public getAIFigureByIdWithRole(id: string): SelectQueryBuilder<AIFigure> {
+    return this.dataSource
+      .getRepository(AIFigure)
+      .createQueryBuilder('aifigure')
+      .leftJoinAndSelect('aifigure.arenaAIFigures', 'arenaAIFigures')
+      .leftJoinAndSelect('arenaAIFigures.figureRole', 'figureRole')
+      .where('aifigure.id = :id', { id });
+  }
+
   public getAIFigureByName(name: string): SelectQueryBuilder<AIFigure> {
     return this.dataSource
       .getRepository(AIFigure)

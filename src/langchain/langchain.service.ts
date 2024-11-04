@@ -5,6 +5,7 @@ import { HttpResponseOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { Arena } from '../arena/entities/arena.entity';
+import { AIFigure } from '../aifigure/entities/aifigure.entity';
 
 @Injectable()
 export class LangChainService {
@@ -86,8 +87,7 @@ Your response or action (in character and aligned with your role):
  
 
   async aiFigureMessage(
-    description: string,
-    prompt: string,
+    aiFigure: AIFigure,
     message: string,
     context: { sendMessage: string; receiveMessage: string; }[]
   ): Promise<string> {
@@ -109,11 +109,14 @@ Your response or action (in character and aligned with your role):
   const promptTemplateString = `
     You are an AI figure designed to assist users with specific tasks. Here are the details of your configuration:
 
+    *Name:*
+    ${aiFigure.name}
+
     *Description:*
-    ${description}
+    ${aiFigure.description}
 
     *Base Prompt:*
-    ${prompt}
+    ${aiFigure.prompt}
 
     *User Interaction:*
     The user will communicate with you by entering messages. Below is the user's current query:
@@ -133,12 +136,9 @@ ${contextFormatted}
     Ensure that your responses are relevant to the user's query, and feel free to ask clarifying questions if the user's input is ambiguous.
 
     *Response Format:*
-    Your response should:
-    1. Start with a greeting.
-    2. Acknowledge the user's message and incorporate relevant information from the previous conversation context.
-    3. Answer the question directly, adding examples if needed.
-    4. End with an offer for further assistance.
-
+    Your response should: 
+    1. Answer the question directly, adding examples if needed.
+  
     *Response:*
 `;
 

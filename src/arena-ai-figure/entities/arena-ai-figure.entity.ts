@@ -5,7 +5,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToOne,
   JoinColumn,
 } from 'typeorm';
 import { FigureRole } from '../../figure-role/entities/figure-role.entity';
