@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
@@ -8,9 +8,11 @@ import { UserArenaRepository } from '../user-arena/user-arena.repository';
 import { ConfigService } from '@nestjs/config';
 import { ErrorLogModule } from '../error-logs/error-logs.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PaymentModule } from '../payment/payment.module';
 
 @Module({
   imports: [
+    forwardRef(() => PaymentModule), 
     TypeOrmModule.forFeature([UserRepository, UserArenaRepository]), // Import your repositories here
     ErrorLogModule, // Import the ErrorLogModule here
   ],
@@ -22,5 +24,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     UserArenaService,
     ConfigService,
   ],
+  exports: [UserRepository],
 })
 export class UserModule {}

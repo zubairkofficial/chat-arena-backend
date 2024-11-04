@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        /* Basic styling for the payment form */
+        
+        #payment-form {
+            width: 300px;
+            margin: 0 auto;
+        }
+        
+        #card-element {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background-color: #6772e5;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        button:disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Payment Form</h2>
+    <form id="payment-form">
+        <div id="card-element"></div>
+        <button type="submit">Pay</button>
+    </form>
+
+    <div id="payment-message" role="alert"></div>
+
+    <script>
+        const stripe = Stripe('pk_test_51Ke1KTHjHBX7BsTL9GI1BjJ8Yv2KMhcP1ndogzS2M44MBHWMpJWXBv3Fxb3OMzHD11IwzeGgTIzLg0ZphZrnc0wJ00ygtkJvLk'); // Replace with your actual publishable key
+        const elements = stripe.elements();
+        const cardElement = elements.create('card');
+        cardElement.mount('#card-element');
+
+        const form = document.getElementById('payment-form');
+        form.addEventListener('submit', async(event) => {
+            event.preventDefault();
+            const button = form.querySelector('button');
+            button.disabled = true; // Disable the button to prevent multiple submissions
+
+            const {
+                clientSecret
+            } = await fetch('/payment/create-intent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: 5000
+                }), // amount in cents
+            }).then(response => response.json());
+
+            const {
+                error
+            } = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: cardElement,
+                    billing_details: {
+                        name: 'Cardholder Name'
+                    },
+                },
+            });
+
+            if (error) {
+                console.error(error);
+                document.getElementById('payment-message').innerText = error.message;
+                button.disabled = false; // Re-enable the button
+            } else {
+                console.log('Payment successful!');
+                document.getElementById('payment-message').innerText = 'Payment successful!';
+                form.reset(); // Clear the form
+            }
+        });
+    </script>
+</body>
+
+</html>

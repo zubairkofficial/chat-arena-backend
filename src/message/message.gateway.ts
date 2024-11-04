@@ -156,32 +156,35 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
   @Cron(process.env.ARENA_ROOM_EXPIRY || '*/60 * * * * *') // Checks every minute
   async handleExpiryCron() {
-    const now = Date.now(); // Current UTC time in milliseconds
+    const now = new Date();
+    const nowTime = new Date(now.getTime()); // Current UTC time in milliseconds
     const arenas = await this.arenaService.getAllArenas();
 
     arenas.forEach(async (room) => {
         try {
             // Check if expiryTime is a string, if not, convert it to string
             const expiryTimeString = room.expiryTime
-    ? (typeof room.expiryTime === 'string' ? room.expiryTime : room.expiryTime.toString())
-    : ''; // Default to an empty string or another fallback if expiryTime is null or undefined
+        // Default to an empty string or another fallback if expiryTime is null or undefined
 
 
             // Convert expiry time to milliseconds
-            const expiryTime = Date.parse(expiryTimeString);
+            const expiryTime = expiryTimeString ? expiryTimeString : null;
+
 
             // Check if the parsing was successful
-            if (isNaN(expiryTime)) {
+            if (!expiryTime) {
               return; 
             }
 
             // Compare current time with expiry time
-            if (now > expiryTime) {
-                console.log(`Expiring room: ${room.id}`);
-                await this.arenaService.deleteArena(room.id);
-                this.server.to(room.id).emit('roomExpired', { roomId: room.id });
-                this.activeRooms.delete(room.id);
-            }
+            if (nowTime > expiryTime) {
+              console.log(`Expiring room: ${room.id}`);
+              await this.arenaService.deleteArena(room.id);
+              this.server.to(room.id).emit('roomExpired', { roomId: room.id });
+              this.activeRooms.delete(room.id);
+          }
+        
+          
         } catch (error) {
             console.error(`Error processing room ${room.id}:`, error);
         }

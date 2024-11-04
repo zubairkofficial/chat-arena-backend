@@ -19,6 +19,7 @@ import { join } from 'path';
 import { FigureRoleModule } from './figure-role/figure-role.module';
 import { UserAifigureMessageModule } from './user-aifigure-message/user-aifigure-message.module';
 import { ErrorLogModule } from './error-logs/error-logs.module';
+import { PaymentModule } from './payment/payment.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -38,7 +39,8 @@ import { ErrorLogModule } from './error-logs/error-logs.module';
     UserArenaModule,
     FigureRoleModule,
     UserAifigureMessageModule,
-    ErrorLogModule
+    ErrorLogModule,
+    PaymentModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],
