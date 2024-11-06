@@ -4,6 +4,7 @@ import { EntityBase } from '../../base/entityBase';
 import { Persona } from '../../persona/entities/persona.entity';
 import { UserArena } from '../../user-arena/entities/user-arena.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { UserPackageBundle } from '../../user-package-bundle/entities/user-package-bundle.entity';
 
 @Entity({ name: 'user' })
 export class User extends EntityBase {
@@ -47,4 +48,7 @@ export class User extends EntityBase {
   
   @OneToMany(() => UserAifigureMessage, (userAifigureMessage) => userAifigureMessage.user)
   userAifigureMessage: UserAifigureMessage[];
+
+  @OneToMany(() => UserPackageBundle, (userPackageBundle) => userPackageBundle.user)
+  userPackageBundles: UserPackageBundle[];
 }

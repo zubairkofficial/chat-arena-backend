@@ -20,6 +20,7 @@ import { FigureRoleModule } from './figure-role/figure-role.module';
 import { UserAifigureMessageModule } from './user-aifigure-message/user-aifigure-message.module';
 import { ErrorLogModule } from './error-logs/error-logs.module';
 import { PaymentModule } from './payment/payment.module';
+import { PackageBundlesModule } from './package-bundle/package-bundle.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -40,7 +41,8 @@ import { PaymentModule } from './payment/payment.module';
     FigureRoleModule,
     UserAifigureMessageModule,
     ErrorLogModule,
-    PaymentModule
+    PaymentModule,
+    PackageBundlesModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

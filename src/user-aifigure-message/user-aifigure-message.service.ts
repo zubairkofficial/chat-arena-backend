@@ -8,7 +8,6 @@ import { AIFigure } from '../aifigure/entities/aifigure.entity';
 import { CommonDTOs } from '../common/dto';
 import { UserService } from '../user/user.service';
 import { UserAifigureMessageRepository } from './user-aifigure-message.repository';
-import { TransactionScope } from 'src/base/transactionScope';
 
 @Injectable()
 export class UserAifigureMessageService extends BaseService {
