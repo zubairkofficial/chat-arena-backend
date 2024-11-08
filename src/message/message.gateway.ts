@@ -257,9 +257,10 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
   ): Promise<string> {
       // Concatenate previous messages to form the conversation context
       const context = previousMessages.map((msg) => `${msg.senderType}: ${msg.content}`).join('\n');
-  
+      const userMessage = previousMessages.length > 0 ? previousMessages[previousMessages.length - 1].content : '';
+
       // Pass all relevant data to langchainService's processMessage method
-      return this.langchainService.processMessage( arena,  arenaAiFigure, context);
+      return this.langchainService.processMessage( arena,  arenaAiFigure, context,userMessage);
   }
   
 }

@@ -14,6 +14,7 @@ import { LangChainService } from '../langchain/langchain.service';
 import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust the import as necessary
 import { CommonDTOs } from '../common/dto';
 import { BASE_URL } from '../common/constants';
+import { UserAifigureMessage } from '../user-aifigure-message/entities/user-aifigure-message.entity';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -59,6 +60,21 @@ const context = userAiFigureContext.map((message) => ({
     const langChainMessage= await this.langchainService.aiFigureMessage(aiFigure, message,context);
    await this.userAifigureMessageService.createUserAiFigure(aiFigure,message,langChainMessage,currentUser)
    return langChainMessage
+   
+
+  
+  } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+  async getAiFigureMessage(figureId: string,currentUser: CommonDTOs.CurrentUser): Promise<UserAifigureMessage[]> {
+    const aiFigure = await this.getAIFigureById(figureId);
+    if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
+const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessageUserById(figureId,currentUser.id)
+
+    try {
+      
+    return userAiFigureContext
    
 
   

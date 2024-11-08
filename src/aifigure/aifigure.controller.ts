@@ -20,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from '../utils/file-upload.utils';
 import { CommonDTOs } from '../common/dto';
 import { AuthGuard } from '../middleware/auth.middleware';
+import { UserAifigureMessage } from '../user-aifigure-message/entities/user-aifigure-message.entity';
 
 @Controller('ai-figures')
 export class AIFigureController {
@@ -58,6 +59,26 @@ export class AIFigureController {
       const currentUser = req.user as CommonDTOs.CurrentUser;
 
       return await this.aiFigureService.aiFigureMessage(figureId,input.message,currentUser);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.BAD_REQUEST,
+        'Failed to create AI figure',
+      );
+    }
+  }
+  @Get('previous-chat/:figureId')
+  @UseGuards(AuthGuard)
+  async getAiFigureMessage(
+    @Req() req,
+    @Param('figureId') figureId: string,
+    @Body() input: AIFigureDtos.MessageDto,
+  ): Promise<UserAifigureMessage[]> {
+    try {
+
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+
+      return await this.aiFigureService.getAiFigureMessage(figureId,currentUser);
     } catch (error) {
       handleServiceError(
         error,

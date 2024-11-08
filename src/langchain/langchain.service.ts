@@ -28,27 +28,35 @@ export class LangChainService {
     arena: Arena,
     arenaAiFigure: ArenaAIFigure,
     context: string,
+    userMessage:string
   ): Promise<string> {
     try {
-
-
-
       // Introduce variations in prompt for more natural, human-like responses
-      const promptTemplateString = 
- `
- 
-You are ${arenaAiFigure.aiFigure.name}, You are described as:  ${arenaAiFigure.aiFigure.description},
-In this interaction, you are taking on the role of ${arenaAiFigure.figureRole.roleName} in the MultiMind Arena.
-Role Objective: ${arenaAiFigure.figureRole.roleObjective}
-Arena Context:
-- Previous conversation:\n${context}\n\n
-- Arena Type: ${arena.arenaType}
-- Current Topic/Activity: ${arena.name}
-Your tasks as ${arenaAiFigure.figureRole.roleName}:
-Remember to stay true to your historical/fictional persona while fulfilling your role.
-Your unique background and personality should influence how you approach your tasks.
-Your response or action (in character and aligned with your role):
+      const promptTemplateString = `
+      You are ${arenaAiFigure.aiFigure.name}, known for your qualities: ${arenaAiFigure.aiFigure.description}.
+      You are playing the role of ${arenaAiFigure.figureRole.roleName} within the MultiMind Arena focused on Pakistan.
+
+      Arena Context:
+      - Arena Type: ${arena.arenaType}
+      - Arena Name: ${arena.name}
+      - Arena Description: ${arena.description || 'No specific description provided.'}
+      - Role Objective: ${arenaAiFigure.figureRole.roleObjective}
+
+      User's Current Question:
+      "${userMessage}"
+
+      Instructions:
+      - Provide a clear and accurate answer to the user's current question.
+      - Keep your response concise, factual, and directly related to the question.
+      - Only elaborate if the question invites storytelling or historical background. For simple questions, provide brief, informative responses.
+      - Ignore unrelated details from previous messages unless absolutely necessary.
+
+      Response (in character only if it adds value to the answer, otherwise answer directly and clearly):
 `;
+
+
+
+      
 
       // Set up the template for LangChain processing
       const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);

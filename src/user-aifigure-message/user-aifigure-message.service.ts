@@ -54,4 +54,20 @@ return userAiFigure
     },
   });
   }
+  async getPreviousMessageUserById(id: string, userId: string) {
+    return await this.userAifigureMessageRepository.find({
+      where: {
+        aiFigure: {
+          id,
+        },
+        user: {
+          id: userId,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+  
 }
