@@ -171,9 +171,12 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
   
               // Parse expiry time from the stored string (assuming it is in ISO format or a compatible format)
               const expiryTime = new Date(expiryTimeString);
-  console.log("expiryTime",expiryTime,"now",now)
+              
               // Compare current time with expiry time
-              if (now > expiryTime) {
+              const currentTimeISo=now.toISOString()
+              const expiryTimeISO=expiryTime.toISOString()
+              console.log("expiryTime",currentTimeISo,"now",expiryTimeISO)
+              if (currentTimeISo >= expiryTimeISO) {
                   console.log(`Expiring room: ${room.id}`);
                   await this.arenaService.deleteArena(room.id);
                   this.server.to(room.id).emit('roomExpired', { roomId: room.id });
