@@ -156,40 +156,35 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
   @Cron(process.env.ARENA_ROOM_EXPIRY || '*/60 * * * * *') // Checks every minute
   async handleExpiryCron() {
-    const now = new Date();
-    const nowTime = new Date(now.getTime()); // Current UTC time in milliseconds
-    const arenas = await this.arenaService.getAllArenas();
-
-    arenas.forEach(async (room) => {
-        try {
-            // Check if expiryTime is a string, if not, convert it to string
-            const expiryTimeString = room.expiryTime
-        // Default to an empty string or another fallback if expiryTime is null or undefined
-
-
-            // Convert expiry time to milliseconds
-            const expiryTime = expiryTimeString ? expiryTimeString : null;
-
-
-            // Check if the parsing was successful
-            if (!expiryTime) {
-              return; 
-            }
-
-            // Compare current time with expiry time
-            if (nowTime > expiryTime) {
-              console.log(`Expiring room: ${room.id}`);
-              await this.arenaService.deleteArena(room.id);
-              this.server.to(room.id).emit('roomExpired', { roomId: room.id });
-              this.activeRooms.delete(room.id);
+      const now = new Date();
+      const arenas = await this.arenaService.getAllArenas();
+  
+      arenas.forEach(async (room) => {
+          try {
+              // Check if expiryTime exists, then parse it to a Date object
+              const expiryTimeString = room.expiryTime;
+  
+              // If expiryTimeString is null or undefined, skip this room
+              if (!expiryTimeString) {
+                  return;
+              }
+  
+              // Parse expiry time from the stored string (assuming it is in ISO format or a compatible format)
+              const expiryTime = new Date(expiryTimeString);
+  
+              // Compare current time with expiry time
+              if (now > expiryTime) {
+                  console.log(`Expiring room: ${room.id}`);
+                  await this.arenaService.deleteArena(room.id);
+                  this.server.to(room.id).emit('roomExpired', { roomId: room.id });
+                  this.activeRooms.delete(room.id);
+              }
+          } catch (error) {
+              console.error(`Error processing room ${room.id}:`, error);
           }
-        
-          
-        } catch (error) {
-            console.error(`Error processing room ${room.id}:`, error);
-        }
-    });
-}
+      });
+  }
+  
 
 
 
