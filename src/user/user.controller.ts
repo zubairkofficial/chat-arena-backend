@@ -47,7 +47,7 @@ export class UserController {
     try {
       return await this.userService.login(loginDto);
     } catch (error) {
-      handleServiceError(error, HttpStatus.UNAUTHORIZED, 'Login failed');
+      handleServiceError(error.errorLogService, HttpStatus.UNAUTHORIZED, 'Login failed');
     }
   }
 
@@ -89,15 +89,37 @@ export class UserController {
   @Put('update')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', {
-    storage: storageConfig('./uploads'), // Specify the uploads directory
+    storage: storageConfig('./uploads'), // Specify the uploads directory for file storage
   }))
-  async updateUser(@Req() req, @Body() input: UserDtos.UpdateUser, @UploadedFile() file, // Handle the uploaded file
+  async updateUser(
+    @Req() req,
+    @Body() input: UserDtos.UpdateUser,
+    @UploadedFile() file, // Handle the uploaded file
   ) {
     try {
+      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the user object from request
 
-      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the user object
+      // Check if the file is provided and validate it
+      if (file) {
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.mimetype)) {
+          throw new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.');
+        }
+      }
+
+      // Pass the data to the service for processing
       return await this.userService.updateUser(input, currentUser, file);
     } catch (error) {
+
+      // If error is custom, handle it specifically
+      if (error.message && error.message.includes('Invalid file type')) {
+        handleServiceError(
+          error,
+          HttpStatus.BAD_REQUEST,
+          'Failed to update user',
+        );
+      }
+
+      // Otherwise, handle generic errors
       handleServiceError(
         error,
         HttpStatus.INTERNAL_SERVER_ERROR,
