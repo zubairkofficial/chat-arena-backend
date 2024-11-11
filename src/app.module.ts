@@ -21,6 +21,7 @@ import { UserAifigureMessageModule } from './user-aifigure-message/user-aifigure
 import { ErrorLogModule } from './error-logs/error-logs.module';
 import { PaymentModule } from './payment/payment.module';
 import { PackageBundlesModule } from './package-bundle/package-bundle.module';
+import { CardModule } from './card/card.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -42,7 +43,8 @@ import { PackageBundlesModule } from './package-bundle/package-bundle.module';
     UserAifigureMessageModule,
     ErrorLogModule,
     PaymentModule,
-    PackageBundlesModule
+    PackageBundlesModule,
+    CardModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

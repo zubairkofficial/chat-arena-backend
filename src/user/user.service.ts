@@ -24,15 +24,22 @@ import { DataSource, EntityManager } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { BASE_URL } from '../common/constants';
 import { AllExceptionsFilter } from '../errors/http-exception.filter';
+import Stripe from 'stripe';
 
 @Injectable()
 export class UserService extends BaseService {
+  private stripe: Stripe;
+
   constructor(
     private readonly userRepository: UserRepository,
     dataSource: DataSource,
     private readonly configService: ConfigService,
+
+    
   ) {
     super(dataSource);
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
   }
 
   async createUser(input: UserDtos.CreateUserDto, hashedPassword?: string) {
@@ -64,10 +71,29 @@ export class UserService extends BaseService {
 
     const hashedPassword = await hashPassword(input.password);
     const newUser = await this.createUser(input, hashedPassword);
+  // const  stripeClient = await this.stripe.customers.create({
+  //     name: newUser.username,
+  //     email: newUser.email,
+  //     phone: newUser.phoneNumber,
+  //   });
     await this.emailVerification(newUser);
     return {
       message: 'User registered successfully',
       userId: newUser.id,
+    };
+  }
+  
+  async resendLink(input: UserDtos.ResentUserDto) {
+    const userExist = await this.getUserByEmail(input.email);
+    if (!userExist) {
+      throw new BadRequestException(`email not found`);
+    }
+
+
+    await this.emailVerification(userExist);
+    return {
+      message: 'Link send successfully',
+      userId: userExist.id,
     };
   }
 

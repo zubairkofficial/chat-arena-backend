@@ -42,6 +42,19 @@ export class UserController {
     }
   }
 
+  @Post('resent-link')
+  async resendLink(@Body() input: UserDtos.ResentUserDto) {
+    try {
+      return await this.userService.resendLink(input);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.BAD_REQUEST,
+        'Failed to register user',
+      );
+    }
+  }
+
   @Post('login')
   async login(@Body() loginDto: UserDtos.LoginDto) {
     try {

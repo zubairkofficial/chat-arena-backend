@@ -1,21 +1,43 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { CardDtos } from './dto/payment.dto';
 
 @Controller('payment')
 export class PaymentController {
-    constructor(private readonly paymentService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService) {}
 
-    @Post('create-intent')
-    async createPaymentIntent(@Body('amount') amount: number) {
-        return this.paymentService.createPaymentIntent(amount);
-    }
-    @Get('get-intent')
-    async retrivePaymentIntent(@Body('paymentIntentId') paymentIntentId: string) {
-        return this.paymentService.retrivePaymentIntent(paymentIntentId);
-    }
+  @Post('create-intent')
+  async createPaymentIntent(@Body('amount') amount: number) {
+    return this.paymentService.createPaymentIntent(amount);
+  }
+  @Get('get-intent')
+  async retrivePaymentIntent(@Body('paymentIntentId') paymentIntentId: string) {
+    return this.paymentService.retrivePaymentIntent(paymentIntentId);
+  }
+
+  @Post('/create-cardholder')
+  async createCardholder(
+    @Body('name') name: string,
+    @Body('email') email: string,
+    @Body('phone') phone: string,
+  ) {
+    const cardholder = await this.paymentService.createCardholder(
+      name,
+      email,
+      phone,
+    );
+    return cardholder;
+  }
+
+  @Post('/create-card/:id')
+  async createCard(
+    @Body() input: CardDtos.CreateCardInputDto,
+    @Param() params: CardDtos.CustomerParamsDto,
+  ) {
+    const card = await this.paymentService.createCard(input, params);
+    return card;
+  }
 }
-
-
 
 // import { Controller, Post, Get, Put, Delete, Body, Param,  Res } from '@nestjs/common';
 // import {  Response } from 'express';
@@ -41,7 +63,7 @@ export class PaymentController {
 //             const card = await this.cardService.retrieveCard(customerId, cardId);
 //             return res.status(200).json({ message: "Card retrieved successfully", card });
 //         } catch (error) {
-           
+
 //         }
 //     }
 
@@ -51,7 +73,7 @@ export class PaymentController {
 //             const card = await this.cardService.updateCard(customerId, updateData.card_id, updateData.address_city);
 //             return res.status(200).json({ message: "Card updated successfully", card });
 //         } catch (error) {
-           
+
 //         }
 //     }
 
@@ -61,7 +83,7 @@ export class PaymentController {
 //             const result = await this.cardService.deleteCard(customerId);
 //             return res.status(200).json({ message: "Card deleted successfully", result });
 //         } catch (error) {
-           
+
 //         }
 //     }
 // }

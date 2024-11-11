@@ -31,6 +31,11 @@ export namespace UserDtos {
     @IsString()
     password: string;
   }
+  export class ResentUserDto extends CreateUserDto {
+    @IsNotEmpty()
+    @IsEmail()
+    email: string;
+  }
   export class LoginDto {
     @IsNotEmpty()
     @IsEmail()

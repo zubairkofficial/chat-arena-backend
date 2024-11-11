@@ -214,7 +214,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
               const aiFigure = arenaAiFigure.aiFigure;
               if (aiFigure) {
                 // Introduce a delay before sending the AI response
-                setTimeout(async () => {
+           
                   try {
                     const aiResponse = await this.generateAIResponse(arena, previousMessages, arenaAiFigure);
                     const message = await this.messageService.createMessage({
@@ -229,8 +229,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
                   } catch (responseError) {
                     console.error(`Error generating AI response for ${aiFigure.name} in arena ${arenaId}:`, responseError);
                   }
-                }, 20000); // Delay of 20 seconds
-                break; // Exit after scheduling the first message
+              
               }
             }
           }
