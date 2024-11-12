@@ -22,6 +22,7 @@ import { ErrorLogModule } from './error-logs/error-logs.module';
 import { PaymentModule } from './payment/payment.module';
 import { PackageBundlesModule } from './package-bundle/package-bundle.module';
 import { CardModule } from './card/card.module';
+import { TransactionModule } from './transaction/transaction.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -44,7 +45,8 @@ import { CardModule } from './card/card.module';
     ErrorLogModule,
     PaymentModule,
     PackageBundlesModule,
-    CardModule
+    CardModule,
+    TransactionModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

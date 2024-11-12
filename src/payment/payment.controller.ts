@@ -6,14 +6,7 @@ import { CardDtos } from './dto/payment.dto';
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  @Post('create-intent')
-  async createPaymentIntent(@Body('amount') amount: number) {
-    return this.paymentService.createPaymentIntent(amount);
-  }
-  @Get('get-intent')
-  async retrivePaymentIntent(@Body('paymentIntentId') paymentIntentId: string) {
-    return this.paymentService.retrivePaymentIntent(paymentIntentId);
-  }
+ 
 
   @Post('/create-cardholder')
   async createCardholder(
@@ -29,14 +22,13 @@ export class PaymentController {
     return cardholder;
   }
 
-  @Post('/create-card/:id')
-  async createCard(
-    @Body() input: CardDtos.CreateCardInputDto,
-    @Param() params: CardDtos.CustomerParamsDto,
-  ) {
-    const card = await this.paymentService.createCard(input, params);
-    return card;
-  }
+  // @Post('/create-card/:id')
+  // async createCard(
+  //   @Body() input: CardDtos.CreateCardInputDto,
+  // ) {
+  //   const card = await this.paymentService.createCard(input);
+  //   return card;
+  // }
 }
 
 // import { Controller, Post, Get, Put, Delete, Body, Param,  Res } from '@nestjs/common';

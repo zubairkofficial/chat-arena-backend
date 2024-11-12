@@ -4,8 +4,8 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 
 @Entity()
 export class Card extends EntityBase {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  id: string;
 
   @Column()
   cardNumber: string;

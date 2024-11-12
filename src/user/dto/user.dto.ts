@@ -2,6 +2,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   MinLength,
@@ -66,6 +67,10 @@ export namespace UserDtos {
     @IsOptional()
     @IsString()
     phoneNumber: string;
+
+    @IsOptional()
+    @IsNumber()
+    availableCoins: number;
   }
 
   export class ForgotPasswordDto {

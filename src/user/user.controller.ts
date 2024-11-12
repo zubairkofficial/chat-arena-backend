@@ -13,6 +13,7 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserDtos } from './dto/user.dto';
@@ -204,6 +205,22 @@ export class UserController {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser; 
       return await this.userService.getFigureByUserId(currentUser.id);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve user history',
+      );
+    }
+  }
+
+  @Get('transaction/history')
+  @UseGuards(AuthGuard)
+  async userTransaction(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser; 
+    if(!currentUser.isAdmin) throw new BadRequestException('user does not access')
+      return  this.userService.userTransaction();
     } catch (error) {
       handleServiceError(
         error,

@@ -73,7 +73,11 @@ export class UnsupportedMediaTypeException extends HttpException {
     super(message, STATUS_CODES.UNSUPPORTED_MEDIA_TYPE);
   }
 }
-
+export class TooManyRequestsException extends HttpException {
+  constructor(message = 'Too Many Requests') {
+    super(message, STATUS_CODES.TOO_MANY_REQUESTS);
+  }
+}
 export class UnprocessableEntityException extends HttpException {
   constructor(message = 'Unprocessable Entity') {
     super(message, STATUS_CODES.UNPROCESSABLE_ENTITY);

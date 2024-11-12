@@ -66,6 +66,13 @@ public getFigureByUserId(userId: string): SelectQueryBuilder<User> {
     .where('user.id = :userId', { userId })
     .distinct(true);
 }
+public userTransaction(): SelectQueryBuilder<User> {
+  return this.dataSource
+    .getRepository(User)
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.transactions', 'transactions')
+    
+}
 
  
 }

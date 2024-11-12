@@ -7,13 +7,12 @@ export class PaymentService {
   private stripe: Stripe;
 
   constructor() {
-    // Use your live secret key (make sure to keep it secure and never expose it publicly)
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   }
 
-  async createPaymentIntent(amount: number) {
+  // Basic payment intent creation
+  async createBasicPaymentIntent(amount: number) {
     try {
-      // Create a PaymentIntent with automatic payment methods enabled
       const paymentIntent = await this.stripe.paymentIntents.create({
         amount, // Amount should be in cents
         currency: 'usd', // Currency code
@@ -21,26 +20,17 @@ export class PaymentService {
       });
       return paymentIntent;
     } catch (error) {
-      // Log the error for debugging
       console.error('Error creating PaymentIntent:', error);
-
-      // Throw a user-friendly error message
-      // You can customize the error message based on the error type if needed
       throw new Error('Payment processing error. Please try again later.');
     }
   }
-  async retrivePaymentIntent(paymentIntentId: string) {
+
+  async retrievePaymentIntent(paymentIntentId: string) {
     try {
-      // Create a PaymentIntent with automatic payment methods enabled
-      const paymentIntent =
-        await this.stripe.paymentIntents.retrieve(paymentIntentId);
+      const paymentIntent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
       return paymentIntent;
     } catch (error) {
-      // Log the error for debugging
-      console.error('Error creating PaymentIntent:', error);
-
-      // Throw a user-friendly error message
-      // You can customize the error message based on the error type if needed
+      console.error('Error retrieving PaymentIntent:', error);
       throw new Error('Payment processing error. Please try again later.');
     }
   }
@@ -48,8 +38,8 @@ export class PaymentService {
   async createCardholder(name: string, email: string, phoneNumber: string) {
     try {
       const cardholder = await this.stripe.customers.create({
-        name: name,
-        email: email,
+        name,
+        email,
         phone: phoneNumber,
       });
       return cardholder;
@@ -59,40 +49,54 @@ export class PaymentService {
     }
   }
 
-  // Method to issue a card for the cardholder
-  async createCard(
-    input: CardDtos.CreateCardInputDto,
-    params: CardDtos.CustomerParamsDto,
-  ) {
+  async createCardToken(input: CardDtos.CreateCardInputDto) {
     try {
-      const card = await this.stripe.tokens.create({
+      const cardToken = await this.stripe.tokens.create({
         card: {
-          number: parseInt(input.cardNumber), // Keep as string to match expected type
-          exp_month: parseInt(input.expMonth), // Convert month to integer
-          exp_year: parseInt(input.expYear), // Convert year to integer
-          cvc: parseInt(input.cvc), // Keep as string
+          number: input.cardNumber,
+          exp_month: parseInt(input.expMonth),
+          exp_year: parseInt(input.expYear),
+          cvc: input.cvc,
         },
       } as any);
+      return cardToken;
+    } catch (error) {
+      console.error('Error creating card token:', error);
+      throw new Error('Card token creation failed');
+    }
+  }
+
+  async createPaymentIntent(amount: number, currency: string, cardTokenId: string) {
+    try {
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: 5000, // Amount in cents
-        currency: 'usd', // Currency of the transaction
+        amount: amount * 100, // Amount in cents
+        currency,
         payment_method_data: {
           type: 'card',
           card: {
-            token: card.id, // The token ID you received
+            token: cardTokenId,
           },
         },
-        confirm: true, // This confirms the payment immediately
+        confirm: true,
         automatic_payment_methods: {
           enabled: true,
-          allow_redirects: 'never', // Disables redirect-based payment methods
+          allow_redirects: 'never',
         },
       } as any);
-
-      return card;
+      return paymentIntent;
     } catch (error) {
-      console.error('Error creating card token:', error);
-      throw new Error('Card creation failed');
+      console.error('Error creating payment intent:', error);
+      throw new Error('Payment intent creation failed');
+    }
+  }
+
+  async createCard(input: CardDtos.CreateCardInputDto) {
+    try {
+      const cardToken = await this.createCardToken(input);
+      const paymentIntent = await this.createPaymentIntent(input.price, 'usd', cardToken.id);
+      return paymentIntent;
+    } catch (error) {
+      throw new Error('Card creation or payment processing failed');
     }
   }
 }

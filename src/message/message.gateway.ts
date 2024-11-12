@@ -11,6 +11,7 @@ import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { Arena } from '../arena/entities/arena.entity';
+import { TooManyRequestsException } from '../errors/exceptions';
 require('dotenv').config();
 @WebSocketGateway({
   cors: {
@@ -134,8 +135,8 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
       const existUser = await this.userService.getUserById(userId);
      if (!existUser) throw new NotFoundException('Invalid user specified');
-
-
+     if(existUser.availableCoins<=0)throw new TooManyRequestsException('limit exceded'); 
+      await this.userService.updateUserSubtractCoins(Number(existUser.availableCoins)-Number(process.env.DEDUCTION_COINS),existUser)
       const message = await this.messageService.createMessage({
         senderId: userId,
         arenaId,

@@ -25,6 +25,8 @@ import { ConfigService } from '@nestjs/config';
 import { BASE_URL } from '../common/constants';
 import { AllExceptionsFilter } from '../errors/http-exception.filter';
 import Stripe from 'stripe';
+import { CardDtos } from '../payment/dto/payment.dto';
+import { TransactionScope } from '../base/transactionScope';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -34,6 +36,7 @@ export class UserService extends BaseService {
     private readonly userRepository: UserRepository,
     dataSource: DataSource,
     private readonly configService: ConfigService,
+    private readonly entityManager:EntityManager
 
     
   ) {
@@ -234,6 +237,28 @@ export class UserService extends BaseService {
     }
   }
 
+  async updateUserCoins(input: CardDtos.ExisitngCardInputDto, user: User, ts: TransactionScope) {
+    try {
+     user.availableCoins=Number(user.availableCoins)+Number(input.coins)
+     return user
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+
+  async updateUserSubtractCoins(coins:number, user: User) {
+    const transactionScop=this.getTransactionScope()
+    
+    try {
+     user.availableCoins=coins
+     transactionScop.update(user)
+     transactionScop.commit(this.entityManager)
+     return user
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+
   async updateUserDetails(userId: string, input: UserDtos.UpdateUser) {
     try {
       const user = await this.getUserById(userId);
@@ -293,6 +318,13 @@ export class UserService extends BaseService {
   async getFigureByUserId(id:string): Promise<User[]> {
     try {
       return this.userRepository.getFigureByUserId(id).getMany();
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+  async userTransaction(): Promise<User[]> {
+    try {
+      return this.userRepository.userTransaction().getMany();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

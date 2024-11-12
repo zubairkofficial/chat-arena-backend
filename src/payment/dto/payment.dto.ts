@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-import { IsNotEmpty, IsString, IsNumber, Length } from 'class-validator';
+import { IsNotEmpty, IsString, IsNumber, Length, IsEnum, IsInt, IsPositive } from 'class-validator';
 
 export namespace CardDtos {
   
@@ -24,6 +24,26 @@ export namespace CardDtos {
     @IsString()
     @Length(3, 4) // CVC can be 3 or 4 digits
     cvc: string;
+
+
+    @IsNotEmpty()
+    @IsInt()
+    @IsPositive()
+    price: number; // Price of the coins in dollars (e.g., 0.5, 1.0)
+
+    @IsNotEmpty()
+    @IsInt()
+    coins: number; // Coins purchased (100, 200, or 1000)
+  }
+  export class ExisitngCardInputDto {
+    @IsNotEmpty()
+    @IsInt()
+    @IsPositive()
+    price: number; // Price of the coins in dollars (e.g., 0.5, 1.0)
+
+    @IsNotEmpty()
+    @IsInt()  
+    coins: number; 
   }
 
   // DTO for customer parameters such as customer ID

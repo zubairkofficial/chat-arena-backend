@@ -6,6 +6,7 @@ import { UserArena } from '../../user-arena/entities/user-arena.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserPackageBundle } from '../../user-package-bundle/entities/user-package-bundle.entity';
 import { Card } from '../../card/entities/card.entity';
+import { Transaction } from '../../transaction/entities/transaction.entity';
 
 @Entity({ name: 'user' })
 export class User extends EntityBase {
@@ -36,6 +37,9 @@ export class User extends EntityBase {
   @Column({ name: 'is_admin', type: 'boolean', default: false })
   isAdmin: boolean;
 
+  @Column({ default: 0 })
+  availableCoins: number;  // Current available coins for the user
+
   @OneToMany(() => Persona, (persona) => persona.user)
   personas: Persona[];
 
@@ -55,4 +59,7 @@ export class User extends EntityBase {
 
   @OneToMany(() => Card, (card) => card.user) // One-to-many relation with Card entity
   cards: Card[];
+
+  @OneToMany(() => Transaction, transaction => transaction.user)  // Relation with Transaction entity
+  transactions: Transaction[];
 }

@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  Delete,
+  HttpStatus,
+  Req,
+  UseGuards,
+  Put,
+} from '@nestjs/common';
 import { CardService } from './card.service';
 import { CommonDTOs } from '../common/dto';
 import { CardDtos } from '../payment/dto/payment.dto';
 import { AuthGuard } from '../middleware/auth.middleware';
+import { handleServiceError } from '../errors/error-handling'; // Import the utility for error handling
 
 @Controller('card')
 export class CardController {
@@ -10,26 +22,63 @@ export class CardController {
 
   @Post('create-card')
   @UseGuards(AuthGuard)
-  createCard(@Body() input: CardDtos.CreateCardInputDto ,@Req() req) {
+  async createCard(@Body() input: CardDtos.CreateCardInputDto, @Req() req) {
+    const currentUser = req.user as CommonDTOs.CurrentUser;
+    try {
+      return await this.cardService.createCard(currentUser, input); // Pass the user and input to the service
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create card');
+    }
+  }
+  @Post('existing-card')
+  @UseGuards(AuthGuard)
+  async existingCard(@Req() req, @Body() input: CardDtos.ExisitngCardInputDto,@Param('id') id: string,) {
+    try {
     const currentUser = req.user as CommonDTOs.CurrentUser;
 
-    return this.cardService.createCard(currentUser,input);
+      
+      return await this.cardService.existingCard(input,id,currentUser); // Pass the user and input to the service
+    } catch (error) {
+      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create card');
+    }
+  }
+
+  @Get('list')
+  @UseGuards(AuthGuard)
+  async getAllCard(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+  
+      return await this.cardService.getAllCard(currentUser); // Call the service to get all cards
+    } catch (error) {
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve cards');
+    }
   }
 
   @Get()
-  findAll() {
-    return this.cardService.findAll();
+  async findAll() {
+    try {
+      return await this.cardService.findAll(); // Call the service to get all cards
+    } catch (error) {
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve cards');
+    }
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cardService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    try {
+      return await this.cardService.findOne(+id); // Call the service to get a card by ID
+    } catch (error) {
+      handleServiceError(error, HttpStatus.NOT_FOUND, 'Card not found');
+    }
   }
 
- 
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cardService.remove(+id);
+  async remove(@Param('id') id: string) {
+    try {
+      return await this.cardService.remove(+id); // Call the service to remove a card by ID
+    } catch (error) {
+      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete card');
+    }
   }
 }
