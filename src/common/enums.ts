@@ -27,3 +27,9 @@ export enum AIFigureType {
   FICTIONAL_CHARACTER = 'fictional_character',
 }
 
+export enum ArenaRequestStatus {
+  STATUS='STATUS',
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}

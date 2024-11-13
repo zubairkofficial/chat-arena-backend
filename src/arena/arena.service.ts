@@ -18,6 +18,7 @@ import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust
 import { FigureRoleService } from '../figure-role/figure-role.service';
 import { AIFigureService } from '../aifigure/aifigure.service';
 import { BASE_URL } from '../common/constants';
+import { ArenaRequestStatus } from '../common/enums';
 
 @Injectable()
 export class ArenaService extends BaseService {
@@ -77,8 +78,9 @@ export class ArenaService extends BaseService {
         createdBy: existUser,
         image: input.image,
       });
-  
+      existUser.createArenaRequestStatus=ArenaRequestStatus.STATUS
       // Add the arena to the transaction scope
+      transactionScope.update(existUser)
       transactionScope.add(arena);
   
       // Create ArenaAIFigure entries

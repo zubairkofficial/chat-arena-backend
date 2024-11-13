@@ -22,6 +22,7 @@ import { CommonDTOs } from '../common/dto';
 import { handleServiceError } from '../errors/error-handling';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from '../utils/file-upload.utils';
+import { ArenaRequestStatus } from '../common/enums';
 
 @Controller('user')
 export class UserController {
@@ -269,4 +270,38 @@ export class UserController {
       );
     }
   }
+
+  @Post('request-arena')
+  @UseGuards(AuthGuard)
+  async arenaRequest(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+      return await this.userService.arenaRequest( currentUser);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.BAD_REQUEST,
+        'Failed to reset password',
+      );
+    }
+  }
+
+  @Put('update-request-status/:userId')
+@UseGuards(AuthGuard)  // Only admin can access this route
+async updateArenaRequestStatus(
+  @Param('userId') userId: string,  // Getting the user ID from the URL
+  @Body('status') status: ArenaRequestStatus,  // Getting the new status from the body
+  @Req() req
+  ) {
+
+    const currentUser = req.user as CommonDTOs.CurrentUser;
+    if(!currentUser.isAdmin) throw new BadRequestException('user does not access')
+    
+    
+
+
+    const result = await this.userService.updateArenaRequestStatus(userId, status);
+    return result; 
+  }
+  
 }

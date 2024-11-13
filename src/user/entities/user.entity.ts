@@ -7,6 +7,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserPackageBundle } from '../../user-package-bundle/entities/user-package-bundle.entity';
 import { Card } from '../../card/entities/card.entity';
 import { Transaction } from '../../transaction/entities/transaction.entity';
+import { ArenaRequestStatus } from '../../common/enums';
 
 @Entity({ name: 'user' })
 export class User extends EntityBase {
@@ -39,7 +40,10 @@ export class User extends EntityBase {
 
   @Column({ default: 0 })
   availableCoins: number;  // Current available coins for the user
-
+  
+  @Column({ name: 'create_arena_request_status', type: 'enum', enum: ArenaRequestStatus, default: ArenaRequestStatus.STATUS })
+  createArenaRequestStatus: ArenaRequestStatus;  // Default to PENDING
+  
   @OneToMany(() => Persona, (persona) => persona.user)
   personas: Persona[];
 

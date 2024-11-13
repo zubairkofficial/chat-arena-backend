@@ -27,6 +27,7 @@ import { AllExceptionsFilter } from '../errors/http-exception.filter';
 import Stripe from 'stripe';
 import { CardDtos } from '../payment/dto/payment.dto';
 import { TransactionScope } from '../base/transactionScope';
+import { ArenaRequestStatus } from '../common/enums';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -399,4 +400,50 @@ export class UserService extends BaseService {
 
     return { message: 'Password changed successfully' };
   }
+  async arenaRequest(
+    currentUser: CommonDTOs.CurrentUser,
+  ): Promise<{ message: string }> {
+    // Fetch the user by their ID
+    const user = await this.getUserById(currentUser.id);
+    if (!user) {
+      throw new InValidCredentials('Invalid user specified');
+    }
+  
+    // Check if the user already has a request or is pending approval
+    if (user.createArenaRequestStatus === ArenaRequestStatus.PENDING) {
+      throw new BadRequestException('You already have a pending request.');
+    }
+  
+    // Set the status to 'PENDING' to indicate the user has requested to create an arena
+    user.createArenaRequestStatus = ArenaRequestStatus.PENDING;
+    await this.userRepository.save(user);
+  
+    // Return success message
+    return { message: 'Arena creation request has been sent and is pending approval.' };
+  }
+
+  async updateArenaRequestStatus(
+    userId: string,
+    newStatus: ArenaRequestStatus,
+  ): Promise<{ message: string }> {
+    // Fetch the user by their ID
+    try{
+    const user = await this.getUserById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+
+    // Update the status (approve/reject)
+    user.createArenaRequestStatus = newStatus;
+    await this.userRepository.save(user);
+
+    return { message: `Request ${newStatus === ArenaRequestStatus.APPROVED ? 'approved' : 'rejected'} successfully!` };
+  
+} catch (error) {
+  throw new AllExceptionsFilter(error);
+}
+}
+
+  
 }
