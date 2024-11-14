@@ -72,7 +72,7 @@ export class UserController {
     try {
       await this.userService.emailVerify(token);
       res
-        .writeHead(301, { Location: `${process.env.FRONTEND_APP_URL}/login` })
+        .writeHead(301, { Location: `http://multimind-arena.cyberifyportfolio.com/login` })
         .end();
     } catch (error) {
       handleServiceError(
@@ -89,7 +89,7 @@ export class UserController {
       await this.userService.emailVerify(token);
       res
         .writeHead(301, {
-          Location: `${process.env.FRONTEND_APP_URL}/reset-password?token=${token}`,
+          Location: `http://multimind-arena.cyberifyportfolio.com/reset-password?token=${token}`,
         })
         .end();
     } catch (error) {

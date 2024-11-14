@@ -18,7 +18,7 @@ export class GoogleAuthController {
 
       // Encode user data
       const encodedUser = encodeURIComponent(JSON.stringify(user));
-      const redirectUrl = `${process.env.FRONTEND_APP_URL}/login?token=${token}&user=${encodedUser}`;
+      const redirectUrl = `http://multimind-arena.cyberifyportfolio.com/login?token=${token}&user=${encodedUser}`;
 
       // Redirect to the frontend application
       return res.redirect(redirectUrl);
