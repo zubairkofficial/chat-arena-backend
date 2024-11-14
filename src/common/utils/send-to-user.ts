@@ -47,13 +47,14 @@ export const sendMailToVerifyUser = async (user: User, verifyLink: string) => {
           display: inline-block;
           padding: 15px 20px;
           margin-top: 20px;
-         background: linear-gradient(180deg, #00ff00, #003300);
-          color: white;
+          background: linear-gradient(180deg, #00b300, #006600);
+          color: #ffffff !important;
           text-decoration: none;
           border-radius: 4px;
+          font-weight: bold;
         }
         .button:hover {
-          background-color: #e66c00;
+          background: linear-gradient(180deg, #006600, #003300);
         }
       </style>
     </head>
@@ -66,7 +67,7 @@ export const sendMailToVerifyUser = async (user: User, verifyLink: string) => {
       </div>
     </body>
   </html>
-`;
+  `;
   sendEmail(user.email, 'Verify Email', verifyLink, html);
 };
 
@@ -106,13 +107,14 @@ export const sendMailToResetPassword = async (
           display: inline-block;
           padding: 15px 20px;
           margin-top: 20px;
-          background: linear-gradient(180deg, #00ff00, #003300);
-          color: white;
+          background: linear-gradient(180deg, #00b300, #006600);
+          color: #ffffff !important;
           text-decoration: none;
           border-radius: 4px;
+          font-weight: bold;
         }
         .button:hover {
-          background-color: #e66c00;
+          background: linear-gradient(180deg, #006600, #003300);
         }
       </style>
     </head>
@@ -126,12 +128,9 @@ export const sendMailToResetPassword = async (
       </div>
     </body>
   </html>
-`;
-
-  // Send the email using your email service
+  `;
   sendEmail(user.email, 'Reset Your Password', resetLink, html);
 };
-
 // Send email function
 const sendEmail = async (
   to: string,

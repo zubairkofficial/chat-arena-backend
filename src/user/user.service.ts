@@ -159,6 +159,13 @@ export class UserService extends BaseService {
       throw new AllExceptionsFilter(error);
     }
   }
+  async getUsersWithPendingStatus(): Promise<User[]> {
+    try {
+      return this.userRepository.getUsersWithPendingStatus().getMany();
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
 
   async getUserName(username: string): Promise<User> {
     try {

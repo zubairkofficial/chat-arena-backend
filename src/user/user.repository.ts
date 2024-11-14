@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { User } from './entities/user.entity';
+import { ArenaRequestStatus } from '../common/enums';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -26,6 +27,12 @@ export class UserRepository extends Repository<User> {
       .createQueryBuilder('user')
       .where('user.id = :id', { id });
   }
+  public  getUsersWithPendingStatus(): SelectQueryBuilder<User> {
+    return this.dataSource
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .where('user.createArenaRequestStatus = :status', { status: ArenaRequestStatus.PENDING })
+   }
 
   public getUserByPhoneNumber(phoneNumber: string): SelectQueryBuilder<User> {
     return this.dataSource

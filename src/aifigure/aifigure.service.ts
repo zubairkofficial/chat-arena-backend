@@ -15,6 +15,7 @@ import { AllExceptionsFilter } from '../errors/http-exception.filter'; // Adjust
 import { CommonDTOs } from '../common/dto';
 import { BASE_URL } from '../common/constants';
 import { UserAifigureMessage } from '../user-aifigure-message/entities/user-aifigure-message.entity';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -22,6 +23,7 @@ export class AIFigureService extends BaseService {
     private readonly aiFigureRepository: AIFigureRepository,
     private readonly configService: ConfigService,
     private readonly langchainService: LangChainService,
+    private readonly userService: UserService,
     private readonly entityManager: EntityManager,
     private readonly userAifigureMessageService: UserAifigureMessageService,
     dataSource: DataSource,
@@ -50,15 +52,19 @@ export class AIFigureService extends BaseService {
   async aiFigureMessage(figureId: string, message: string,currentUser: CommonDTOs.CurrentUser): Promise<string> {
     const aiFigure = await this.getAIFigureById(figureId);
     if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
-const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessage(figureId,process.env.NUMBER_OF_Previous_Messages ? +process.env.NUMBER_OF_Previous_Messages: 10)
-const context = userAiFigureContext.map((message) => ({
+const user=await this.userService.getUserById(currentUser.id)
+    const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessage(figureId,process.env.NUMBER_OF_Previous_Messages ? +process.env.NUMBER_OF_Previous_Messages: 10)
+    const context = userAiFigureContext.map((message) => ({
+  
   sendMessage: message.sendMessage,
   receiveMessage: message.receiveMessage,
 }));
     try {
       
     const langChainMessage= await this.langchainService.aiFigureMessage(aiFigure, message,context);
-   await this.userAifigureMessageService.createUserAiFigure(aiFigure,message,langChainMessage,currentUser)
+    user.availableCoins=Number(user.availableCoins)-Number(process.env.DEDUCTION_COINS)
+    await this.userService.updateUserSubtractCoins( user.availableCoins,user,)
+    await this.userAifigureMessageService.createUserAiFigure(aiFigure,message,langChainMessage,currentUser)
    return langChainMessage
    
 
@@ -67,6 +73,7 @@ const context = userAiFigureContext.map((message) => ({
       throw new AllExceptionsFilter(error);
     }
   }
+
   async getAiFigureMessage(figureId: string,currentUser: CommonDTOs.CurrentUser): Promise<UserAifigureMessage[]> {
     const aiFigure = await this.getAIFigureById(figureId);
     if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');

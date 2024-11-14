@@ -185,6 +185,23 @@ export class UserController {
     }
   }
 
+  @Post('pending-status')
+  @UseGuards(AuthGuard)
+  async getUsersWithPendingStatus(@Req() req,) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser; 
+      if(!currentUser.isAdmin) throw new BadRequestException('user does not access')
+     
+      return await this.userService.getUsersWithPendingStatus();
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve pending status user',
+      );
+    }
+  }
+
   @Get('history/all')
   @UseGuards(AuthGuard)
   async getHistoryByUserId(@Req() req) {
@@ -231,7 +248,7 @@ export class UserController {
     }
   }
 
-  @Post('forgot-password')
+  @Post('forget-password')
   async forgotPassword(@Body() input: UserDtos.ForgotPasswordDto) {
     try {
       return await this.userService.forgotPassword(input);
