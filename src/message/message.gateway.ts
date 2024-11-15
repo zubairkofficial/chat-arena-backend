@@ -14,6 +14,7 @@ import { Arena } from '../arena/entities/arena.entity';
 import { TooManyRequestsException } from '../errors/exceptions';
 require('dotenv').config();
 @WebSocketGateway({
+  namespace: '/api/v1/socket',
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
