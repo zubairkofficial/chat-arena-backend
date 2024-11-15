@@ -232,7 +232,7 @@ export class UserService extends BaseService {
 
       if (file) {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
-        input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
+        input.image = `${baseUrl}/api/v1/uploads/${file.filename}`; // Set complete URL path
       }
 
       const updatedUser = await this.updateUserDetails(user.id, input);

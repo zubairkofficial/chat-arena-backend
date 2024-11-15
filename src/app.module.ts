@@ -27,7 +27,7 @@ import { TransactionModule } from './transaction/transaction.module';
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads', // Files will be accessible via /uploads
+      serveRoot: '/api/v1/uploads',   // Files will be accessible via /uploads
     }),
     TypeOrmModule.forRoot(databaseConfig),
     ScheduleModule.forRoot(), // Enable ScheduleModule for cron jobs

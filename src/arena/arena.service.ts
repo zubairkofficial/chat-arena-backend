@@ -47,7 +47,7 @@ export class ArenaService extends BaseService {
       // Set the image URL if a file is provided
       if (file) {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
-        input.image = `${baseUrl}/uploads/${file.filename}`;
+        input.image = `${baseUrl}/api/v1/uploads/${file.filename}`;
       }
   
       // Validate the user
