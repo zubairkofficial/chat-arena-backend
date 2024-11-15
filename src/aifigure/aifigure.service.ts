@@ -35,7 +35,7 @@ export class AIFigureService extends BaseService {
   async createAIFigure(file, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
     if (file) {
       const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
-      input.image = `${baseUrl}/api/v1/uploads/${file.filename}`; // Set complete URL path
+      input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
     if (!input.name) {
       throw new BadRequestException('Name is required field.');
