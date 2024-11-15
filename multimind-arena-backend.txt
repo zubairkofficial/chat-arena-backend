@@ -1,0 +1,90 @@
+Application Functionalities
+1. User Registration and Login
+Registering a New User
+Go to the registration page.
+Fill in the required details: email, username, password, and phone number.
+Submit the form. If successful, you’ll see a message indicating the registration was completed.
+Check your email inbox for a verification email and follow the link to verify your email.
+Logging In
+Go to the login page.
+Enter your email and password.
+Submit the form to log in. If the credentials are correct, you’ll be logged in and receive an access token.
+Use this token for accessing any protected features on the platform.
+2. Password Management
+Forgot Password
+
+If you forgot your password, go to the "Forgot Password" page.
+Enter your email address and submit the form.
+Check your email for a password reset link.
+Click the link and follow the instructions to set a new password.
+Reset Password
+
+After receiving the reset email, click the reset link.
+Enter a new password and confirm it.
+Submit the form to reset your password.
+Change Password
+
+If logged in, go to the "Change Password" section in your profile.
+Enter your current password and new password.
+Submit to update your password.
+3. User Profile and Account Management
+View Profile Information
+
+Once logged in, access your profile page to view your details, including email, username, and any additional profile information.
+Update Profile
+
+Go to the profile settings page.
+Update your information as needed (e.g., name, phone number).
+Save changes to update your profile details.
+Delete Account (Admin Only)
+
+Admins can delete user accounts if necessary. For account deletion requests, contact an administrator.
+4. Arena Access Requests
+Request Arena Access
+
+Go to the Arena section.
+Select "Request Access" if you do not already have access.
+Submit your request, which will be reviewed by an admin.
+You will receive a notification once the request is approved or rejected.
+Admin Approval for Arena Access
+
+Admins review all requests for arena access.
+Requests can be approved or rejected based on user eligibility and requirements.
+5. AI Figure Management
+Create a New AI Figure
+Navigate to the AI Figure management page.
+Select "Create New" and enter details for the new AI figure.
+Save the form to create the AI figure, which will now be available in the AI Figure list.
+Edit an AI Figure
+Select an AI figure from your list.
+Update its details as needed.
+Save changes to keep the updated information.
+Delete an AI Figure
+Choose an AI figure from the list you want to delete.
+Confirm deletion to permanently remove it from the database.
+6. User and Transaction History
+View All Users (Admin Only)
+
+Admins can view a list of all users registered on the platform. For access, navigate to the "User Management" section.
+View Transaction History
+
+Go to the transaction history page.
+You will see a list of all transactions made under your account.
+View Arena and AI Figure History
+
+Users can view history specific to their account, including arena requests and AI figure interactions.
+7. Google Authentication for Login
+Google Login
+On the login page, select "Login with Google."
+You’ll be redirected to Google to sign in.
+Once authenticated, you’ll be redirected back and logged into the platform.
+8. Email Verification
+Verify Email
+After registration, an email is sent to confirm your address. Follow the link in the email to complete verification.
+9. Admin-Only Features
+Manage User Accounts:
+
+Admins can view, delete, or approve arena requests for user accounts.
+Review and Update Arena Requests:
+
+Admins can change the status of arena requests (approve or reject) as needed.
