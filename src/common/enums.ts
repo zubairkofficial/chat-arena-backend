@@ -33,3 +33,15 @@ export enum ArenaRequestStatus {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
 }
+
+
+export enum UserTier {
+  FREE = 'FREE',
+  PREMIUM = 'PREMIUM',
+}
+
+export enum ModelType {
+  GPT_3= 'gpt-3',
+  GPT_4o= 'gpt-4o',
+  LLAMA= 'llama3',
+}

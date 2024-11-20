@@ -7,7 +7,8 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserPackageBundle } from '../../user-package-bundle/entities/user-package-bundle.entity';
 import { Card } from '../../card/entities/card.entity';
 import { Transaction } from '../../transaction/entities/transaction.entity';
-import { ArenaRequestStatus } from '../../common/enums';
+import { ArenaRequestStatus, UserTier } from '../../common/enums';
+import { LlmModel } from '../../llm-model/entities/llm-model.entity';
 
 @Entity({ name: 'user' })
 export class User extends EntityBase {
@@ -38,7 +39,10 @@ export class User extends EntityBase {
   @Column({ name: 'is_admin', type: 'boolean', default: false })
   isAdmin: boolean;
 
-  @Column({ default: 0 })
+  @Column({ type: 'enum', enum: UserTier, default: UserTier.FREE })
+  tier: UserTier;
+
+  @Column({ default: 100 })
   availableCoins: number;  // Current available coins for the user
   
   @Column({ name: 'create_arena_request_status', type: 'enum', enum: ArenaRequestStatus, default: ArenaRequestStatus.STATUS })
@@ -66,4 +70,7 @@ export class User extends EntityBase {
 
   @OneToMany(() => Transaction, transaction => transaction.user)  // Relation with Transaction entity
   transactions: Transaction[];
+
+  @OneToMany(() => LlmModel, llmModel => llmModel.user)
+  llmModels: LlmModel[];
 }

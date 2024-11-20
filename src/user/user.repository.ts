@@ -27,6 +27,30 @@ export class UserRepository extends Repository<User> {
       .createQueryBuilder('user')
       .where('user.id = :id', { id });
   }
+ 
+
+  public getUserByIdWithJoins(id: string): SelectQueryBuilder<User> {
+    try {
+      // Query to get user with arena count and AI figure count
+      const query = this.dataSource
+        .getRepository(User)
+        .createQueryBuilder('user')
+        .leftJoin('user.userArenas', 'userArena')  // Join UserArena to get the arenas the user is part of
+        .leftJoin('user.userAifigureMessage', 'userAifigureMessage')  // Join UserAifigureMessage to get AI figures
+        .addSelect('COUNT(userArena.id)', 'arenasCount')  // Count the arenas the user is part of
+        // .addSelect('COUNT(DISTINCT userAifigureMessage.arena_id)', 'distinctArenaFiguresCount')  // Count distinct arenaId for AI figures
+        .where('user.id = :id', { id })
+        .groupBy('user.id');  // Group by user id to get a single result per user
+
+      // Execute the query and return the result
+      return  query
+    } catch (error) {
+      // Handle any errors by throwing a custom exception or logging
+      throw new Error('Error fetching user with arena and AI figure counts');
+    }
+  }
+  
+  
   public  getUsersWithPendingStatus(): SelectQueryBuilder<User> {
     return this.dataSource
       .getRepository(User)

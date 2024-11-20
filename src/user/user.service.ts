@@ -159,6 +159,30 @@ export class UserService extends BaseService {
       throw new AllExceptionsFilter(error);
     }
   }
+  async getUserByIdWithJoins(id: string): Promise<any> {
+    try {
+      // Fetch the basic user data
+      const user = await this.getUserById(id);
+  
+      // Fetch the arena count and AI figure count using the getUserByIdWithJoins method
+      const userCount = await this.userRepository
+        .getUserByIdWithJoins(id)
+        .getRawOne();  // This will return a raw result with the counts
+  
+      // Combine the user data and the counts into a single response
+      const response = {
+        ...user,
+        arenasCount: userCount?.arenasCount || 0,  // Default to 0 if no count is returned
+        aifiguresCount: userCount?.aifiguresCount || 0,  // Default to 0 if no count is returned
+      };
+  
+      return response;  // Return the combined response
+  
+    } catch (error) {
+      throw new AllExceptionsFilter(error);  // Handle any errors using a custom exception filter
+    }
+  }
+  
   async getUsersWithPendingStatus(): Promise<User[]> {
     try {
       return this.userRepository.getUsersWithPendingStatus().getMany();

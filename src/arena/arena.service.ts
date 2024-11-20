@@ -49,7 +49,7 @@ export class ArenaService extends BaseService {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`;
       }
-  
+
       // Validate the user
       const existUser = await this.userService.getUserById(user.id);
       if (!existUser) throw new NotFoundException('Invalid user specified');
@@ -178,9 +178,7 @@ export class ArenaService extends BaseService {
 
   async getAllArenas(): Promise<Arena[]> {
     try {
-      return await this.arenaRepository.find({
-        relations: ['arenaType', 'arenaAIFigures', 'userArenas', 'createdBy'],
-      });
+      return await this.arenaRepository.getAllArenas().getMany();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

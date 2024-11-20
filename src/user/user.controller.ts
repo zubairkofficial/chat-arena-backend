@@ -185,6 +185,20 @@ export class UserController {
     }
   }
 
+  @Get('userInfo-count/:id')
+  @UseGuards(AuthGuard)
+  async getUserByIdWithJoins(@Req() req, @Param() param) {
+    try {
+      return await this.userService.getUserByIdWithJoins(param.id);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve user',
+      );
+    }
+  }
+
   @Post('pending-status')
   @UseGuards(AuthGuard)
   async getUsersWithPendingStatus(@Req() req,) {
