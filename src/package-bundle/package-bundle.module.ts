@@ -14,9 +14,15 @@ import { UserPackageBundlesService } from '../user-package-bundle/user-package-b
   imports: [
     TypeOrmModule.forFeature([PackageBundle]),
     UserModule,
-    UserPackageBundlesModule, // Import the module instead of directly adding the service/repository
+    UserPackageBundlesModule,
+    // BundleFeatureModule, // Import BundleFeatureModule
   ],
   controllers: [PackageBundlesController],
-  providers: [PackageBundlesService, ConfigService,UserService,UserPackageBundlesService],
+  providers: [
+    PackageBundlesService,
+    ConfigService,
+    UserService,
+    UserPackageBundlesService,
+  ],
 })
 export class PackageBundlesModule {}

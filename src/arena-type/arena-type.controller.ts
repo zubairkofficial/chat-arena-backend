@@ -63,7 +63,7 @@ export class ArenaTypeController {
     try {
       return await this.arenaTypeService.getArenaTypeById(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, 'Arena type not found');
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena type not found');
     }
   }
 

@@ -9,6 +9,7 @@ import { Card } from '../../card/entities/card.entity';
 import { Transaction } from '../../transaction/entities/transaction.entity';
 import { ArenaRequestStatus, UserTier } from '../../common/enums';
 import { LlmModel } from '../../llm-model/entities/llm-model.entity';
+import { Subscription } from '../../subscription/entities/subscription.entity';
 
 @Entity({ name: 'user' })
 export class User extends EntityBase {
@@ -73,4 +74,7 @@ export class User extends EntityBase {
 
   @OneToMany(() => LlmModel, llmModel => llmModel.user)
   llmModels: LlmModel[];
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user, { cascade: true })
+  subscriptions: Subscription[];
 }

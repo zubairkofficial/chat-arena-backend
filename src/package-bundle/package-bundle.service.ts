@@ -1,4 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PackageBundle } from './entities/package-bundle.entity';
 import { PackageBundleDtos } from './dto/package-bundle.dto';
@@ -17,6 +20,7 @@ export class PackageBundlesService extends BaseService {
     private packageBundleRepository: PackageBundleRepository,
     private userPackageBundlesService: UserPackageBundlesService,
     private userService: UserService,
+   
     private entityManager: EntityManager,
     dataSource: DataSource,
   ) {
@@ -25,7 +29,7 @@ export class PackageBundlesService extends BaseService {
 
   async createPackageBundle(
     input: PackageBundleDtos.CreatePackageBundleDto,
-    currentUser: CommonDTOs.CurrentUser
+    currentUser: CommonDTOs.CurrentUser,
   ): Promise<PackageBundle> {
     const user = await this.userService.getUserById(currentUser.id);
     const transactionScope = this.getTransactionScope();
@@ -34,13 +38,17 @@ export class PackageBundlesService extends BaseService {
     packageBundle.coins = input.coins;
     packageBundle.name = input.name;
     packageBundle.price = input.price;
-
+    packageBundle.featureNames = input.featureNames;
+    packageBundle.durationInDays = input.durationInDays;
     transactionScope.add(packageBundle);
 
-    const userPackageBundle = await this.userPackageBundlesService.addPackageToUser(user, packageBundle);
+    const userPackageBundle =
+      await this.userPackageBundlesService.addPackageToUser(
+        user,
+        packageBundle,
+      );
     transactionScope.add(userPackageBundle);
-
-    try {
+     try {
       await transactionScope.commit(this.entityManager);
       return packageBundle;
     } catch (error) {
@@ -52,18 +60,19 @@ export class PackageBundlesService extends BaseService {
     try {
       return await this.packageBundleRepository.find({
         order: {
-          createdAt: 'DESC', // Adjust this field to your needs, e.g., 'name' or 'updatedAt'
+          createdAt: 'DESC', // Sort by createdAt, adjust as needed
         },
       });
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
-  
 
   async getPackageBundleById(id: string): Promise<PackageBundle> {
     try {
-      const packageBundle = await this.packageBundleRepository.findOne({ where: { id } });
+      const packageBundle = await this.packageBundleRepository.findOne({
+        where: { id },
+      });
       if (!packageBundle) {
         throw new NotFoundException(`Package bundle with ID ${id} not found.`);
       }
@@ -75,15 +84,16 @@ export class PackageBundlesService extends BaseService {
 
   async updatePackageBundle(
     id: string,
-    updatePackageBundleDto: PackageBundleDtos.UpdatePackageBundleDto,
+    input: PackageBundleDtos.UpdatePackageBundleDto,
   ): Promise<PackageBundle> {
     const existingBundle = await this.getPackageBundleById(id); // Ensure the bundle exists
-
+    if (!existingBundle) throw new NotFoundException('bundle not found');
     // Update fields
-    existingBundle.name = updatePackageBundleDto.name || existingBundle.name;
-    existingBundle.price = updatePackageBundleDto.price || existingBundle.price;
-    existingBundle.coins = updatePackageBundleDto.coins || existingBundle.coins;
-
+    if (input.name) existingBundle.name = input.name 
+    if (input.price) existingBundle.price = input.price 
+    if (input.coins) existingBundle.coins = input.coins 
+    if (input.featureNames) existingBundle.featureNames = input.featureNames;
+    if (input.durationInDays) existingBundle.durationInDays = input.durationInDays;
     try {
       await this.packageBundleRepository.save(existingBundle); // Save updated package bundle
       return existingBundle; // Return the updated bundle

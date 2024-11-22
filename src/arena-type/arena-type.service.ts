@@ -21,17 +21,7 @@ export class ArenaTypeService extends BaseService {
     super(dataSource);
   }
 
-  // Utility function to handle service errors
-  private handleServiceError(error: any, defaultMessage: string): void {
-    if (
-      error instanceof BadRequestException ||
-      error instanceof NotFoundException
-    ) {
-      throw error; // Rethrow known exceptions
-    } else {
-      throw new InternalServerErrorException(defaultMessage);
-    }
-  }
+
 
   // Create a new ArenaType
   async createArenaType(

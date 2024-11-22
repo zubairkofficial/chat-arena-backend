@@ -24,6 +24,7 @@ import { PackageBundlesModule } from './package-bundle/package-bundle.module';
 import { CardModule } from './card/card.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { LlmModelModule } from './llm-model/llm-model.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
@@ -48,7 +49,8 @@ import { LlmModelModule } from './llm-model/llm-model.module';
     PackageBundlesModule,
     CardModule,
     TransactionModule,
-    LlmModelModule
+    LlmModelModule,
+    SubscriptionModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

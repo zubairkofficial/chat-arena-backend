@@ -51,7 +51,7 @@ conversation.arena=arena
       await transactionScope.commit(this.entityManager);
       return conversation;
     } catch (error) {
-      this.handleServiceError(error, 'Failed to create conversation');
+      this.handleServiceError(error.errorLogService, 'Failed to create conversation');
     }
   }
 
@@ -73,7 +73,7 @@ conversation.arena=arena
       await transactionScope.commit(this.entityManager);
       return conversations;
     } catch (error) {
-      this.handleServiceError(error, 'Failed to create multiple conversations');
+      this.handleServiceError(error.errorLogService, 'Failed to create multiple conversations');
     }
   }
 
@@ -84,7 +84,7 @@ conversation.arena=arena
         relations: ['arena', 'messages'],
       });
     } catch (error) {
-      this.handleServiceError(error, 'Failed to retrieve conversations');
+      this.handleServiceError(error.errorLogService, 'Failed to retrieve conversations');
     }
   }
 
@@ -103,7 +103,7 @@ async getConversationById(id: string): Promise<Conversation> {
     
     return conversation;
   } catch (error) {
-    this.handleServiceError(error, `Failed to find conversation with ID ${id}`);
+    this.handleServiceError(error.errorLogService, `Failed to find conversation with ID ${id}`);
   }
 }
 
@@ -124,7 +124,7 @@ async getConversationById(id: string): Promise<Conversation> {
       await transactionScope.commit(this.entityManager);
       return conversation;
     } catch (error) {
-      this.handleServiceError(error, 'Failed to update conversation');
+      this.handleServiceError(error.errorLogService, 'Failed to update conversation');
     }
   }
 
@@ -137,7 +137,7 @@ async getConversationById(id: string): Promise<Conversation> {
       transactionScope.delete(conversation);
       await transactionScope.commit(this.entityManager);
     } catch (error) {
-      this.handleServiceError(error, 'Failed to delete conversation');
+      this.handleServiceError(error.errorLogService, 'Failed to delete conversation');
     }
   }
 }

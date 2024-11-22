@@ -55,7 +55,7 @@ export class ArenaController {
     try {
       return await this.arenaService.getArenaById(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, 'Arena not found');
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
     }
   }
 
@@ -64,7 +64,7 @@ export class ArenaController {
     try {
       return await this.arenaService.getAllArenas();
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve arenas');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve arenas');
     }
   }
 
@@ -76,7 +76,7 @@ export class ArenaController {
     try {
       return await this.arenaService.updateArena(id, updateArenaDto);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to update arena');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update arena');
     }
   }
 
@@ -85,7 +85,7 @@ export class ArenaController {
     try {
       return await this.arenaService.deleteArena(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete arena');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete arena');
     }
   }
 }

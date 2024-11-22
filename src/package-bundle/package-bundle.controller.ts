@@ -19,7 +19,7 @@ export class PackageBundlesController {
     try {
       return await this.packageBundlesService.createPackageBundle(input, currentUser);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create package bundle');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to create package bundle');
     }
   }
 
@@ -28,7 +28,7 @@ export class PackageBundlesController {
     try {
       return await this.packageBundlesService.getAllPackageBundles();
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve package bundles');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve package bundles');
     }
   }
 
@@ -37,7 +37,7 @@ export class PackageBundlesController {
     try {
       return await this.packageBundlesService.getPackageBundleById(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, 'Package bundle not found');
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Package bundle not found');
     }
   }
 
@@ -55,7 +55,7 @@ export class PackageBundlesController {
       }
       return await this.packageBundlesService.updatePackageBundle(id, updatePackageBundleDto);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to update package bundle');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update package bundle');
     }
   }
 
@@ -69,7 +69,7 @@ export class PackageBundlesController {
       }
       return await this.packageBundlesService.deletePackageBundle(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete package bundle');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete package bundle');
     }
   }
 }

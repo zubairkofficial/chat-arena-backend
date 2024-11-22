@@ -108,7 +108,7 @@ export class AIFigureController {
     try {
       return await this.aiFigureService.getAIFigureById(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, 'AI figure not found');
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'AI figure not found');
     }
   }
 

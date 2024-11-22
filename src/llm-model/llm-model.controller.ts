@@ -31,7 +31,7 @@ export class LlmModelController {
     try {
       return await this.llmModelService.createLLMModel(createLlmModelDto, user);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create LLM model');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to create LLM model');
     }
   }
 
@@ -41,7 +41,7 @@ export class LlmModelController {
     try {
       return await this.llmModelService.findAll();
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve LLM models');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve LLM models');
     }
   }
 
@@ -51,7 +51,7 @@ export class LlmModelController {
     try {
       return await this.llmModelService.findOne(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, `LLM model with id ${id} not found`);
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, `LLM model with id ${id} not found`);
     }
   }
 
@@ -64,7 +64,7 @@ export class LlmModelController {
     try {
       return await this.llmModelService.update(id, updateLlmModelDto);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to update LLM model');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update LLM model');
     }
   }
 
@@ -74,7 +74,7 @@ export class LlmModelController {
     try {
       return await this.llmModelService.remove(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete LLM model');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete LLM model');
     }
   }
 }

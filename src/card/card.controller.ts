@@ -27,7 +27,7 @@ export class CardController {
     try {
       return await this.cardService.createCard(currentUser, input); // Pass the user and input to the service
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create card');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to create card');
     }
   }
   @Post('existing-card')
@@ -39,7 +39,7 @@ export class CardController {
       
       return await this.cardService.existingCard(input,id,currentUser); // Pass the user and input to the service
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create card');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to create card');
     }
   }
 
@@ -51,7 +51,7 @@ export class CardController {
   
       return await this.cardService.getAllCard(currentUser); // Call the service to get all cards
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve cards');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve cards');
     }
   }
 
@@ -60,7 +60,7 @@ export class CardController {
     try {
       return await this.cardService.findAll(); // Call the service to get all cards
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve cards');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve cards');
     }
   }
 
@@ -69,7 +69,7 @@ export class CardController {
     try {
       return await this.cardService.findOne(+id); // Call the service to get a card by ID
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, 'Card not found');
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Card not found');
     }
   }
 
@@ -78,7 +78,7 @@ export class CardController {
     try {
       return await this.cardService.remove(+id); // Call the service to remove a card by ID
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete card');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete card');
     }
   }
 }

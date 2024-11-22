@@ -39,7 +39,7 @@ export class MessageService extends BaseService {
       await transactionScope.commit(this.entityManager);
       return message;
     } catch (error) {
-      throw handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to create message');
+      throw handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to create message');
     }
   }
 
@@ -89,7 +89,7 @@ export class MessageService extends BaseService {
       await transactionScope.commit(this.entityManager);
       return message;
     } catch (error) {
-      throw handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to update message');
+      throw handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to update message');
     }
   }
 
@@ -106,7 +106,7 @@ export class MessageService extends BaseService {
       transactionScope.delete(message);
       await transactionScope.commit(this.entityManager);
     } catch (error) {
-      throw handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete message');
+      throw handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete message');
     }
   }
 }

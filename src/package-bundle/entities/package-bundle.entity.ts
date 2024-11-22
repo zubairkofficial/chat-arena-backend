@@ -1,13 +1,14 @@
-// src/bundles/entities/bundle.entity.ts
 import { UserPackageBundle } from '../../user-package-bundle/entities/user-package-bundle.entity';
 import { EntityBase } from '../../base/entityBase';
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
+import slugify from 'slugify';
+import { Subscription } from '../../subscription/entities/subscription.entity';
 
 @Entity()
 export class PackageBundle extends EntityBase {
-    @PrimaryGeneratedColumn('uuid', { name: 'id' })
-    id: string;
-    
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  id: string;
+
   @Column()
   name: string;
 
@@ -17,6 +18,29 @@ export class PackageBundle extends EntityBase {
   @Column('int')
   coins: number;
 
+  @Column({ default: true })
+  isActive: boolean;
+
+  @Column('text', { array: true, nullable: true })
+  featureNames: string[];
+
+  @Column({ unique: true })
+  slug: string; // New slug field
+
+  @Column('int', { default: 30 }) // Default duration is 30 days
+  durationInDays: number;
+
   @OneToMany(() => UserPackageBundle, (userPackageBundle) => userPackageBundle.packageBundle)
   userPackageBundles: UserPackageBundle[];
+
+  @OneToMany(() => Subscription, (subscription) => subscription.packageBundle, { cascade: true })
+  subscriptions: Subscription[];
+  // Automatically generate slug before inserting or updating
+  @BeforeInsert()
+  @BeforeUpdate()
+  generateSlug() {
+    if (this.name) {
+      this.slug = slugify(this.name, { lower: true, strict: true });
+    }
+  }
 }

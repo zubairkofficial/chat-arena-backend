@@ -42,7 +42,7 @@ export class LlmModelService extends BaseService {
       await transactionScope.commit(this.entityManager);
       return newModel;
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create LLM model');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to create LLM model');
     }
   }
 
@@ -51,7 +51,7 @@ export class LlmModelService extends BaseService {
     try {
       return await this.entityManager.getRepository(LlmModel).find(); // Fetch all models from DB
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve LLM models');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve LLM models');
     }
   }
 
@@ -67,7 +67,7 @@ export class LlmModelService extends BaseService {
       }
       return model;
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, `LLM model with id ${id} not found`);
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, `LLM model with id ${id} not found`);
     }
   }
 
@@ -89,7 +89,7 @@ export class LlmModelService extends BaseService {
 
       return model;
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to update LLM model');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update LLM model');
     }
   }
 
@@ -103,7 +103,7 @@ export class LlmModelService extends BaseService {
 
       return `LLM model with id ${id} has been removed`;
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to remove LLM model');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to remove LLM model');
     }
   }
 }

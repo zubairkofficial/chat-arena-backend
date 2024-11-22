@@ -29,7 +29,7 @@ export class ConversationController {
       // Handle single creation
       return await this.conversationService.createConversation(createConversationDto);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to create conversation(s)');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to create conversation(s)');
     }
   }
 
@@ -39,7 +39,7 @@ export class ConversationController {
     try {
       return await this.conversationService.getAllConversations();
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve conversations');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve conversations');
     }
   }
 
@@ -49,7 +49,7 @@ export class ConversationController {
     try {
       return await this.conversationService.getConversationById(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.NOT_FOUND, 'Conversation not found');
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Conversation not found');
     }
   }
 
@@ -62,7 +62,7 @@ export class ConversationController {
     try {
       return await this.conversationService.updateConversation(id, updateConversationDto);
     } catch (error) {
-      handleServiceError(error, HttpStatus.BAD_REQUEST, 'Failed to update conversation');
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update conversation');
     }
   }
 
@@ -72,7 +72,7 @@ export class ConversationController {
     try {
       return await this.conversationService.deleteConversation(id);
     } catch (error) {
-      handleServiceError(error, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete conversation');
+      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete conversation');
     }
   }
 }
