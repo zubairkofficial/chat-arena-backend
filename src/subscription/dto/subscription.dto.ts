@@ -50,24 +50,6 @@ import {
       @IsUUID()
       packageId: string; // The package bundle associated with the subscription
   
-      // @IsOptional()
-      // @IsNumber()
-      // @Min(0)
-      // coins?: number; // Tokens included in the subscription, optional
-     
-      
-      // @IsNumber()
-      // @Min(0)
-      // price: number; 
-  
-      // @IsOptional()
-      // @IsDate()
-      // startDate?: Date; // Start date of the subscription
-  
-      // @IsOptional()
-      // @IsDate()
-      // endDate?: Date; // End date of the subscription
-  
       @IsOptional()
       @IsBoolean()
       status?: boolean; // Status of the subscription, defaults to active
