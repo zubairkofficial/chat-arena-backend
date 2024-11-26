@@ -50,7 +50,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     CardModule,
     TransactionModule,
     LlmModelModule,
-    SubscriptionModule
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

@@ -33,10 +33,9 @@ export class CardService extends BaseService {
         where: { id: currentUser.id },
         relations: ['cards'], // Make sure to load related cards
       });
+      
 
-      if (!user) {
-        throw new Error('User not found');
-      }
+     
       const existingCard = user.cards.find(
         (existing) =>
           existing.cardNumber === input.cardNumber &&
@@ -64,11 +63,11 @@ export class CardService extends BaseService {
         price: input.price,
       };
 
+      transactionScop.add(card);
       await this.paymentService.createCard(cardInput);
       const transaction = this.transactionService.createTransaction(user, input, transactionScop);
-      const updateUser = await this.userService.updateUserCoins(input, user, transactionScop);
       transactionScop.add(transaction);
-      transactionScop.add(card);
+      const updateUser = await this.userService.updateUserCoins(input, user, transactionScop);
       transactionScop.update(updateUser);
       await transactionScop.commit(this.entityManager);
       return transaction;
@@ -93,8 +92,8 @@ export class CardService extends BaseService {
   };
 
   const transaction = this.transactionService.createTransaction(user, input, transactionScop);
-  const updateUser = await this.userService.updateUserCoins(input, user, transactionScop);
   transactionScop.add(transaction);
+  const updateUser = await this.userService.updateUserCoins(input, user, transactionScop);
   transactionScop.update(updateUser);
   await transactionScop.commit(this.entityManager);
   return this.paymentService.createCard(cardInput)  
@@ -110,8 +109,9 @@ export class CardService extends BaseService {
     return `This action returns all card`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} card`;
+  getCardById(id: string) {
+return this.cardRepository.findOne({where:{id}})
+   
   }
 
   remove(id: number) {

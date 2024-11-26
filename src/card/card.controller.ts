@@ -64,14 +64,7 @@ export class CardController {
     }
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    try {
-      return await this.cardService.findOne(+id); // Call the service to get a card by ID
-    } catch (error) {
-      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Card not found');
-    }
-  }
+ 
 
   @Delete(':id')
   async remove(@Param('id') id: string) {

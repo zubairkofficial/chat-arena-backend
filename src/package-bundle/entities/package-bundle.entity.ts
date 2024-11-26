@@ -3,6 +3,7 @@ import { EntityBase } from '../../base/entityBase';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, BeforeInsert, BeforeUpdate } from 'typeorm';
 import slugify from 'slugify';
 import { Subscription } from '../../subscription/entities/subscription.entity';
+import { PackageBundleLlmModel } from '../../package-bundle-llm-model/entities/package-bundle-llm-model.entity';
 
 @Entity()
 export class PackageBundle extends EntityBase {
@@ -32,6 +33,10 @@ export class PackageBundle extends EntityBase {
 
   @OneToMany(() => UserPackageBundle, (userPackageBundle) => userPackageBundle.packageBundle)
   userPackageBundles: UserPackageBundle[];
+
+  @OneToMany(() => PackageBundleLlmModel, (bridge) => bridge.packageBundle)
+  packageBundleLlmModel: PackageBundleLlmModel[];
+
 
   @OneToMany(() => Subscription, (subscription) => subscription.packageBundle, { cascade: true })
   subscriptions: Subscription[];

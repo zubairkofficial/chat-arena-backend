@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { logger } from './logger';
-import { RequestMethod } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { AllExceptionsFilter } from './errors/http-exception.filter';
 import { ErrorLogService } from './error-logs/error-logs.service';

@@ -9,6 +9,8 @@ import {
   ArrayMinSize,
   IsArray,
   IsUUID,
+  IsBoolean,
+  ArrayNotEmpty,
 } from 'class-validator';
 
 export namespace ArenaDtos {
@@ -32,6 +34,10 @@ export namespace ArenaDtos {
     @IsNotEmpty()
     @IsInt()
     maxParticipants: number; // Participants must be an integer and is required.
+ 
+    @IsOptional()
+    @IsBoolean()
+    isPrivate: boolean; // Participants must be an integer and is required.
 
     @IsNotEmpty()
     @IsEnum(['open', 'inprogress', 'full'])
@@ -47,6 +53,12 @@ export namespace ArenaDtos {
     @IsUUID('all', { each: true })
     aiFigureRoles: string[];
 
+
+    @IsArray()
+    @IsOptional() // This means the field is optional
+    @IsString({ each: true }) // Ensures that every item in the array is a string
+    @ArrayNotEmpty() // Optionally ensures the array is not empty if required
+    arenaModel?: string[];
 
     @IsNotEmpty()
     @IsArray()
@@ -71,5 +83,6 @@ export namespace ArenaDtos {
     status?: 'open' | 'inprogress' | 'full';
     arenaTypeId?: string; // Reference to ArenaType
     aiFigureId?: string; // Reference to AIFigure
+    isPrivate?: boolean; 
   }
 }

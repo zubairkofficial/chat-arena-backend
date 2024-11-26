@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { IsInt, IsPositive, IsString } from 'class-validator';
 
-import { OrderBy } from './enums';
+import { OrderBy, UserTier } from './enums';
 import {
   DEFAULT_PAGE_LIMIT,
   DEFAULT_PAGE_OFFSET,
@@ -39,6 +39,7 @@ export namespace CommonDTOs {
     isAdmin: boolean;
     email: string;
     id: string;
+    tier:UserTier
    
   }
 }

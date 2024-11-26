@@ -12,8 +12,9 @@ import { SubscriptionDtos } from './dto/subscription.dto';
 import { BaseService } from '../base/base.service';
 import { SubscriptionRepository } from './subscription.repository';
 import { CommonDTOs } from '../common/dto';
-import { CardRepository } from '../card/card.repository';
 import { PaymentService } from '../payment/payment.service';
+import { UserTier } from '../common/enums';
+import { CardService } from '../card/card.service';
 
 @Injectable()
 export class SubscriptionService extends BaseService {
@@ -22,7 +23,7 @@ export class SubscriptionService extends BaseService {
     private subscriptionRepository: SubscriptionRepository,
     private userService: UserService,
     private entityManager: EntityManager,
-    private readonly cardRepository: CardRepository,
+    private readonly cardService: CardService,
     private readonly paymentService: PaymentService,
 
 
@@ -35,7 +36,8 @@ export class SubscriptionService extends BaseService {
   async createSubscriptionWithNewCard(
     input: SubscriptionDtos.CreateSubscriptionWithNewCardDto,currentUser: CommonDTOs.CurrentUser
   ): Promise<Subscription> {
-
+const transactionScop=this.getTransactionScope()
+const subscribe=new Subscription()
     // Validate user
     const user = await this.userService.getUserById(currentUser.id);
     if (!user) {
@@ -59,21 +61,28 @@ export class SubscriptionService extends BaseService {
       price: packageBundle.price,
     };
 
-    const subscription = this.subscriptionRepository.create({
-      user,
-      packageBundle,
-      coins:  packageBundle.coins, // Default to package coins
-      startDate:  new Date(),
-      endDate:  this.calculateEndDate(packageBundle.durationInDays),
-    });
-
+    subscribe.user=user
+    subscribe.packageBundle=packageBundle
+    subscribe.coins=packageBundle.coins
+    subscribe.startDate=new Date()
+    subscribe.endDate=this.calculateEndDate(packageBundle.durationInDays)
     try {
+      transactionScop.add(subscribe)
       await this.paymentService.createCard(cardInput) 
-      return await this.subscriptionRepository.save(subscription);
-    } catch (error) {
+      await this.cardService.createCard(currentUser,cardInput)
+    // Update user tier to "premium"
+    user.tier = UserTier.PREMIUM;
+    user.availableCoins=Number(user.availableCoins)+Number(packageBundle.coins)
+   
+   transactionScop.update(user)
+  await transactionScop.commit(this.entityManager)
+   return subscribe; 
+  } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
+
+  
   async createSubscription(
     input: SubscriptionDtos.CreateSubscriptionDto,currentUser: CommonDTOs.CurrentUser
   ): Promise<Subscription> {
@@ -83,7 +92,7 @@ export class SubscriptionService extends BaseService {
     if (!user) {
       throw new NotFoundException(`User with ID ${currentUser.id} not found.`);
     }
-    const card= await this.cardRepository.findOne({where:{id:input.cardId}})
+    const card= await this.cardService.getCardById(input.cardId)
    
     // Validate package bundle
     const packageBundle = await this.entityManager.findOne(PackageBundle, {
@@ -99,7 +108,7 @@ export class SubscriptionService extends BaseService {
       expYear: card.expYear.toString(),
       cvc: card.cvc.toString(),
       coins: packageBundle.coins,
-      price: packageBundle.price,
+      price: Number(packageBundle.price),
     };
 
     const subscription = this.subscriptionRepository.create({
@@ -140,6 +149,17 @@ export class SubscriptionService extends BaseService {
       throw new NotFoundException(`Subscription with ID ${id} not found.`);
     }
     return subscription;
+  }
+  async getAllSubscriptionsByUserId(userId: string): Promise<Subscription[]> {
+    try {
+      return await this.subscriptionRepository.find({
+        where: { user: { id: userId } }, // Filter by user ID
+        relations: ['user', 'packageBundle'], // Include related entities
+        order: { createdAt: 'DESC' },
+      });
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
   }
 
   async updateSubscription(

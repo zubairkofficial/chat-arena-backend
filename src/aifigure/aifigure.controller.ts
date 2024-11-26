@@ -90,9 +90,13 @@ export class AIFigureController {
 
   // Get all AIFigures
   @Get()
-  async getAllAIFigures(): Promise<AIFigure[]> {
+  @UseGuards(AuthGuard)
+  async getAllAIFigures(  @Req() req,): Promise<AIFigure[]> {
+    
     try {
-      return await this.aiFigureService.getAllAIFigures();
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+
+      return await this.aiFigureService.getAllAIFigures(currentUser);
     } catch (error) {
       handleServiceError(
         error,

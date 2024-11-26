@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { Arena } from './entities/arena.entity';
+import { CommonDTOs } from '../common/dto';
+import { UserTier } from '../common/enums';
 
 @Injectable()
 export class ArenaRepository extends Repository<Arena> {
@@ -29,8 +31,8 @@ export class ArenaRepository extends Repository<Arena> {
       .where('arena.status = :status', { status });
   }
 
-  public getAllArenas(): SelectQueryBuilder<Arena> {
-    return this.dataSource
+  public getAllArenas(user: CommonDTOs.CurrentUser): SelectQueryBuilder<Arena> {
+    const query = this.dataSource
       .getRepository(Arena)
       .createQueryBuilder('arena')
       .leftJoinAndSelect('arena.arenaType', 'arenaType')
@@ -38,7 +40,22 @@ export class ArenaRepository extends Repository<Arena> {
       .leftJoinAndSelect('arenaAIFigures.aiFigure', 'aiFigure')
       .leftJoinAndSelect('arena.userArenas', 'userArenas')
       .leftJoinAndSelect('arena.conversations', 'conversations');
+  
+    if (user?.isAdmin) {
+      // Admin users can access all arenas
+      return query;
+    } else if (user?.tier === UserTier.PREMIUM) {
+      // Premium users can access all arenas
+      return query;
+    } else if (user?.tier ===UserTier.FREE) {
+      // Free users can only access public arenas (isPrivate: false)
+      query.where('arena.isPrivate = :isPrivate', { isPrivate: false });
+    }
+  
+    return query;
   }
+  
+
   public getUserArenaList(arenaId: string): SelectQueryBuilder<Arena> {
     return this.dataSource
       .getRepository(Arena)

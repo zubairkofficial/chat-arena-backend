@@ -16,6 +16,7 @@ import { CommonDTOs } from '../common/dto';
 import { BASE_URL } from '../common/constants';
 import { UserAifigureMessage } from '../user-aifigure-message/entities/user-aifigure-message.entity';
 import { UserService } from '../user/user.service';
+import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -26,13 +27,15 @@ export class AIFigureService extends BaseService {
     private readonly userService: UserService,
     private readonly entityManager: EntityManager,
     private readonly userAifigureMessageService: UserAifigureMessageService,
+    private readonly arenaAIFigureRepository: ArenaAiFigureRepository,  // Inject ArenaAIFigureRepository here
+
     dataSource: DataSource,
   ) {
     super(dataSource);
   }
 
   // Create a new AIFigure
-  async createAIFigure(file, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
+  async createAIFigure(file: { filename: any; }, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
     if (file) {
       const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
@@ -91,9 +94,9 @@ const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessa
   }
 
   // Get all AIFigures
-  async getAllAIFigures(): Promise<AIFigure[]> {
+  async getAllAIFigures(currentUser: CommonDTOs.CurrentUser): Promise<AIFigure[]> {
     try {
-      return await this.aiFigureRepository.find();
+      return  this.aiFigureRepository.getAllAIFigures(currentUser).getMany();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -135,7 +138,16 @@ const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessa
         const transactionScop=this.getTransactionScope()
         const aiFigure = await this.getAIFigureById(aiFigureId); // Ensure the AI figure exists
         if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
-       const userAiFigureMessage=await this.userAifigureMessageService.deleteUserAiFigure(aiFigureId)    
+      //  const userAiFigure= await this.arenaAiFigure
+      const arenaAIFigureExists = await this.arenaAIFigureRepository.findOne({
+        where: { aiFigure: { id: aiFigureId } },
+      });
+  
+      if (arenaAIFigureExists) {
+        // If an ArenaAIFigure exists, prevent deletion and return a message
+        return { message: 'Cannot delete AI figure: It is still associated with an arena.' };
+      } 
+      const userAiFigureMessage=await this.userAifigureMessageService.deleteUserAiFigure(aiFigureId)    
       transactionScop.deleteCollection(userAiFigureMessage)
       transactionScop.delete(aiFigure)
       await transactionScop.commit(this.entityManager)

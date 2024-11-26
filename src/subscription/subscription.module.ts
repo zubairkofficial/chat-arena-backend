@@ -9,6 +9,8 @@ import { UserService } from '../user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { CardRepository } from '../card/card.repository';
 import { PaymentService } from '../payment/payment.service';
+import { CardService } from '../card/card.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { PaymentService } from '../payment/payment.service';
     UserModule, // Import UserModule for UserService
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService,ConfigService,UserService,CardRepository,PaymentService],
+  providers: [SubscriptionService,ConfigService,UserService,CardRepository,PaymentService,CardService,TransactionService],
   exports: [SubscriptionService], // Export SubscriptionService if needed elsewhere
 })
 export class SubscriptionModule {}

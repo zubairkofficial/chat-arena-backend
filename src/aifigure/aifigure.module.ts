@@ -8,9 +8,10 @@ import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigu
 import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
+import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 
 @Module({
   controllers: [AIFigureController],
-  providers: [LangChainService,AIFigureService, AIFigureRepository,ConfigService,UserAifigureMessageService,UserService,UserRepository,UserAifigureMessageRepository],
+  providers: [LangChainService,AIFigureService, AIFigureRepository,ConfigService,UserAifigureMessageService,UserService,UserRepository,UserAifigureMessageRepository,ArenaAiFigureRepository],
 })
 export class AifigureModule {}

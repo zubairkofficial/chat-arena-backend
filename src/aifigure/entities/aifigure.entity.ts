@@ -27,6 +27,9 @@ export class AIFigure extends EntityBase {
   @Column()
   prompt: string;
 
+  @Column({  type: 'boolean', default: false })
+  isAiPrivate: boolean;
+
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
   arenaAIFigures: ArenaAIFigure[];
 

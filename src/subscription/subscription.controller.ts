@@ -61,6 +61,14 @@ export class SubscriptionController {
       handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Subscription not found');
     }
   }
+  @Get('/join/:userId')
+  async getAllSubscriptionsByUserId(@Param('userId') userId: string) {
+    try {
+      return await this.subscriptionService.getAllSubscriptionsByUserId(userId);
+    } catch (error) {
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Subscription not found');
+    }
+  }
 
   @Put(':id')
   @UseGuards(AuthGuard)

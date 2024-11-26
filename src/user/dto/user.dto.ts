@@ -7,7 +7,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { ArenaRequestStatus } from '../../common/enums';
+import { ArenaRequestStatus, UserTier } from '../../common/enums';
 
 export namespace UserDtos {
   export class CreateUserDto {
@@ -76,6 +76,13 @@ export namespace UserDtos {
     @IsOptional()  // Make the status optional if you're allowing the admin to update it
   @IsString()
   status: ArenaRequestStatus; // Ensure status is a valid ArenaRequestStatus
+  }
+  export class UpdateUserTier {
+    @IsOptional()
+    @IsString()
+    tier: UserTier;
+
+    
   }
 
   export class ForgotPasswordDto {

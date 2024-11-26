@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { ArenaRepository } from './arena.repository';
 import { ArenaDtos } from './dto/arena.dto';
@@ -42,14 +43,19 @@ export class ArenaService extends BaseService {
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
     const transactionScope = this.getTransactionScope();
-    
+  
     try {
+      // Validate input
+      if (!input || Object.keys(input).length === 0) {
+        throw new BadRequestException('Input data is required');
+      }
+  
       // Set the image URL if a file is provided
       if (file) {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`;
       }
-
+  
       // Validate the user
       const existUser = await this.userService.getUserById(user.id);
       if (!existUser) throw new NotFoundException('Invalid user specified');
@@ -61,56 +67,100 @@ export class ArenaService extends BaseService {
       }
   
       // Validate AIFigures
-      const aiFigures = await this.aiFigureRepository.find({ where: { id: In(input.aiFigureId) } });
+      const aiFigures = await this.aiFigureRepository.find({
+        where: { id: In(input.aiFigureId) },
+      });
       if (aiFigures.length !== input.aiFigureId.length) {
         throw new BadRequestException('Some AIFigure IDs are invalid.');
       }
+  
+      // Validate roles in aiFigureRoles
+      for (const roleId of Object.values(input.aiFigureRoles)) {
+        const isValidRole = await this.figureRoleService.figureRoleById(roleId);
+        if (!isValidRole) {
+          throw new BadRequestException(`FigureRole with ID ${roleId} does not exist`);
+        }
+      }
+      let parsedArenaModel: { value: string; label: string }[] = [];
+
+if (typeof input.arenaModel === 'string') {
+  try {
+    parsedArenaModel = JSON.parse(input.arenaModel);
+  } catch (error) {
+    throw new BadRequestException('Invalid format for arenaModel. Must be a JSON array.');
+  }
+} else {
+  throw new BadRequestException('Invalid format for arenaModel.');
+}
+
+      parsedArenaModel.forEach((model) => {
+        if (!model.value || !model.label) {
+          throw new BadRequestException('Each arenaModel item must have "value" and "label" properties.');
+        }
+      });
+      // Process and format arenaModel
+      const formattedArenaModel = parsedArenaModel.map((model) => ({
+        value: model.value,
+        label: model.label,
+      }));
+      
   
       // Create the Arena object
       const arena = new Arena();
       Object.assign(arena, {
         name: input.name,
         description: input.description,
-        expiryTime: input.expiryTime == 'null' ? null : input.expiryTime,
+        expiryTime: input.expiryTime === 'null' ? null : input.expiryTime,
         maxParticipants: Number(input.maxParticipants),
         status: input.status || 'open',
         arenaType,
         createdBy: existUser,
         image: input.image,
+        isPrivate: input.isPrivate ?? false,
+        arenaModel: formattedArenaModel, // Save only UUIDs
       });
-      existUser.createArenaRequestStatus=ArenaRequestStatus.STATUS
-      // Add the arena to the transaction scope
-      transactionScope.update(existUser)
+  
+      // Update user's arena request status
+      existUser.createArenaRequestStatus = ArenaRequestStatus.STATUS;
+  
+      // Add objects to the transaction scope
+      transactionScope.update(existUser);
       transactionScope.add(arena);
   
       // Create ArenaAIFigure entries
-      const arenaAIFiguresPromises = Object.entries(input.aiFigureRoles).map(async ([aiFigureId, figureRoleId]) => {
-        // Fetch the figure role and AI figure based on the IDs
-        const figureRole = await this.figureRoleService.figureRoleById(figureRoleId);
-        const aiFigure = await this.aiFigureService.getAIFigureById(aiFigureId);
-      
-        // Create the ArenaAIFigure instance
-        const arenaAiFigure = new ArenaAIFigure();
-        arenaAiFigure.arena = arena;
-        arenaAiFigure.aiFigure = aiFigure;
-        arenaAiFigure.figureRole = figureRole;
-      
-        return arenaAiFigure;
-      });
-      
+      const arenaAIFiguresPromises = Object.entries(input.aiFigureRoles).map(
+        async ([aiFigureId, figureRoleId]) => {
+          const figureRole = await this.figureRoleService.figureRoleById(figureRoleId);
+          const aiFigure = await this.aiFigureService.getAIFigureById(aiFigureId);
+  
+          const arenaAiFigure = new ArenaAIFigure();
+          Object.assign(arenaAiFigure, {
+            arena,
+            aiFigure,
+            figureRole,
+          });
+  
+          return arenaAiFigure;
+        },
+      );
   
       const arenaAIFigures = await Promise.all(arenaAIFiguresPromises);
   
       // Add ArenaAIFigure entries to the transaction scope
       transactionScope.addCollection(arenaAIFigures);
-      
-      
+  
       // Commit the transaction
       await transactionScope.commit(this.entityManager);
   
       return arena;
     } catch (error) {
-      throw new AllExceptionsFilter(error);
+  
+      // Throw a more descriptive error
+      if (error instanceof BadRequestException || error instanceof NotFoundException) {
+        throw error;
+      } else {
+        throw new InternalServerErrorException('Failed to create arena', error.message);
+      }
     }
   }
   
@@ -176,9 +226,9 @@ export class ArenaService extends BaseService {
     }
   }
 
-  async getAllArenas(): Promise<Arena[]> {
+  async getAllArenas(user?: CommonDTOs.CurrentUser): Promise<Arena[]> {
     try {
-      return await this.arenaRepository.getAllArenas().getMany();
+      return await this.arenaRepository.getAllArenas(user).getMany();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

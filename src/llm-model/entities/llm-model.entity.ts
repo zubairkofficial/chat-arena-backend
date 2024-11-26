@@ -1,7 +1,8 @@
 import { ModelType } from '../../common/enums';
 import { EntityBase } from '../../base/entityBase';
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { PackageBundleLlmModel } from '../../package-bundle-llm-model/entities/package-bundle-llm-model.entity';
 
 @Entity()
 export class LlmModel extends EntityBase{
@@ -26,4 +27,7 @@ export class LlmModel extends EntityBase{
   @JoinColumn({ name: 'user_id' })
   user: User;
   
+  @OneToMany(() => PackageBundleLlmModel, (bridge) => bridge.llmModel)
+  packageBundleLlmModel: PackageBundleLlmModel[];
+
 }

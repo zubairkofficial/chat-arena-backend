@@ -19,7 +19,6 @@ import { handleServiceError } from '../errors/error-handling';
 import { CommonDTOs } from '../common/dto';
 import { AuthGuard } from '../middleware/auth.middleware';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ConfigService } from '@nestjs/config';
 import { storageConfig } from '../utils/file-upload.utils';
 
 @Controller('arenas')
@@ -32,13 +31,18 @@ export class ArenaController {
     storage: storageConfig('./uploads'), // Specify the uploads directory
   }))
   async createArena(
+  
     @Body() input: ArenaDtos.CreateArenaDto,
     @UploadedFile() file,
     @Req() req,
   ): Promise<Arena> {
-    const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
+    try {
+        const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
     return await this.arenaService.createArena(file, input, user);
+  } catch (error) {
+    handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
   }
+}
 
   @Post('join-arena')
   @UseGuards(AuthGuard)
@@ -46,8 +50,13 @@ export class ArenaController {
     @Body() input: ArenaDtos.JoinArenaDto,
     @Req() req,
   ): Promise<Arena> {
+    try {
     const user = req.user as CommonDTOs.CurrentUser; 
     return await this.arenaService.joinArena(input.arenaId, user.id);
+
+  } catch (error) {
+    handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
+  }
   }
 
   @Get(':id')
@@ -60,9 +69,11 @@ export class ArenaController {
   }
 
   @Get()
-  async getAllArenas(): Promise<Arena[]> {
+  @UseGuards(AuthGuard)
+  async getAllArenas( @Req() req): Promise<Arena[]> {
     try {
-      return await this.arenaService.getAllArenas();
+      const user = req.user as CommonDTOs.CurrentUser; 
+      return await this.arenaService.getAllArenas(user);
     } catch (error) {
       handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve arenas');
     }

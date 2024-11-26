@@ -69,7 +69,7 @@ export class PaymentService {
   async createPaymentIntent(amount: number, currency: string, cardTokenId: string) {
     try {
       const paymentIntent = await this.stripe.paymentIntents.create({
-        amount: amount * 100, // Amount in cents
+        amount: amount, // Amount in cents
         currency,
         payment_method_data: {
           type: 'card',
@@ -93,8 +93,12 @@ export class PaymentService {
   async createCard(input: CardDtos.CreateCardInputDto) {
     try {
       const cardToken = await this.createCardToken(input);
-      const paymentIntent = await this.createPaymentIntent(input.price, 'usd', cardToken.id);
-      return paymentIntent;
+      const paymentIntent = await this.createPaymentIntent(
+        Math.round(input.price * 100), // Convert to cents
+        'usd', // Currency
+        cardToken.id // Card token ID
+      );
+       return paymentIntent;
     } catch (error) {
       throw new Error('Card creation or payment processing failed');
     }

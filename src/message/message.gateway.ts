@@ -12,6 +12,7 @@ import { UserArenaService } from '../user-arena/user-arena.service';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
 import { Arena } from '../arena/entities/arena.entity';
 import { TooManyRequestsException } from '../errors/exceptions';
+import { UserTier } from '../common/enums';
 require('dotenv').config();
 @WebSocketGateway({
   // namespace: '/api/v1/socket',
@@ -195,7 +196,20 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
 
  
-  
+  @Cron( process.env.DAILY_CRON_JOB ?? '0 0 * * *')
+  async dailyFreeCoins() {
+  const users= await this.userService.getAllUser()
+  const freeToken = await Promise.all(
+    users?.map(async (item) => {
+      if (item.tier === UserTier.FREE) {
+        await this.userService.updateUserSubtractCoins(100, item);
+        return item;  // Return updated user data
+      }
+      return null;  // For non-FREE users, you can return null or skip
+    })
+  );
+   console.log("free",freeToken) 
+  }
   
   @Cron(process.env.CRON_SCHEDULE || '*/20 * * * * *')
   async handleCron() {

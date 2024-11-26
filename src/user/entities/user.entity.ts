@@ -10,6 +10,7 @@ import { Transaction } from '../../transaction/entities/transaction.entity';
 import { ArenaRequestStatus, UserTier } from '../../common/enums';
 import { LlmModel } from '../../llm-model/entities/llm-model.entity';
 import { Subscription } from '../../subscription/entities/subscription.entity';
+// import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user' })
 export class User extends EntityBase {
@@ -31,6 +32,7 @@ export class User extends EntityBase {
   @Column({ name: 'phone_number', type: 'varchar', nullable: true })
   phoneNumber: string;
 
+  // @Exclude()
   @Column({ name: 'password', type: 'varchar', nullable: true })
   password: string;
 

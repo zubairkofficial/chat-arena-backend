@@ -27,7 +27,7 @@ import { AllExceptionsFilter } from '../errors/http-exception.filter';
 import Stripe from 'stripe';
 import { CardDtos } from '../payment/dto/payment.dto';
 import { TransactionScope } from '../base/transactionScope';
-import { ArenaRequestStatus } from '../common/enums';
+import { ArenaRequestStatus, UserTier } from '../common/enums';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -118,6 +118,7 @@ export class UserService extends BaseService {
         email: user.email,
         id: user.id,
         isAdmin: user.isAdmin,
+        tier:user.tier
       };
       const token = signToken(payload);
 
@@ -272,6 +273,15 @@ export class UserService extends BaseService {
   async updateUserCoins(input: CardDtos.ExisitngCardInputDto, user: User, ts: TransactionScope) {
     try {
      user.availableCoins=Number(user.availableCoins)+Number(input.coins)
+    
+     return user
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+  async updateUserTier(input: UserDtos.UpdateUserTier, user: User) {
+    try {
+     user.tier=input.tier
      return user
     } catch (error) {
       throw new AllExceptionsFilter(error);
@@ -475,6 +485,27 @@ export class UserService extends BaseService {
   throw new AllExceptionsFilter(error);
 }
 }
+async getUserTier(userId: string): Promise<UserTier> {
+  const user = await this.userRepository.findOne({where:{id:userId}});
+  return user ? user.tier : UserTier.FREE;
+}
+
+async upgradeToPremium(userId: string): Promise<void> {
+  const user = await this.userRepository.findOne({where:{id:userId}});
+  if (user) {
+    user.tier = UserTier.PREMIUM;
+    await this.userRepository.save(user);
+  }
+}
+
+async downgradeToFree(userId: string): Promise<void> {
+  const user = await this.userRepository.findOne({where:{id:userId}});
+  if (user) {
+    user.tier = UserTier.FREE;
+    await this.userRepository.save(user);
+  }
+}
+
 
   
 }

@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { AIFigureType } from '../../common/enums';
 
 export namespace AIFigureDtos {
@@ -22,6 +22,11 @@ export namespace AIFigureDtos {
     @IsNotEmpty()
     @IsString()
     prompt: string;
+
+    @IsOptional()
+    @IsBoolean()
+    isAiPrivate: boolean; // Participants must be an integer and is required.
+
   }
 
   export class UpdateAIFigureDto {
@@ -33,6 +38,10 @@ export namespace AIFigureDtos {
 
     @IsString()
     prompt?: string;
+
+    @IsOptional()
+    @IsBoolean()
+    isAiPrivate?: boolean;
   }
   export class MessageDto {
     @IsString()

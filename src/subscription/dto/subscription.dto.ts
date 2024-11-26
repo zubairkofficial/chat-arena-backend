@@ -28,6 +28,18 @@ import {
       @Length(4, 4) // Year should be four digits
       expYear: string;
   
+
+      @IsNotEmpty()
+      @IsNumber()
+      @Min(0)
+      coins: number; // Optional: Update the token count for the subscription
+  
+      @IsNotEmpty()
+      @IsNumber()
+      @Min(0)
+      price: number; // Optional: Update the token count for the subscription
+  
+
       @IsNotEmpty()
       @IsString()
       @Length(3, 4) // CVC can be 3 or 4 digits

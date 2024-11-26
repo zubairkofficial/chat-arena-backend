@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { AIFigure } from './entities/aifigure.entity';
+import { CommonDTOs } from '../common/dto';
+import { UserTier } from '../common/enums';
 
 @Injectable()
 export class AIFigureRepository extends Repository<AIFigure> {
@@ -31,10 +33,23 @@ export class AIFigureRepository extends Repository<AIFigure> {
       .where('aifigure.name = :name', { name });
   }
 
-  public getAllAIFigures(): SelectQueryBuilder<AIFigure> {
-    return this.dataSource
+  public getAllAIFigures(user: CommonDTOs.CurrentUser): SelectQueryBuilder<AIFigure> {
+    const query = this.dataSource
       .getRepository(AIFigure)
       .createQueryBuilder('aifigure')
-      .leftJoinAndSelect('aifigure.arenas', 'arenas');
+      
+    if (user?.isAdmin) {
+      // Admin users can access all AI figures
+      return query;
+    } else if (user?.tier === UserTier.PREMIUM) {
+      // Premium users can access all AI figures
+      return query;
+    } else if (user?.tier === UserTier.FREE) {
+      // Free users can only access public AI figures (if any)
+      query.where('aifigure.isAiPrivate = :isAiPrivate', { isAiPrivate: false });
+    }
+  
+    return query;
   }
+  
 }

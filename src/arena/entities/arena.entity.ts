@@ -43,6 +43,13 @@ export class Arena extends EntityBase {
   })
   status: string;
 
+  @Column({  type: 'boolean', default: false })
+  isPrivate: boolean;
+
+  @Column({ type: 'text', array: true, nullable: true, default: [] }) // Array of strings (text)
+  arenaModel: string[];  // This is the array column for arenaModel
+
+
   @ManyToOne(() => User, (user) => user.arenas) // Create a relationship with the User entity
   createdBy: User;
 
