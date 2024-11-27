@@ -33,7 +33,12 @@ export enum ArenaRequestStatus {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
 }
-
+export enum AIFigureStatus {
+  IN_PROGRESS = 'IN_PROGRESS',  // Represents a figure being processed or under review
+  PENDING = 'PENDING',          // Figure is pending approval or action
+  APPROVED = 'APPROVED',        // Figure has been approved
+  REJECTED = 'REJECTED',        // Figure has been rejected
+}
 
 export enum UserTier {
   FREE = 'FREE',

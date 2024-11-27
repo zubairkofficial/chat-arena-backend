@@ -68,7 +68,6 @@ const subscribe=new Subscription()
     subscribe.endDate=this.calculateEndDate(packageBundle.durationInDays)
     try {
       transactionScop.add(subscribe)
-      await this.paymentService.createCard(cardInput) 
       await this.cardService.createCard(currentUser,cardInput)
     // Update user tier to "premium"
     user.tier = UserTier.PREMIUM;

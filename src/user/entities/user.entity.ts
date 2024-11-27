@@ -7,7 +7,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { UserPackageBundle } from '../../user-package-bundle/entities/user-package-bundle.entity';
 import { Card } from '../../card/entities/card.entity';
 import { Transaction } from '../../transaction/entities/transaction.entity';
-import { ArenaRequestStatus, UserTier } from '../../common/enums';
+import { AIFigureStatus, ArenaRequestStatus, UserTier } from '../../common/enums';
 import { LlmModel } from '../../llm-model/entities/llm-model.entity';
 import { Subscription } from '../../subscription/entities/subscription.entity';
 // import { Exclude } from 'class-transformer';
@@ -48,9 +48,13 @@ export class User extends EntityBase {
   @Column({ default: 100 })
   availableCoins: number;  // Current available coins for the user
   
-  @Column({ name: 'create_arena_request_status', type: 'enum', enum: ArenaRequestStatus, default: ArenaRequestStatus.STATUS })
-  createArenaRequestStatus: ArenaRequestStatus;  // Default to PENDING
+  @Column({ name: 'create_arena_request_status', type: 'enum', enum: ArenaRequestStatus, default: ArenaRequestStatus.PENDING })
+  createArenaRequestStatus: ArenaRequestStatus; 
   
+  @Column({ name: 'ai_figure_request_status', type: 'enum', enum: AIFigureStatus, default: AIFigureStatus.IN_PROGRESS })
+  aiFigureRequestStatus: AIFigureStatus;  
+  
+
   @OneToMany(() => Persona, (persona) => persona.user)
   personas: Persona[];
 

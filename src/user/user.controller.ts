@@ -22,14 +22,11 @@ import { CommonDTOs } from '../common/dto';
 import { handleServiceError } from '../errors/error-handling';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { storageConfig } from '../utils/file-upload.utils';
-import { ArenaRequestStatus } from '../common/enums';
+import { AIFigureStatus, ArenaRequestStatus } from '../common/enums';
 
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-
-  ) { }
+  constructor(private readonly userService: UserService) {}
 
   @Post('register')
   async registerUser(@Body() input: UserDtos.RegisterUserDto) {
@@ -62,10 +59,13 @@ export class UserController {
     try {
       return await this.userService.login(loginDto);
     } catch (error) {
-      handleServiceError(error.errorLogService, HttpStatus.UNAUTHORIZED, 'Login failed');
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.UNAUTHORIZED,
+        'Login failed',
+      );
     }
   }
-
 
   @Get('verify')
   async emailVerify(@Query('token') token: string, @Res() res) {
@@ -103,9 +103,11 @@ export class UserController {
 
   @Put('update')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file', {
-    storage: storageConfig('./uploads'), // Specify the uploads directory for file storage
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: storageConfig('./uploads'), // Specify the uploads directory for file storage
+    }),
+  )
   async updateUser(
     @Req() req,
     @Body() input: UserDtos.UpdateUser,
@@ -117,14 +119,15 @@ export class UserController {
       // Check if the file is provided and validate it
       if (file) {
         if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.mimetype)) {
-          throw new Error('Invalid file type. Only JPEG, PNG, and GIF are allowed.');
+          throw new Error(
+            'Invalid file type. Only JPEG, PNG, and GIF are allowed.',
+          );
         }
       }
 
       // Pass the data to the service for processing
       return await this.userService.updateUser(input, currentUser, file);
     } catch (error) {
-
       // If error is custom, handle it specifically
       if (error.message && error.message.includes('Invalid file type')) {
         handleServiceError(
@@ -201,12 +204,30 @@ export class UserController {
 
   @Post('pending-status')
   @UseGuards(AuthGuard)
-  async getUsersWithPendingStatus(@Req() req,) {
+  async getUsersWithPendingStatus(@Req() req) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; 
-      if(!currentUser.isAdmin) throw new BadRequestException('user does not access')
-     
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+      if (!currentUser.isAdmin)
+        throw new BadRequestException('user does not access');
+
       return await this.userService.getUsersWithPendingStatus();
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve pending status user',
+      );
+    }
+  }
+  @Post('aifigure/pending-status')
+  @UseGuards(AuthGuard)
+  async getUsersWithAiFigurePendingStatus(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+      if (!currentUser.isAdmin)
+        throw new BadRequestException('user does not access');
+
+      return await this.userService.getUsersWithAiFigurePendingStatus();
     } catch (error) {
       handleServiceError(
         error,
@@ -220,7 +241,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   async getHistoryByUserId(@Req() req) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; 
+      const currentUser = req.user as CommonDTOs.CurrentUser;
       return await this.userService.getHistoryByUserId(currentUser.id);
     } catch (error) {
       handleServiceError(
@@ -235,7 +256,7 @@ export class UserController {
   @UseGuards(AuthGuard)
   async getFigureByUserId(@Req() req) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; 
+      const currentUser = req.user as CommonDTOs.CurrentUser;
       return await this.userService.getFigureByUserId(currentUser.id);
     } catch (error) {
       handleServiceError(
@@ -250,9 +271,10 @@ export class UserController {
   @UseGuards(AuthGuard)
   async userTransaction(@Req() req) {
     try {
-      const currentUser = req.user as CommonDTOs.CurrentUser; 
-    if(!currentUser.isAdmin) throw new BadRequestException('user does not access')
-      return  this.userService.userTransaction();
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+      if (!currentUser.isAdmin)
+        throw new BadRequestException('user does not access');
+      return this.userService.userTransaction();
     } catch (error) {
       handleServiceError(
         error,
@@ -307,7 +329,22 @@ export class UserController {
   async arenaRequest(@Req() req) {
     try {
       const currentUser = req.user as CommonDTOs.CurrentUser;
-      return await this.userService.arenaRequest( currentUser);
+      return await this.userService.arenaRequest(currentUser);
+    } catch (error) {
+      handleServiceError(
+        error,
+        HttpStatus.BAD_REQUEST,
+        'Failed to reset password',
+      );
+    }
+  }
+
+  @Post('request-aifigure')
+  @UseGuards(AuthGuard)
+  async aiFigureRequest(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+      return await this.userService.aiFigureRequest(currentUser);
     } catch (error) {
       handleServiceError(
         error,
@@ -318,21 +355,38 @@ export class UserController {
   }
 
   @Put('update-request-status/:userId')
-@UseGuards(AuthGuard)  // Only admin can access this route
-async updateArenaRequestStatus(
-  @Param('userId') userId: string,  // Getting the user ID from the URL
-  @Body('status') status: ArenaRequestStatus,  // Getting the new status from the body
-  @Req() req
+  @UseGuards(AuthGuard) // Only admin can access this route
+  async updateArenaRequestStatus(
+    @Param('userId') userId: string, // Getting the user ID from the URL
+    @Body('status') status: ArenaRequestStatus, // Getting the new status from the body
+    @Req() req,
   ) {
-
     const currentUser = req.user as CommonDTOs.CurrentUser;
-    if(!currentUser.isAdmin) throw new BadRequestException('user does not access')
-    
-    
+    if (!currentUser.isAdmin)
+      throw new BadRequestException('user does not access');
 
-
-    const result = await this.userService.updateArenaRequestStatus(userId, status);
-    return result; 
+    const result = await this.userService.updateArenaRequestStatus(
+      userId,
+      status,
+    );
+    return result;
   }
-  
+
+  @Put('update-aifigure-request/:userId')
+  @UseGuards(AuthGuard) // Only admin can access this route
+  async updateAiFigureRequestStatus(
+    @Param('userId') userId: string, // Getting the user ID from the URL
+    @Body('status') status: AIFigureStatus, // Getting the new status from the body
+    @Req() req,
+  ) {
+    const currentUser = req.user as CommonDTOs.CurrentUser;
+    if (!currentUser.isAdmin)
+      throw new BadRequestException('user does not access');
+
+    const result = await this.userService.updateAiFigureRequestStatus(
+      userId,
+      status,
+    );
+    return result;
+  }
 }

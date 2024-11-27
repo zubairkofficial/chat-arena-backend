@@ -27,7 +27,7 @@ import { AllExceptionsFilter } from '../errors/http-exception.filter';
 import Stripe from 'stripe';
 import { CardDtos } from '../payment/dto/payment.dto';
 import { TransactionScope } from '../base/transactionScope';
-import { ArenaRequestStatus, UserTier } from '../common/enums';
+import { AIFigureStatus, ArenaRequestStatus, UserTier } from '../common/enums';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -37,13 +37,10 @@ export class UserService extends BaseService {
     private readonly userRepository: UserRepository,
     dataSource: DataSource,
     private readonly configService: ConfigService,
-    private readonly entityManager:EntityManager
-
-    
+    private readonly entityManager: EntityManager,
   ) {
     super(dataSource);
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
   }
 
   async createUser(input: UserDtos.CreateUserDto, hashedPassword?: string) {
@@ -75,24 +72,23 @@ export class UserService extends BaseService {
 
     const hashedPassword = await hashPassword(input.password);
     const newUser = await this.createUser(input, hashedPassword);
-  // const  stripeClient = await this.stripe.customers.create({
-  //     name: newUser.username,
-  //     email: newUser.email,
-  //     phone: newUser.phoneNumber,
-  //   });
+    // const  stripeClient = await this.stripe.customers.create({
+    //     name: newUser.username,
+    //     email: newUser.email,
+    //     phone: newUser.phoneNumber,
+    //   });
     await this.emailVerification(newUser);
     return {
       message: 'User registered successfully',
       userId: newUser.id,
     };
   }
-  
+
   async resendLink(input: UserDtos.ResentUserDto) {
     const userExist = await this.getUserByEmail(input.email);
     if (!userExist) {
       throw new BadRequestException(`email not found`);
     }
-
 
     await this.emailVerification(userExist);
     return {
@@ -101,7 +97,9 @@ export class UserService extends BaseService {
     };
   }
 
-  async login(input: UserDtos.LoginDto): Promise<{ user: Partial<User>; token: string }> {
+  async login(
+    input: UserDtos.LoginDto,
+  ): Promise<{ user: Partial<User>; token: string }> {
     try {
       const user = await this.getUserByEmail(input.email);
       if (!user) {
@@ -109,7 +107,10 @@ export class UserService extends BaseService {
       }
       if (!user.isActive) throw new UnauthorizedException('Email not verified');
 
-      const isPasswordValid = await verifyPassword(input.password, user.password);
+      const isPasswordValid = await verifyPassword(
+        input.password,
+        user.password,
+      );
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid credentials');
       }
@@ -118,7 +119,7 @@ export class UserService extends BaseService {
         email: user.email,
         id: user.id,
         isAdmin: user.isAdmin,
-        tier:user.tier
+        tier: user.tier,
       };
       const token = signToken(payload);
 
@@ -140,7 +141,8 @@ export class UserService extends BaseService {
   async emailVerify(token: string): Promise<User> {
     try {
       const decodedUser = tokenDecoder(token);
-      if (!decodedUser) throw new UnauthorizedException('Invalid authorization specified');
+      if (!decodedUser)
+        throw new UnauthorizedException('Invalid authorization specified');
 
       const user = await this.getUserById(decodedUser.id);
       if (!user) throw new NotFoundException('Invalid credentials specified');
@@ -164,29 +166,35 @@ export class UserService extends BaseService {
     try {
       // Fetch the basic user data
       const user = await this.getUserById(id);
-  
+
       // Fetch the arena count and AI figure count using the getUserByIdWithJoins method
       const userCount = await this.userRepository
         .getUserByIdWithJoins(id)
-        .getRawOne();  // This will return a raw result with the counts
-  
+        .getRawOne(); // This will return a raw result with the counts
+
       // Combine the user data and the counts into a single response
       const response = {
         ...user,
-        arenasCount: userCount?.arenasCount || 0,  // Default to 0 if no count is returned
-        aifiguresCount: userCount?.aifiguresCount || 0,  // Default to 0 if no count is returned
+        arenasCount: userCount?.arenasCount || 0, // Default to 0 if no count is returned
+        aifiguresCount: userCount?.aifiguresCount || 0, // Default to 0 if no count is returned
       };
-  
-      return response;  // Return the combined response
-  
+
+      return response; // Return the combined response
     } catch (error) {
-      throw new AllExceptionsFilter(error);  // Handle any errors using a custom exception filter
+      throw new AllExceptionsFilter(error); // Handle any errors using a custom exception filter
     }
   }
-  
+
   async getUsersWithPendingStatus(): Promise<User[]> {
     try {
       return this.userRepository.getUsersWithPendingStatus().getMany();
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+  async getUsersWithAiFigurePendingStatus(): Promise<User[]> {
+    try {
+      return this.userRepository.getUsersWithAiFigurePendingStatus().getMany();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -214,10 +222,14 @@ export class UserService extends BaseService {
     }
   }
 
-  async googleLogin(req: { user: { email: string; firstName: any; lastName: any } }) {
+  async googleLogin(req: {
+    user: { email: string; firstName: any; lastName: any };
+  }) {
     try {
       if (!req.user) {
-        throw new BadRequestException('No user information received from Google.');
+        throw new BadRequestException(
+          'No user information received from Google.',
+        );
       }
 
       const user = await this.getUserByEmail(req.user.email);
@@ -249,7 +261,11 @@ export class UserService extends BaseService {
     }
   }
 
-  async updateUser(input: UserDtos.UpdateUser, currentUser: CommonDTOs.CurrentUser, file) {
+  async updateUser(
+    input: UserDtos.UpdateUser,
+    currentUser: CommonDTOs.CurrentUser,
+    file,
+  ) {
     try {
       const userEmail = currentUser.isAdmin ? input.email : currentUser.email;
       const user = await this.getUserByEmail(userEmail);
@@ -270,32 +286,36 @@ export class UserService extends BaseService {
     }
   }
 
-  async updateUserCoins(input: CardDtos.ExisitngCardInputDto, user: User, ts: TransactionScope) {
+  async updateUserCoins(
+    input: CardDtos.ExisitngCardInputDto,
+    user: User,
+    ts: TransactionScope,
+  ) {
     try {
-     user.availableCoins=Number(user.availableCoins)+Number(input.coins)
-    
-     return user
+      user.availableCoins = Number(user.availableCoins) + Number(input.coins);
+
+      return user;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
   async updateUserTier(input: UserDtos.UpdateUserTier, user: User) {
     try {
-     user.tier=input.tier
-     return user
+      user.tier = input.tier;
+      return user;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
 
-  async updateUserSubtractCoins(coins:number, user: User) {
-    const transactionScop=this.getTransactionScope()
-    
+  async updateUserSubtractCoins(coins: number, user: User) {
+    const transactionScop = this.getTransactionScope();
+
     try {
-     user.availableCoins=coins
-     transactionScop.update(user)
-     transactionScop.commit(this.entityManager)
-     return user
+      user.availableCoins = coins;
+      transactionScop.update(user);
+      transactionScop.commit(this.entityManager);
+      return user;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -308,15 +328,22 @@ export class UserService extends BaseService {
 
       if (input.email !== user.email) {
         const emailAlreadyExist = await this.getUserByEmail(input.email);
-        if (emailAlreadyExist) throw new InValidCredentials('Email already registered');
+        if (emailAlreadyExist)
+          throw new InValidCredentials('Email already registered');
       }
       if (input.phoneNumber !== user.phoneNumber) {
-        const phoneAlreadyExist = await this.getUserByPhoneNumber(input.phoneNumber);
-        if (phoneAlreadyExist) throw new InValidCredentials('Phone number already exists');
+        const phoneAlreadyExist = await this.getUserByPhoneNumber(
+          input.phoneNumber,
+        );
+        if (phoneAlreadyExist)
+          throw new InValidCredentials('Phone number already exists');
       }
       if (input.username !== user.username) {
-        const usernameAlreadyExist = await this.getUserByUsername(input.username);
-        if (usernameAlreadyExist) throw new InValidCredentials('Username already exists');
+        const usernameAlreadyExist = await this.getUserByUsername(
+          input.username,
+        );
+        if (usernameAlreadyExist)
+          throw new InValidCredentials('Username already exists');
       }
       Object.assign(user, input);
 
@@ -350,14 +377,14 @@ export class UserService extends BaseService {
       throw new AllExceptionsFilter(error);
     }
   }
-  async getHistoryByUserId(id:string): Promise<User[]> {
+  async getHistoryByUserId(id: string): Promise<User[]> {
     try {
       return this.userRepository.getHistoryByUserId(id).getMany();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
   }
-  async getFigureByUserId(id:string): Promise<User[]> {
+  async getFigureByUserId(id: string): Promise<User[]> {
     try {
       return this.userRepository.getFigureByUserId(id).getMany();
     } catch (error) {
@@ -387,10 +414,14 @@ export class UserService extends BaseService {
     }
   }
 
-  async forgotPassword(input: UserDtos.ForgotPasswordDto): Promise<{ message: string }> {
+  async forgotPassword(
+    input: UserDtos.ForgotPasswordDto,
+  ): Promise<{ message: string }> {
     const user = await this.getUserByEmail(input.email);
     if (!user) {
-      throw new NotFoundException(`No user found with the email ${input.email}`);
+      throw new NotFoundException(
+        `No user found with the email ${input.email}`,
+      );
     }
 
     const payload = {
@@ -407,7 +438,9 @@ export class UserService extends BaseService {
     return { message: 'Password reset link sent to your email' };
   }
 
-  async resetPassword(input: UserDtos.ResetPasswordDto): Promise<{ message: string }> {
+  async resetPassword(
+    input: UserDtos.ResetPasswordDto,
+  ): Promise<{ message: string }> {
     const decodedToken = tokenDecoder(input.token);
     const user = await this.getUserById(decodedToken.id);
     if (!user) {
@@ -430,7 +463,10 @@ export class UserService extends BaseService {
       throw new InValidCredentials('Invalid user specified');
     }
 
-    const isPasswordValid = await verifyPassword(input.oldPassword, user.password);
+    const isPasswordValid = await verifyPassword(
+      input.oldPassword,
+      user.password,
+    );
     if (!isPasswordValid) {
       throw new InValidCredentials('Old password is incorrect');
     }
@@ -449,18 +485,44 @@ export class UserService extends BaseService {
     if (!user) {
       throw new InValidCredentials('Invalid user specified');
     }
-  
+
     // Check if the user already has a request or is pending approval
     if (user.createArenaRequestStatus === ArenaRequestStatus.PENDING) {
       throw new BadRequestException('You already have a pending request.');
     }
-  
+
     // Set the status to 'PENDING' to indicate the user has requested to create an arena
     user.createArenaRequestStatus = ArenaRequestStatus.PENDING;
     await this.userRepository.save(user);
-  
+
     // Return success message
-    return { message: 'Arena creation request has been sent and is pending approval.' };
+    return {
+      message: 'Arena creation request has been sent and is pending approval.',
+    };
+  }
+
+  async aiFigureRequest(
+    currentUser: CommonDTOs.CurrentUser,
+  ): Promise<{ message: string }> {
+    // Fetch the user by their ID
+    const user = await this.getUserById(currentUser.id);
+    if (!user) {
+      throw new InValidCredentials('Invalid user specified');
+    }
+
+    // Check if the user already has a request or is pending approval
+    if (user.aiFigureRequestStatus === AIFigureStatus.PENDING) {
+      throw new BadRequestException('You already have a pending request.');
+    }
+
+    // Set the status to 'PENDING' to indicate the user has requested to create an arena
+    user.aiFigureRequestStatus = AIFigureStatus.PENDING;
+    await this.userRepository.save(user);
+
+    // Return success message
+    return {
+      message: 'Arena creation request has been sent and is pending approval.',
+    };
   }
 
   async updateArenaRequestStatus(
@@ -468,44 +530,65 @@ export class UserService extends BaseService {
     newStatus: ArenaRequestStatus,
   ): Promise<{ message: string }> {
     // Fetch the user by their ID
-    try{
-    const user = await this.getUserById(userId);
-    if (!user) {
-      throw new BadRequestException('User not found');
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      // Update the status (approve/reject)
+      user.createArenaRequestStatus = newStatus;
+      await this.userRepository.save(user);
+
+      return {
+        message: `Request ${newStatus === ArenaRequestStatus.APPROVED ? 'approved' : 'rejected'} successfully!`,
+      };
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
     }
-
-
-    // Update the status (approve/reject)
-    user.createArenaRequestStatus = newStatus;
-    await this.userRepository.save(user);
-
-    return { message: `Request ${newStatus === ArenaRequestStatus.APPROVED ? 'approved' : 'rejected'} successfully!` };
-  
-} catch (error) {
-  throw new AllExceptionsFilter(error);
-}
-}
-async getUserTier(userId: string): Promise<UserTier> {
-  const user = await this.userRepository.findOne({where:{id:userId}});
-  return user ? user.tier : UserTier.FREE;
-}
-
-async upgradeToPremium(userId: string): Promise<void> {
-  const user = await this.userRepository.findOne({where:{id:userId}});
-  if (user) {
-    user.tier = UserTier.PREMIUM;
-    await this.userRepository.save(user);
   }
-}
 
-async downgradeToFree(userId: string): Promise<void> {
-  const user = await this.userRepository.findOne({where:{id:userId}});
-  if (user) {
-    user.tier = UserTier.FREE;
-    await this.userRepository.save(user);
+  async updateAiFigureRequestStatus(
+    userId: string,
+    newStatus: AIFigureStatus,
+  ): Promise<{ message: string }> {
+    // Fetch the user by their ID
+    try {
+      const user = await this.getUserById(userId);
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+
+      // Update the status (approve/reject)
+      user.aiFigureRequestStatus = newStatus;
+      await this.userRepository.save(user);
+
+      return {
+        message: `Request ${newStatus === AIFigureStatus.APPROVED ? 'approved' : 'rejected'} successfully!`,
+      };
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
   }
-}
 
+  async getUserTier(userId: string): Promise<UserTier> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    return user ? user.tier : UserTier.FREE;
+  }
 
-  
+  async upgradeToPremium(userId: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (user) {
+      user.tier = UserTier.PREMIUM;
+      await this.userRepository.save(user);
+    }
+  }
+
+  async downgradeToFree(userId: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (user) {
+      user.tier = UserTier.FREE;
+      await this.userRepository.save(user);
+    }
+  }
 }
