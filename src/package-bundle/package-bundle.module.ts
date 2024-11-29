@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserPackageBundlesModule } from '../user-package-bundle/user-package-bundle.module';
 import { UserService } from '../user/user.service';
 import { UserPackageBundlesService } from '../user-package-bundle/user-package-bundle.service';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserPackageBundlesService } from '../user-package-bundle/user-package-b
     ConfigService,
     UserService,
     UserPackageBundlesService,
+    AIFigureRepository
   ],
 })
 export class PackageBundlesModule {}

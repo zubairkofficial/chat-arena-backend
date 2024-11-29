@@ -17,6 +17,7 @@ import { BASE_URL } from '../common/constants';
 import { UserAifigureMessage } from '../user-aifigure-message/entities/user-aifigure-message.entity';
 import { UserService } from '../user/user.service';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
+import { LlmModelService } from '../llm-model/llm-model.service';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -28,11 +29,13 @@ export class AIFigureService extends BaseService {
     private readonly entityManager: EntityManager,
     private readonly userAifigureMessageService: UserAifigureMessageService,
     private readonly arenaAIFigureRepository: ArenaAiFigureRepository,  // Inject ArenaAIFigureRepository here
+    private readonly llmModelService: LlmModelService,  // Inject ArenaAIFigureRepository here
 
     dataSource: DataSource,
   ) {
     super(dataSource);
   }
+
 
   // Create a new AIFigure
   async createAIFigure(file: { filename: any; }, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
@@ -40,10 +43,16 @@ export class AIFigureService extends BaseService {
       const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
+  
+    // Ensure 'input.llmModel' is a proper array, if it's a stringified JSON
+    if (input.llmModel && typeof input.llmModel === 'string') {
+      input.llmModel = JSON.parse(input.llmModel); // Parse it to an array
+    }
+  
     if (!input.name) {
       throw new BadRequestException('Name is required field.');
     }
-
+  
     try {
       const newAIFigure = await this.aiFigureRepository.save(input);
       return newAIFigure;
@@ -51,6 +60,7 @@ export class AIFigureService extends BaseService {
       throw new AllExceptionsFilter(error);
     }
   }
+  
 
   async aiFigureMessage(figureId: string, message: string,currentUser: CommonDTOs.CurrentUser): Promise<string> {
     const aiFigure = await this.getAIFigureById(figureId);
@@ -63,8 +73,12 @@ const user=await this.userService.getUserById(currentUser.id)
   receiveMessage: message.receiveMessage,
 }));
     try {
-      
-    const langChainMessage= await this.langchainService.aiFigureMessage(aiFigure, message,context);
+    
+      const modelIds =   aiFigure?.llmModel?.map(item => JSON.parse(item).id);
+     const llmModels=  await this.llmModelService.getLlmModelByName()
+      let models = await this.fetchModelsConcurrently(modelIds?.length>0?modelIds:[llmModels.id]);
+
+    const langChainMessage= await this.langchainService.aiFigureMessage(models[0],aiFigure, message,context);
     user.availableCoins=Number(user.availableCoins)-Number(process.env.DEDUCTION_COINS)
     await this.userService.updateUserSubtractCoins( user.availableCoins,user,)
     await this.userAifigureMessageService.createUserAiFigure(aiFigure,message,langChainMessage,currentUser)
@@ -156,4 +170,15 @@ const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessa
       throw new AllExceptionsFilter(error);
     }
   }
+  async fetchModelsConcurrently (modelIds: string[]): Promise<any[]>{
+    try {
+      const fetchPromises = modelIds?.map(id => this.llmModelService.findOne(id));
+      const models = await Promise.all(fetchPromises);
+      console.log(models); // Log the models (or process them as needed)
+      return models; // Return the array of models
+    } catch (error) {
+      console.error("Error fetching models:", error);
+      return []; // Return an empty array or handle the error as needed
+    }
+  };
 }

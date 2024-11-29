@@ -30,6 +30,10 @@ export class AIFigure extends EntityBase {
   @Column({  type: 'boolean', default: false })
   isAiPrivate: boolean;
 
+  @Column({ type: 'text', array: true, nullable: true, default: [] }) // Array of strings (text)
+  llmModel: string[];  // This is the array column for arenaModel
+
+
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
   arenaAIFigures: ArenaAIFigure[];
 

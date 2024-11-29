@@ -46,7 +46,7 @@ export enum UserTier {
 }
 
 export enum ModelType {
-  GPT_3= 'gpt-3',
+  GPT_4o_Mini= 'gpt-4o-mini',
   GPT_4o= 'gpt-4o',
   LLAMA= 'llama3',
 }

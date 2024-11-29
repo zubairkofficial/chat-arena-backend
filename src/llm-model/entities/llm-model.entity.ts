@@ -19,7 +19,7 @@ export class LlmModel extends EntityBase{
   @Column({
     type: 'enum',
     enum: ModelType,
-    default: ModelType.GPT_3, // Default to GPT-3 if no value is provided
+    default: ModelType.GPT_4o, // Default to GPT-3 if no value is provided
   })
   modelType: ModelType;
 

@@ -18,6 +18,7 @@ import { LangChainService } from '../langchain/langchain.service';
 import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigure-message.service';
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
+import { LlmModelService } from '../llm-model/llm-model.service';
 
 
 @Module({
@@ -39,7 +40,8 @@ import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repo
     LangChainService,
     UserAifigureMessageService,
     UserAifigureMessageRepository,
-    ArenaAiFigureRepository
+    ArenaAiFigureRepository,
+    LlmModelService
   ],
 })
 export class ArenaModule {}

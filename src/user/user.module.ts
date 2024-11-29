@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { ErrorLogModule } from '../error-logs/error-logs.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentModule } from '../payment/payment.module';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PaymentModule } from '../payment/payment.module';
     GoogleStrategy,
     UserArenaService,
     ConfigService,
+    AIFigureRepository
   ],
   exports: [UserRepository],
 })

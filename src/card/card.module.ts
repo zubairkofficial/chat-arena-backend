@@ -7,9 +7,10 @@ import { ConfigService } from '@nestjs/config';
 import { PaymentService } from '../payment/payment.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { CardRepository } from './card.repository';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Module({
   controllers: [CardController],
-  providers: [CardService,UserRepository,UserService,ConfigService,PaymentService,TransactionService,CardRepository],
+  providers: [CardService,UserRepository,UserService,ConfigService,PaymentService,TransactionService,CardRepository,AIFigureRepository],
 })
 export class CardModule {}

@@ -38,7 +38,11 @@ export class UserRepository extends Repository<User> {
         .leftJoin('user.userArenas', 'userArena')  // Join UserArena to get the arenas the user is part of
         .leftJoin('user.userAifigureMessage', 'userAifigureMessage')  // Join UserAifigureMessage to get AI figures
         .addSelect('COUNT(userArena.id)', 'arenasCount')  // Count the arenas the user is part of
+        .addSelect('COUNT(userAifigureMessage.aiFigure_id)', 'totalAiFiguresCount')  // Count total AI figures (aiFigure_id) associated with the user
+ 
         // .addSelect('COUNT(DISTINCT userAifigureMessage.arena_id)', 'distinctArenaFiguresCount')  // Count distinct arenaId for AI figures
+        .addSelect('COUNT(DISTINCT userAifigureMessage.aiFigure_id)', 'distinctAiFiguresCount')  // Count distinct aiFigure_id for AI figures associated with the user
+ 
         .where('user.id = :id', { id })
         .groupBy('user.id');  // Group by user id to get a single result per user
 

@@ -40,7 +40,7 @@ export class ArenaController {
         const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
     return await this.arenaService.createArena(file, input, user);
   } catch (error) {
-    handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
+    handleServiceError(error.message, HttpStatus.NOT_FOUND, 'Arena not found');
   }
 }
 

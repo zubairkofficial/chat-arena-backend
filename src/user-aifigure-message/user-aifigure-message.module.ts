@@ -5,9 +5,10 @@ import { UserService } from '../user/user.service';
 import { UserRepository } from '../user/user.repository';
 import { ConfigService } from '@nestjs/config';
 import { UserAifigureMessageRepository } from './user-aifigure-message.repository';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Module({
   controllers: [UserAifigureMessageController],
-  providers: [UserAifigureMessageService,UserService,UserRepository,ConfigService,UserAifigureMessageRepository],
+  providers: [UserAifigureMessageService,UserService,UserRepository,ConfigService,UserAifigureMessageRepository,AIFigureRepository],
 })
 export class UserAifigureMessageModule {}

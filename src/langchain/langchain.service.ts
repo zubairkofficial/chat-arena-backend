@@ -4,108 +4,92 @@ import { openAI } from '../utils/constant/openAI.constants';
 import { HttpResponseOutputParser } from 'langchain/output_parsers';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entity';
-import { Arena } from '../arena/entities/arena.entity';
 import { AIFigure } from '../aifigure/entities/aifigure.entity';
+import { LlmModel } from '../llm-model/entities/llm-model.entity';
 
 @Injectable()
 export class LangChainService {
-  private model: ChatOpenAI;
+
 
   constructor() {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key is not set in environment variables');
+  
+  }
+
+  // Helper function to choose model based on the array of models
+  private chooseModelFromArray(models:LlmModel): ChatOpenAI {
+    if (!models ) {
+      throw new Error('No LlmModel provided');
     }
 
-    this.model = new ChatOpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      temperature: +openAI.BASIC_CHAT_OPENAI_TEMPERATURE, // Ensure this is the correct type (number)
-      modelName: openAI.GPT_3_5_TURBO_1106, // Ensure this is the model you want to use
-    });
-  }
-  // private firestore = getFirestore();
+    // Select the model based on the modelType or any other logic you need
+   
+    if (!models.apiKey) {
+      throw new Error('Model API Key is missing');
+    }
 
+    // Instantiate ChatOpenAI with the correct properties
+    const modelToUse = new ChatOpenAI({
+      openAIApiKey: models.apiKey, // Use the correct API key
+      model: models.modelType, // Pass the correct model string (GPT-3, GPT-4, etc.)
+    });
+
+    return modelToUse;
+  }
+
+  
+
+  // Function to process messages using selected model
   async processMessage(
-    arena: Arena,
+    models: LlmModel,  // Ensure this is an array of complete LlmModel objects
     arenaAiFigure: ArenaAIFigure,
     context: string,
-    userMessage:string
+    userMessage: string
   ): Promise<string> {
     try {
-      // Introduce variations in prompt for more natural, human-like responses
-      const promptTemplateString =`
-      You are an AI figure designed to simulate human participation in a chat arena. Here are the details of your configuration:
+      const modelToUse = this.chooseModelFromArray(models); // Use complete LlmModel object
 
-*Name:*
-${arenaAiFigure.aiFigure.name}
+      const promptTemplateString = `
+        You are an AI figure designed to simulate human participation in a chat arena. Here are the details of your configuration:
 
-*Description:*
-${arenaAiFigure.aiFigure.description}
+        *Name:*
+        ${arenaAiFigure.aiFigure.name}
 
-*Base Prompt:*
-${arenaAiFigure.aiFigure.prompt}
+        *Description:*
+        ${arenaAiFigure.aiFigure.description}
 
-*User Interaction:*
-The users in the arena will be communicating with each other and the AI. Below is the latest message:
+        *Base Prompt:*
+        ${arenaAiFigure.aiFigure.prompt}
 
-*User Message:*
-${userMessage}
+        *User Interaction:*
+        The users in the arena will be communicating with each other and the AI. Below is the latest message:
 
-*Instructions:*
-- Respond in a manner similar to how a human would participate in a discussion in the chat arena.
-- Provide answers that contribute to the ongoing conversation, whether responding to user messages or joining the topic at hand.
-- **Your responses should simulate a random user participation, not always responding to every user message, but participating when appropriate.**
-- Maintain a friendly, conversational, and supportive tone throughout.
+        *User Message:*
+        ${userMessage}
 
-*Context:*
-- Previous conversation context:
-${context}
+        *Instructions:*
+        - Respond in a manner similar to how a human would participate in a discussion in the chat arena.
+        - Provide answers that contribute to the ongoing conversation, whether responding to user messages or joining the topic at hand.
+        - **Your responses should simulate a random user participation, not always responding to every user message, but participating when appropriate.**
+        - Maintain a friendly, conversational, and supportive tone throughout.
 
-Ensure that your responses are relevant to the ongoing discussion. Feel free to join the conversation randomly or provide relevant insights when appropriate.
+        *Context:*
+        - Previous conversation context:
+        ${context}
 
-*Response Format:*
-Your response should:
-1. Contribute to the ongoing discussion, simulating a random user’s participation.
-2. Maintain clarity and context in the conversation.
+        Ensure that your responses are relevant to the ongoing discussion. Feel free to join the conversation randomly or provide relevant insights when appropriate.
 
-*Response:*
+        *Response Format:*
+        Your response should:
+        1. Contribute to the ongoing discussion, simulating a random user’s participation.
+        2. Maintain clarity and context in the conversation.
 
-      `
-      //  `
-      // You are ${arenaAiFigure.aiFigure.name}, a persona with unique qualities: ${arenaAiFigure.aiFigure.description}.
-      // In this conversation, you embody the role of ${arenaAiFigure.figureRole.roleName} within the MultiMind Arena.
-      
-      // ### Arena Details:
-      // - **Arena Type**: ${arena.arenaType}
-      // - **Arena Name**: ${arena.name}
-      // - **Arena Description**: ${arena.description || 'No specific description provided.'}
-      // - **Role Objective**: ${arenaAiFigure.figureRole.roleObjective}
-      
-      // ### Current Context:
-      // - **Previous Conversation Context**:
-      // ${context}
-      // - **User's Last Message**: "${userMessage}" // Capture the specific user input for context
-      
-      // ### Your Objectives:
-      // 1. **Stay in Character**: Remain true to the persona of ${arenaAiFigure.figureRole.roleName}, ensuring your responses align with the established role and objectives.
-      // 2. **Reflect Unique Background**: Provide responses that draw upon your historical knowledge, personality traits, and experiences relevant to the role.
-      // 3. **Use Arena and Conversation Details**: Incorporate specific details from the arena context and previous conversations to create a coherent and contextually relevant dialogue.
-      
-      // ### Response Guidelines:
-      // - **In Character**: Your response should be in character unless it does not add value to the user's question.
-      // - **Clarity and Relevance**: Keep your answers clear, concise, and directly related to the user’s inquiries.
-      // - **Storytelling Opportunity**: If the user’s question allows, feel free to elaborate with storytelling or historical context, while still addressing the main query.
-      
-      // **Response (in character, aligned with role and arena context): 
-      // `;
-      
-      
+        *Response:*
+      `;
 
-      // Set up the template for LangChain processing
       const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);
       const outputParser = new HttpResponseOutputParser();
-      const chain = promptTemplate.pipe(this.model).pipe(outputParser);
+      const chain = promptTemplate.pipe(modelToUse).pipe(outputParser);
 
-      // Adjust temperature (e.g., 0.8) and top-p (e.g., 0.9) for more human-like responses, if supported
       const response = (await chain.invoke({
         input: context,
         temperature: 0.7,
@@ -113,17 +97,14 @@ Your response should:
       })) as string | Uint8Array;
 
       let responseString: string;
-
       if (response instanceof Uint8Array) {
         responseString = new TextDecoder().decode(response).trim();
       } else if (typeof response === 'string') {
         responseString = response.trim();
       } else {
-        // Default message if response type is unexpected
         responseString = "I'm sorry, but I couldn't generate a response.";
       }
 
-      // Ensure response includes variations or human-like phrasing
       return responseString;
     } catch (error) {
       console.error('Error in LangChain processing:', error);
@@ -134,70 +115,70 @@ Your response should:
     }
   }
 
- 
-
+  // Function to process messages for the AI Figure
   async aiFigureMessage(
+    models: LlmModel,
     aiFigure: AIFigure,
     message: string,
-    context: { sendMessage: string; receiveMessage: string; }[]
+    context: { sendMessage: string; receiveMessage: string }[]
   ): Promise<string> {
     try {
+      // Format the context (previous messages) for the prompt
+      const modelToUse = this.chooseModelFromArray(models); // Use complete LlmModel object
 
       const contextFormatted = context
-      .map((msg) => {
-          // Check if there is a user message or an AI message and format accordingly
+        .map((msg) => {
           if (msg.sendMessage) {
-              return `User: "${msg.sendMessage}"`;
+            return `User: "${msg.sendMessage}"`;
           } else if (msg.receiveMessage) {
-              return `AI: "${msg.receiveMessage}"`;
+            return `AI: "${msg.receiveMessage}"`;
           }
           return ''; // Return an empty string if neither is present
-      })
-      .filter((line) => line) // Remove any empty lines
-      .join('\n');
-  
-  const promptTemplateString = `
-    You are an AI figure designed to assist users with specific tasks. Here are the details of your configuration:
+        })
+        .filter((line) => line) // Remove any empty lines
+        .join('\n');
 
-    *Name:*
-    ${aiFigure.name}
+      // Build the prompt template for the AI figure
+      const promptTemplateString = `
+        You are an AI figure designed to assist users with specific tasks. Here are the details of your configuration:
 
-    *Description:*
-    ${aiFigure.description}
+        *Name:*
+        ${aiFigure.name}
 
-    *Base Prompt:*
-    ${aiFigure.prompt}
+        *Description:*
+        ${aiFigure.description}
 
-    *User Interaction:*
-    The user will communicate with you by entering messages. Below is the user's current query:
+        *Base Prompt:*
+        ${aiFigure.prompt}
 
-    *User Message:*
-    "${message}"
+        *User Interaction:*
+        The user will communicate with you by entering messages. Below is the user's current query:
 
-    *Instructions:*
-    - Respond to the user message in a helpful and informative manner.
-    - Provide clear, concise answers and, if applicable, include examples or additional resources.
-    - Maintain a friendly and supportive tone throughout the conversation.
-    
-    *Context:*
-    - Previous conversation:
-${contextFormatted}
+        *User Message:*
+        "${message}"
 
-    Ensure that your responses are relevant to the user's query, and feel free to ask clarifying questions if the user's input is ambiguous.User previous messages read and answer the following question.
+        *Instructions:*
+        - Respond to the user message in a helpful and informative manner.
+        - Provide clear, concise answers and, if applicable, include examples or additional resources.
+        - Maintain a friendly and supportive tone throughout the conversation.
+        
+        *Context:*
+        - Previous conversation:
+        ${contextFormatted}
 
-    *Response Format:*
-    Your response should: 
-    1. Answer the question directly, adding examples if needed.
-  
-    *Response:*
-`;
+        Ensure that your responses are relevant to the user's query, and feel free to ask clarifying questions if the user's input is ambiguous.
 
-      // Set up the template for LangChain processing
+        *Response Format:*
+        Your response should: 
+        1. Answer the question directly, adding examples if needed.
+
+        *Response:*
+      `;
+
       const promptTemplate = PromptTemplate.fromTemplate(promptTemplateString);
       const outputParser = new HttpResponseOutputParser();
-      const chain = promptTemplate.pipe(this.model).pipe(outputParser);
+      const chain = promptTemplate.pipe(modelToUse).pipe(outputParser);
 
-      // Adjust temperature and top-p for more human-like responses
       const response = (await chain.invoke({
         input: message,
         temperature: 0.7,
@@ -205,17 +186,14 @@ ${contextFormatted}
       })) as string | Uint8Array;
 
       let responseString: string;
-
       if (response instanceof Uint8Array) {
         responseString = new TextDecoder().decode(response).trim();
       } else if (typeof response === 'string') {
         responseString = response.trim();
       } else {
-        // Default message if response type is unexpected
         responseString = "I'm sorry, but I couldn't generate a response.";
       }
 
-      // Ensure response includes variations or human-like phrasing
       return responseString;
     } catch (error) {
       console.error('Error in LangChain processing:', error);

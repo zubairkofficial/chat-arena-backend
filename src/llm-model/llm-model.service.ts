@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NotFoundException, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
 import { LlmModel } from './entities/llm-model.entity'; // Assuming you have an entity for LLM model
 import { LlmModelDtos } from './dto/llm-model.dto';
 import { BaseService } from '../base/base.service';
@@ -7,6 +7,7 @@ import { CommonDTOs } from '../common/dto';
 import { UserService } from '../user/user.service';
 import { handleServiceError } from '../errors/error-handling'; // Import error handling function
 import { InValidCredentials } from '../errors/exceptions';
+import { ModelType } from '../common/enums';
 
 @Injectable()
 export class LlmModelService extends BaseService {
@@ -58,16 +59,36 @@ export class LlmModelService extends BaseService {
   // Get a specific LLM model by ID
   async findOne(id: string): Promise<LlmModel> {
     try {
+      // Ensure you're passing only the UUID (id), not the full object
+      if (!id || typeof id !== 'string') {
+        throw new BadRequestException('Invalid UUID format');
+      }
+  
       const model = await this.entityManager.getRepository(LlmModel).findOne({
         where: { id },
       });
-
+  
       if (!model) {
         throw new NotFoundException(`LLM model with id ${id} not found`);
       }
       return model;
     } catch (error) {
       handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, `LLM model with id ${id} not found`);
+    }
+  }
+  
+  async getLlmModelByName(): Promise<LlmModel> {
+    try {
+      const model = await this.entityManager.getRepository(LlmModel).findOne({
+        where: { modelType:ModelType.GPT_4o_Mini },
+      });
+
+      if (!model) {
+        throw new NotFoundException(`LLM model with modelType ${ModelType.GPT_4o_Mini} not found`);
+      }
+      return model;
+    } catch (error) {
+      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, `LLM model with modelType ${ModelType.GPT_4o_Mini} not found`);
     }
   }
 

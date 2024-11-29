@@ -22,10 +22,11 @@ import { FigureRoleRepository } from '../figure-role/figure-role.repository';
 import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigure-message.service';
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
+import { LlmModelService } from '../llm-model/llm-model.service';
 
 @Module({
   controllers: [MessageController],
-  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService,FigureRoleService,FigureRoleRepository,UserAifigureMessageService,UserAifigureMessageRepository,ArenaAiFigureRepository],
+  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService,FigureRoleService,FigureRoleRepository,UserAifigureMessageService,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService],
   imports: [ErrorLogModule],
 
 })

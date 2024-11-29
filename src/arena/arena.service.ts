@@ -55,7 +55,9 @@ export class ArenaService extends BaseService {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`;
       }
-  
+      if (input.arenaModel && typeof input.arenaModel === 'string') {
+        input.arenaModel = JSON.parse(input.arenaModel); // Parse it to an array
+      }
       // Validate the user
       const existUser = await this.userService.getUserById(user.id);
       if (!existUser) throw new NotFoundException('Invalid user specified');
@@ -83,15 +85,15 @@ export class ArenaService extends BaseService {
       }
       let parsedArenaModel: { value: string; label: string }[] = [];
 
-if (typeof input.arenaModel === 'string') {
-  try {
-    parsedArenaModel = JSON.parse(input.arenaModel);
-  } catch (error) {
-    throw new BadRequestException('Invalid format for arenaModel. Must be a JSON array.');
-  }
-} else {
-  throw new BadRequestException('Invalid format for arenaModel.');
-}
+// if (typeof input.arenaModel === 'string') {
+//   try {
+//     parsedArenaModel = JSON.parse(input.arenaModel);
+//   } catch (error) {
+//     throw new BadRequestException('Invalid format for arenaModel. Must be a JSON array.');
+//   }
+// } else {
+//   throw new BadRequestException('Invalid format for arenaModel.');
+// }
 
       parsedArenaModel.forEach((model) => {
         if (!model.value || !model.label) {

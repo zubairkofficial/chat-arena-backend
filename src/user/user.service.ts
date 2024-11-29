@@ -28,6 +28,7 @@ import Stripe from 'stripe';
 import { CardDtos } from '../payment/dto/payment.dto';
 import { TransactionScope } from '../base/transactionScope';
 import { AIFigureStatus, ArenaRequestStatus, UserTier } from '../common/enums';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Injectable()
 export class UserService extends BaseService {
@@ -38,6 +39,7 @@ export class UserService extends BaseService {
     dataSource: DataSource,
     private readonly configService: ConfigService,
     private readonly entityManager: EntityManager,
+    private readonly aiFigureRepository: AIFigureRepository,
   ) {
     super(dataSource);
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -171,12 +173,13 @@ export class UserService extends BaseService {
       const userCount = await this.userRepository
         .getUserByIdWithJoins(id)
         .getRawOne(); // This will return a raw result with the counts
-
+      const aiFigureCount=await this.aiFigureRepository.count()
       // Combine the user data and the counts into a single response
       const response = {
         ...user,
         arenasCount: userCount?.arenasCount || 0, // Default to 0 if no count is returned
         aifiguresCount: userCount?.aifiguresCount || 0, // Default to 0 if no count is returned
+        totalAiFigureCount:aiFigureCount
       };
 
       return response; // Return the combined response

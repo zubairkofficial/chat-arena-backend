@@ -7,6 +7,7 @@ import { UserArenaService } from '../user-arena/user-arena.service';
 import { UserArenaRepository } from '../user-arena/user-arena.repository';
 import { ConfigService } from '@nestjs/config';
 import { ErrorLogModule } from '../error-logs/error-logs.module';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Module({
   controllers: [GoogleAuthController],
@@ -16,7 +17,8 @@ import { ErrorLogModule } from '../error-logs/error-logs.module';
     UserRepository,
     UserArenaService,
     UserArenaRepository,
-    ConfigService
+    ConfigService,
+    AIFigureRepository
   ],
   imports: [ErrorLogModule], // Importing the ErrorLogModule
 })

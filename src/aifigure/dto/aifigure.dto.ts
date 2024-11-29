@@ -1,4 +1,4 @@
-import { IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { AIFigureType } from '../../common/enums';
 
 export namespace AIFigureDtos {
@@ -27,6 +27,12 @@ export namespace AIFigureDtos {
     @IsBoolean()
     isAiPrivate: boolean; // Participants must be an integer and is required.
 
+    @IsArray()
+    @IsOptional() // This means the field is optional
+    @IsString({ each: true }) // Ensures that every item in the array is a string
+    @ArrayNotEmpty() // Optionally ensures the array is not empty if required
+    llmModel: string[];
+    
   }
 
   export class UpdateAIFigureDto {

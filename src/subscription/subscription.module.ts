@@ -11,6 +11,7 @@ import { CardRepository } from '../card/card.repository';
 import { PaymentService } from '../payment/payment.service';
 import { CardService } from '../card/card.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { AIFigureRepository } from '../aifigure/aifigure.repository';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { TransactionService } from '../transaction/transaction.service';
     UserModule, // Import UserModule for UserService
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService,ConfigService,UserService,CardRepository,PaymentService,CardService,TransactionService],
+  providers: [SubscriptionService,ConfigService,UserService,CardRepository,PaymentService,CardService,TransactionService,AIFigureRepository],
   exports: [SubscriptionService], // Export SubscriptionService if needed elsewhere
 })
 export class SubscriptionModule {}

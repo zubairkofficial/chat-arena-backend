@@ -13,6 +13,8 @@ import { ArenaAIFigure } from '../arena-ai-figure/entities/arena-ai-figure.entit
 import { Arena } from '../arena/entities/arena.entity';
 import { TooManyRequestsException } from '../errors/exceptions';
 import { UserTier } from '../common/enums';
+import { LlmModelService } from '../llm-model/llm-model.service';
+import { LlmModel } from '../llm-model/entities/llm-model.entity';
 require('dotenv').config();
 @WebSocketGateway({
   // namespace: '/api/v1/socket',
@@ -38,6 +40,7 @@ export class MessageGateway implements OnGatewayInit, OnGatewayConnection, OnGat
     private readonly langchainService: LangChainService,
     private readonly userArenaService: UserArenaService,
     private readonly aiFigureService: AIFigureService,
+    private readonly llmModelService: LlmModelService,
     
   ) {
     
@@ -223,7 +226,10 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
         try {
           const arena = await this.arenaService.getArenaWithAIFigure(arenaId);
           const previousMessages = await this.messageService.getPreviousMessages(arenaId, process.env.NUMBER_OF_Previous_Messages ? +process.env.NUMBER_OF_Previous_Messages : 7);
-  
+          const modelIds = arena?.arenaModel?.map(item => JSON.parse(item).value);
+          let models = await fetchModelsConcurrently(modelIds, this.llmModelService);
+          const llmModels=  await this.llmModelService.getLlmModelByName()
+     
           if (Array.isArray(arena.arenaAIFigures)) {
             // Send one message after 20 seconds
             for (const arenaAiFigure of arena.arenaAIFigures) {
@@ -232,7 +238,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
                 // Introduce a delay before sending the AI response
            
                   try {
-                    const aiResponse = await this.generateAIResponse(arena, previousMessages, arenaAiFigure);
+                    const aiResponse = await this.generateAIResponse(models.length>0?models:[llmModels.id], previousMessages, arenaAiFigure);
                     const message = await this.messageService.createMessage({
                       senderId: aiFigure.id,
                       content: aiResponse,
@@ -268,8 +274,9 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
     }
   }
 
+ 
   async generateAIResponse(
-    arena: Arena,
+    models: LlmModel[],
     previousMessages: Message[],
     arenaAiFigure: ArenaAIFigure
   ): Promise<string> {
@@ -278,11 +285,22 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
       const userMessage = previousMessages.length > 0 ? previousMessages[previousMessages.length - 1].content : '';
 
       // Pass all relevant data to langchainService's processMessage method
-      return this.langchainService.processMessage( arena,  arenaAiFigure, context,userMessage);
+      return this.langchainService.processMessage( models[0],  arenaAiFigure, context,userMessage);
   }
-  
+   
 }
 
+const fetchModelsConcurrently = async (modelIds: string[], llmModelService: LlmModelService): Promise<any[]> => {
+  try {
+    const fetchPromises = modelIds.map(id => llmModelService.findOne(id));
+    const models = await Promise.all(fetchPromises);
+    console.log(models); // Log the models (or process them as needed)
+    return models; // Return the array of models
+  } catch (error) {
+    console.error("Error fetching models:", error);
+    return []; // Return an empty array or handle the error as needed
+  }
+};
 
 
 

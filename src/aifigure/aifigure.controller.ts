@@ -39,7 +39,7 @@ export class AIFigureController {
       return await this.aiFigureService.createAIFigure(file,createAIFigureDto);
     } catch (error) {
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.BAD_REQUEST,
         'Failed to create AI figure',
       );
@@ -61,7 +61,7 @@ export class AIFigureController {
       return await this.aiFigureService.aiFigureMessage(figureId,input.message,currentUser);
     } catch (error) {
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.BAD_REQUEST,
         'Failed to create AI figure',
       );
@@ -81,7 +81,7 @@ export class AIFigureController {
       return await this.aiFigureService.getAiFigureMessage(figureId,currentUser);
     } catch (error) {
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.BAD_REQUEST,
         'Failed to create AI figure',
       );
@@ -99,7 +99,7 @@ export class AIFigureController {
       return await this.aiFigureService.getAllAIFigures(currentUser);
     } catch (error) {
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.INTERNAL_SERVER_ERROR,
         'Failed to retrieve AI figures',
       );
@@ -126,7 +126,7 @@ export class AIFigureController {
       return await this.aiFigureService.updateAIFigure(id, updateAIFigureDto);
     } catch (error) {
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.BAD_REQUEST,
         'Failed to update AI figure',
       );
@@ -140,7 +140,7 @@ export class AIFigureController {
       return await this.aiFigureService.deleteAIFigure(id);
     } catch (error) {
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.INTERNAL_SERVER_ERROR,
         'Failed to delete AI figure',
       );
