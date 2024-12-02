@@ -133,12 +133,17 @@ const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessa
   async updateAIFigure(
     id: string,
     input: AIFigureDtos.UpdateAIFigureDto,
+    file
   ): Promise<AIFigure> {
     const aiFigure = await this.getAIFigureById(id);
     if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
 
 
     try {
+      if (file) {
+        const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
+        input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
+      }
       Object.assign(aiFigure, input);
       return await this.aiFigureRepository.save(aiFigure);
     } catch (error) {

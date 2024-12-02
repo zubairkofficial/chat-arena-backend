@@ -128,18 +128,16 @@ export class UserController {
       // Pass the data to the service for processing
       return await this.userService.updateUser(input, currentUser, file);
     } catch (error) {
-      // If error is custom, handle it specifically
-      if (error.message && error.message.includes('Invalid file type')) {
-        handleServiceError(
-          error,
+       handleServiceError(
+          error.errorLogService,
           HttpStatus.BAD_REQUEST,
           'Failed to update user',
         );
-      }
+      
 
       // Otherwise, handle generic errors
       handleServiceError(
-        error,
+        error.errorLogService,
         HttpStatus.INTERNAL_SERVER_ERROR,
         'Failed to update user',
       );

@@ -42,6 +42,12 @@ export namespace AIFigureDtos {
     @IsString()
     role?: string;
 
+
+    @IsOptional() // Image is optional
+    @IsString()
+    image?: string;
+
+    
     @IsString()
     prompt?: string;
 

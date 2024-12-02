@@ -279,7 +279,7 @@ export class UserService extends BaseService {
         input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
       }
 
-      const updatedUser = await this.updateUserDetails(user.id, input);
+      const updatedUser = await this.updateUserDetails(user.id, input,currentUser);
       return {
         message: 'User updated successfully',
         user: updatedUser,
@@ -324,23 +324,28 @@ export class UserService extends BaseService {
     }
   }
 
-  async updateUserDetails(userId: string, input: UserDtos.UpdateUser) {
+  async updateUserDetails(userId: string, input: UserDtos.UpdateUser,currentUser?: CommonDTOs.CurrentUser) {
     try {
       const user = await this.getUserById(userId);
       if (!user) throw new NotFoundException('User not found');
-
-      if (input.email !== user.email) {
+    if(!currentUser.isAdmin){
+      if (  input.email !== user.email) {
         const emailAlreadyExist = await this.getUserByEmail(input.email);
         if (emailAlreadyExist)
           throw new InValidCredentials('Email already registered');
       }
-      if (input.phoneNumber !== user.phoneNumber) {
+    }
+    if(!currentUser.isAdmin){
+      if ( input.phoneNumber !== user.phoneNumber) {
         const phoneAlreadyExist = await this.getUserByPhoneNumber(
           input.phoneNumber,
         );
         if (phoneAlreadyExist)
           throw new InValidCredentials('Phone number already exists');
-      }
+      }}
+      
+    if(!currentUser.isAdmin){
+
       if (input.username !== user.username) {
         const usernameAlreadyExist = await this.getUserByUsername(
           input.username,
@@ -348,6 +353,7 @@ export class UserService extends BaseService {
         if (usernameAlreadyExist)
           throw new InValidCredentials('Username already exists');
       }
+    }
       Object.assign(user, input);
 
       const updatedUser = await this.userRepository.save(user);

@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UseGuards,
   Req,
+  Put,
 } from '@nestjs/common';
 import { AIFigureDtos } from './dto/aifigure.dto';
 import { AIFigure } from './entities/aifigure.entity';
@@ -117,21 +118,24 @@ export class AIFigureController {
   }
 
   // Update AIFigure by ID
-  @Patch(':id')
+  @Put(':id')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: storageConfig('./uploads'), // Specify the uploads directory
+  }))// Intercept the file upload
   async updateAIFigure(
     @Param('id') id: string,
-    @Body() updateAIFigureDto: AIFigureDtos.UpdateAIFigureDto,
-  ): Promise<AIFigure> {
+    @Body() updateAIFigureDto: AIFigureDtos.UpdateAIFigureDto, // The remaining fields will be handled in the DTO
+    @UploadedFile() file
+    // The file will be parsed and accessible here
+  ) {
     try {
-      return await this.aiFigureService.updateAIFigure(id, updateAIFigureDto);
+      // Here you can use the 'file' and 'updateAIFigureDto' to update the figure
+      return await this.aiFigureService.updateAIFigure(id, updateAIFigureDto, file);
     } catch (error) {
-      handleServiceError(
-        error.errorLogService,
-        HttpStatus.BAD_REQUEST,
-        'Failed to update AI figure',
-      );
+      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update AI figure');
     }
   }
+
 
   // Delete AIFigure by ID
   @Delete(':id')

@@ -238,7 +238,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
                 // Introduce a delay before sending the AI response
            
                   try {
-                    const aiResponse = await this.generateAIResponse(models.length>0?models:[llmModels.id], previousMessages, arenaAiFigure);
+                    const aiResponse = await this.generateAIResponse(models.length>0?models:[llmModels], previousMessages, arenaAiFigure);
                     const message = await this.messageService.createMessage({
                       senderId: aiFigure.id,
                       content: aiResponse,
