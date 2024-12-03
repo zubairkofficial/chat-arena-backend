@@ -76,13 +76,56 @@ export namespace ArenaDtos {
   }
 
   export class UpdateArenaDto {
+    @IsOptional()
+    @IsString()
     name?: string;
+  
+    @IsOptional()
+    @IsString()
     description?: string;
-    expiryTime?: Date;
+  
+    @IsOptional()
+    @IsString()
+    expiryTime?: Date|string;
+  
+    @IsOptional()
+    @IsNotEmpty()
+    @IsString()
     maxParticipants?: number;
-    status?: 'open' | 'inprogress' | 'full';
-    arenaTypeId?: string; // Reference to ArenaType
-    aiFigureId?: string; // Reference to AIFigure
-    isPrivate?: boolean; 
+  
+    @IsOptional()
+    @IsNotEmpty()
+    status?: 'open' | 'inprogress' | 'full';  // Enum for status
+  
+    @IsOptional()
+    @IsUUID() // Reference to ArenaType (validate that it's a valid UUID)
+    arenaTypeId?: string;
+  
+
+    @IsNotEmpty()
+    @IsArray()
+    @IsUUID('all', { each: true })
+    aiFigureRoles: string[];
+
+    @IsNotEmpty()  // Makes sure the aiFigureId array is required
+    @IsArray()
+    @ArrayMinSize(1)  // Minimum size of 1 element
+    @ArrayMaxSize(3)  // Maximum size of 3 elements (optional)
+    @IsUUID('all', { each: true }) // Ensures that each element in the array is a valid UUID
+    aiFigureId: string[];  // Array of AiFigure IDs
+  
+    @IsOptional()
+    @IsBoolean() // Validate if it's a boolean value
+    isPrivate?: boolean;
+  
+    @IsNotEmpty()
+    @IsString()
+    image: string;
+    
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true }) // Ensures each element in the array is a string
+    @ArrayNotEmpty()  // Ensures the array is not empty
+    arenaModel?: string[]; // Array of arena model strings (optional)
   }
 }

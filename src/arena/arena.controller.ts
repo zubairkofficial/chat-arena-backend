@@ -80,13 +80,20 @@ export class ArenaController {
   }
 
   @Put(':id')
-  async updateArena(
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: storageConfig('./uploads'), // Specify the uploads directory for file storage
+    }),
+  )
+   async updateArena(
     @Param('id') id: string,
     @Body() updateArenaDto: ArenaDtos.UpdateArenaDto,
+    @UploadedFile() file,  // If you have a file
   ): Promise<Arena> {
     try {
-      return await this.arenaService.updateArena(id, updateArenaDto);
-    } catch (error) {
+      const dataToUpdate = { ...updateArenaDto, file };
+      return await this.arenaService.updateArena(id, dataToUpdate);
+    }  catch (error) {
       handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update arena');
     }
   }

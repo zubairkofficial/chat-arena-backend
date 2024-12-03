@@ -215,7 +215,7 @@ export class ArenaService extends BaseService {
     try {
       const arena = await this.arenaRepository.findOne({
         where: { id },
-        relations: ['arenaType', 'arenaAIFigures', 'userArenas'],
+        relations: ['arenaType', 'arenaAIFigures', 'arenaAIFigures.aiFigure','arenaAIFigures.figureRole','userArenas'],
       });
 
       if (!arena) {
@@ -241,23 +241,40 @@ export class ArenaService extends BaseService {
     input: ArenaDtos.UpdateArenaDto,
   ): Promise<Arena> {
     try {
+      // Step 1: Fetch the arena by its ID
       const arena = await this.getArenaById(id);
-
-      // Validate ArenaType if it has been provided for an update
+      if (!arena) {
+        throw new BadRequestException(`Arena with ID ${id} does not exist`);
+      }
+  
+      // Step 2: Handle arenaType update if provided
       if (input.arenaTypeId && input.arenaTypeId !== arena.arenaType.id) {
         const arenaType = await this.arenaTypeRepository.findOneById(input.arenaTypeId);
         if (!arenaType) {
           throw new BadRequestException(`ArenaType with ID ${input.arenaTypeId} does not exist`);
         }
-        arena.arenaType = arenaType;
+        arena.arenaType = arenaType; // Update arena type
       }
-
-      Object.assign(arena, input);
+  
+      // Step 3: Update arena properties
+      Object.assign(arena, {
+        name: input.name || arena.name, // Retain existing value if not provided
+        description: input.description || arena.description,
+        expiryTime: input.expiryTime === 'null' ? null : input.expiryTime, // Handle expiryTime
+        maxParticipants: input.maxParticipants ? Number(input.maxParticipants) : arena.maxParticipants,
+        status: input.status || arena.status || 'open', // Default to 'open' if no status provided
+        image: input.image || arena.image, // Retain existing image if not provided
+        isPrivate: input.isPrivate ?? arena.isPrivate, // Default to existing if not provided
+      });
+  
+      // Step 4: Save and return the updated arena
       return await this.arenaRepository.save(arena);
     } catch (error) {
+      // Pass the error to the global exception filter
       throw new AllExceptionsFilter(error);
     }
   }
+  
 
   async deleteArena(arenaId: string): Promise<{ message: string }> {
     try {
