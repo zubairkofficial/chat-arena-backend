@@ -6,9 +6,10 @@ import { UserRepository } from '../user/user.repository';
 import { ConfigService } from '@nestjs/config';
 import { LlmModelRepository } from './llm-model.repository';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
+import { ArenaRepository } from '../arena/arena.repository';
 
 @Module({
   controllers: [LlmModelController],
-  providers: [LlmModelService,UserService,UserRepository,ConfigService,LlmModelRepository,AIFigureRepository],
+  providers: [LlmModelService,UserService,UserRepository,ConfigService,LlmModelRepository,AIFigureRepository,ArenaRepository],
 })
 export class LlmModelModule {}

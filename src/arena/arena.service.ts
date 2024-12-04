@@ -42,6 +42,8 @@ export class ArenaService extends BaseService {
     input: ArenaDtos.CreateArenaDto,
     user: CommonDTOs.CurrentUser,
   ): Promise<Arena> {
+    let parsedArenaModel = [];
+
     const transactionScope = this.getTransactionScope();
   
     try {
@@ -83,7 +85,6 @@ export class ArenaService extends BaseService {
           throw new BadRequestException(`FigureRole with ID ${roleId} does not exist`);
         }
       }
-      let parsedArenaModel: { value: string; label: string }[] = [];
 
 // if (typeof input.arenaModel === 'string') {
 //   try {
@@ -94,7 +95,7 @@ export class ArenaService extends BaseService {
 // } else {
 //   throw new BadRequestException('Invalid format for arenaModel.');
 // }
-
+parsedArenaModel=input.arenaModel
       parsedArenaModel.forEach((model) => {
         if (!model.value || !model.label) {
           throw new BadRequestException('Each arenaModel item must have "value" and "label" properties.');
@@ -231,6 +232,13 @@ export class ArenaService extends BaseService {
   async getAllArenas(user?: CommonDTOs.CurrentUser): Promise<Arena[]> {
     try {
       return await this.arenaRepository.getAllArenas(user).getMany();
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+  async getCountArenas(): Promise<number> {
+    try {
+      return await this.arenaRepository.count();
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }

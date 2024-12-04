@@ -40,6 +40,7 @@ export class PackageBundlesService extends BaseService {
     packageBundle.price = input.price;
     packageBundle.featureNames = input.featureNames;
     packageBundle.durationInDays = input.durationInDays;
+   if(input.description) packageBundle.description = input.description;
     transactionScope.add(packageBundle);
 
     const userPackageBundle =
@@ -94,6 +95,7 @@ export class PackageBundlesService extends BaseService {
     if (input.coins) existingBundle.coins = input.coins 
     if (input.featureNames) existingBundle.featureNames = input.featureNames;
     if (input.durationInDays) existingBundle.durationInDays = input.durationInDays;
+    if (input.description) existingBundle.description = input.description;
     try {
       await this.packageBundleRepository.save(existingBundle); // Save updated package bundle
       return existingBundle; // Return the updated bundle

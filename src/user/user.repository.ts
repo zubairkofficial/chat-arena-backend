@@ -27,6 +27,15 @@ export class UserRepository extends Repository<User> {
       .createQueryBuilder('user')
       .where('user.id = :id', { id });
   }
+
+  public activeUsers(): SelectQueryBuilder<User> {
+    return this.dataSource
+      .getRepository(User)
+      .createQueryBuilder('user')
+      .where('user.isActive = :isActive', { isActive: true })
+      .andWhere('user.isAdmin = :isAdmin', { isAdmin: false });
+  }
+  
  
 
   public getUserByIdWithJoins(id: string): SelectQueryBuilder<User> {

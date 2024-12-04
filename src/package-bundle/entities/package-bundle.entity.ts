@@ -31,6 +31,9 @@ export class PackageBundle extends EntityBase {
   @Column('int', { default: 30 }) // Default duration is 30 days
   durationInDays: number;
 
+  @Column('text',{nullable:true})
+  description: string;
+
   @OneToMany(() => UserPackageBundle, (userPackageBundle) => userPackageBundle.packageBundle)
   userPackageBundles: UserPackageBundle[];
 

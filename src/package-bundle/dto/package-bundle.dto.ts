@@ -15,6 +15,10 @@ export namespace PackageBundleDtos {
     @IsString()
     name: string;
 
+    @IsOptional()
+    @IsString()
+    description: string;
+
     @IsNotEmpty()
     @IsNumber()
     @Min(0)
@@ -41,6 +45,12 @@ export namespace PackageBundleDtos {
     @IsString()
     name: string;
 
+
+    
+    @IsOptional()
+    @IsString()
+    description: string;
+    
     @IsOptional()
     @IsNumber()
     @Min(0)

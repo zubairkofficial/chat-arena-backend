@@ -8,9 +8,10 @@ import { PaymentService } from '../payment/payment.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { CardRepository } from './card.repository';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
+import { ArenaRepository } from '../arena/arena.repository';
 
 @Module({
   controllers: [CardController],
-  providers: [CardService,UserRepository,UserService,ConfigService,PaymentService,TransactionService,CardRepository,AIFigureRepository],
+  providers: [CardService,UserRepository,UserService,ConfigService,PaymentService,TransactionService,CardRepository,AIFigureRepository,ArenaRepository],
 })
 export class CardModule {}

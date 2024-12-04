@@ -12,6 +12,7 @@ import { PaymentService } from '../payment/payment.service';
 import { CardService } from '../card/card.service';
 import { TransactionService } from '../transaction/transaction.service';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
+import { ArenaRepository } from '../arena/arena.repository';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AIFigureRepository } from '../aifigure/aifigure.repository';
     UserModule, // Import UserModule for UserService
   ],
   controllers: [SubscriptionController],
-  providers: [SubscriptionService,ConfigService,UserService,CardRepository,PaymentService,CardService,TransactionService,AIFigureRepository],
+  providers: [SubscriptionService,ConfigService,UserService,CardRepository,PaymentService,CardService,TransactionService,AIFigureRepository,ArenaRepository],
   exports: [SubscriptionService], // Export SubscriptionService if needed elsewhere
 })
 export class SubscriptionModule {}

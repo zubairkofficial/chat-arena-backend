@@ -10,6 +10,7 @@ import { UserPackageBundlesModule } from '../user-package-bundle/user-package-bu
 import { UserService } from '../user/user.service';
 import { UserPackageBundlesService } from '../user-package-bundle/user-package-bundle.service';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
+import { ArenaRepository } from '../arena/arena.repository';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { AIFigureRepository } from '../aifigure/aifigure.repository';
     ConfigService,
     UserService,
     UserPackageBundlesService,
-    AIFigureRepository
+    AIFigureRepository,
+    ArenaRepository
   ],
 })
 export class PackageBundlesModule {}

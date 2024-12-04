@@ -10,9 +10,10 @@ import { UserRepository } from '../user/user.repository';
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
+import { ArenaRepository } from '../arena/arena.repository';
 
 @Module({
   controllers: [AIFigureController],
-  providers: [LangChainService,AIFigureService, AIFigureRepository,ConfigService,UserAifigureMessageService,UserService,UserRepository,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService],
+  providers: [LangChainService,AIFigureService, AIFigureRepository,ConfigService,UserAifigureMessageService,UserService,UserRepository,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService,ArenaRepository],
 })
 export class AifigureModule {}

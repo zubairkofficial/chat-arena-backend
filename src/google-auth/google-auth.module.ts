@@ -8,8 +8,9 @@ import { UserArenaRepository } from '../user-arena/user-arena.repository';
 import { ConfigService } from '@nestjs/config';
 import { ErrorLogModule } from '../error-logs/error-logs.module';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
+import { ArenaRepository } from '../arena/arena.repository';
 
-@Module({
+@Module({ 
   controllers: [GoogleAuthController],
   providers: [
     GoogleAuthService,
@@ -18,7 +19,8 @@ import { AIFigureRepository } from '../aifigure/aifigure.repository';
     UserArenaService,
     UserArenaRepository,
     ConfigService,
-    AIFigureRepository
+    AIFigureRepository,
+    ArenaRepository
   ],
   imports: [ErrorLogModule], // Importing the ErrorLogModule
 })
