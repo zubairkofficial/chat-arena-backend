@@ -86,15 +86,6 @@ export class ArenaService extends BaseService {
         }
       }
 
-// if (typeof input.arenaModel === 'string') {
-//   try {
-//     parsedArenaModel = JSON.parse(input.arenaModel);
-//   } catch (error) {
-//     throw new BadRequestException('Invalid format for arenaModel. Must be a JSON array.');
-//   }
-// } else {
-//   throw new BadRequestException('Invalid format for arenaModel.');
-// }
 parsedArenaModel=input.arenaModel
       parsedArenaModel.forEach((model) => {
         if (!model.value || !model.label) {

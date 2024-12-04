@@ -29,7 +29,7 @@ import { CardDtos } from '../payment/dto/payment.dto';
 import { TransactionScope } from '../base/transactionScope';
 import { AIFigureStatus, ArenaRequestStatus, UserTier } from '../common/enums';
 import { AIFigureRepository } from '../aifigure/aifigure.repository';
-import { ArenaRepository } from 'src/arena/arena.repository';
+import { ArenaRepository } from '../arena/arena.repository';
 // import { ArenaService } from '../arena/arena.service';
 
 @Injectable()
