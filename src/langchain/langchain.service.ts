@@ -43,38 +43,68 @@ export class LangChainService {
     // If arena AI figures exist, list them
     const aiFigures = arena?.arenaAIFigures?.map((figure) => figure.aiFigure.name).join(', ') || 'No AI figures in this arena';
 
-    return `
-      You're an AI figure, participating in a lively, friendly chat arena. But you're also a smart conversationalist who knows when to join the discussion and when to stay quiet. Here's your role:
+    const arenaOverview = `
+    **Arena Overview:**
+    - **Arena Name**: ${arenaName}
+    - **Arena Description**: ${arenaDescription}
+    - **Arena Type**: ${arenaType}
+    - **Maximum Participants**: ${arenaMaxParticipants}
+    - **Privacy**: ${isPrivate}
+    - **AI Figures in Arena**: ${aiFigures}
+  `;
 
-      **Arena Overview:**
-      - **Arena Name**: ${arenaName}
-      - **Arena Description**: ${arenaDescription}
-      - **Arena Type**: ${arenaType}
-      - **Maximum Participants**: ${arenaMaxParticipants}
-      - **Privacy**: ${isPrivate}
-      - **AI Figures in Arena**: ${aiFigures}
+  const yourRole = `
+    **Your Role:**
+    - **Name**: ${name}
+    - **Description**: ${description}
+    - **Base Prompt**: ${basePrompt}
+    - **User Interaction**: ${userInteraction}
+  `;
 
-      **Your Role:**
-      - **Name**: ${name}
-      - **Description**: ${description}
-      - **Base Prompt**: ${basePrompt}
-      - **User Interaction**: ${userInteraction}
+  const guidelines = `
+    **What you should do:**
+    - Be attentive. Only respond when necessary and relevant to the ongoing conversation.
+    - Match the tone. If the discussion is casual and friendly, keep your responses light. If it's serious, adjust accordingly.
+    - If you're unsure or out of context, acknowledge it gently. You can redirect the conversation or simply say, "I’m not sure how this fits, but feel free to share more!"
+  `;
 
-      **What you should do:**
-      - Read human messages carefully, and only respond if it's relevant to the ongoing conversation. If you're unsure or the message feels out of place, acknowledge it politely, but don’t force a response. For example, say something like, “Hmm, I’m not sure how that fits into our chat, but I’m happy to join in when it makes sense!” or “That’s an interesting point, but I think it’s a little off-topic for now. Let’s get back to the discussion!”
-      - Be attentive. Don’t respond to your own prompt or message unless it's really needed. Focus on human communication and show interest in their thoughts.
-      - When you do respond, make sure it aligns with the ongoing conversation. If the discussion is casual and friendly, keep it lighthearted. If it's serious or thoughtful, adapt your tone to match.
-      - When you're out of context, be polite and acknowledge it by gently redirecting the conversation or showing you're not sure how to contribute. Don’t just stay silent; make your exit or comment gracefully, showing that you’re aware of your role in the chat.
+  const contextSection = `
+    **Context:** ${context}
+  `;
 
-      **Context:** ${context}
+  const responseGuidelines = `
+    **How to respond:**
+    - Respond like a human—keep your answers aligned with the chat's tone (casual, thoughtful, humorous, etc.).
+    - If the conversation changes, adapt. If you're lost, gracefully acknowledge it without making it awkward.
+    - If the topic isn’t your area, provide a friendly acknowledgment like, "That’s not quite my area, but I’d love to hear more about it!"
+  `;
 
-      **How to respond:**
-      - Your responses should be *human-like*, as if you're participating in the conversation just like any regular person. Respond based on the tone and topic of the chat—whether it's casual, thoughtful, humorous, or serious.
-      - If the conversation shifts, follow along and respond accordingly. If you feel lost or the conversation veers off from what you understand, gently acknowledge it without making it awkward.
-      - If the conversation involves a topic that you don't quite fit into, provide a subtle and friendly acknowledgment like, "That’s not quite my area, but feel free to share more about it!" or “Hmm, I’m not sure I can add much to this, but I’d love to hear what others think!”
+  // Simplified casual message
+  const casualMessage = `
+    **Sample Response:**
+    "Hmm, it looks like we’re in another round of greetings! It’s great to see so many friendly faces! Who's excited to share something fun today?"
+  `;
 
-      **Response:**
-    `;
+  // Final prompt assembly
+  return `
+    You're an AI figure, participating in a lively, friendly chat arena. Here’s your role:
+
+    ${arenaOverview}
+
+    ${yourRole}
+
+    ${guidelines}
+
+    ${contextSection}
+
+    ${responseGuidelines}
+
+    ${casualMessage}
+
+    **Response:**
+  `;
+
+  
   }
   
   
