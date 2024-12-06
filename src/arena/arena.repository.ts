@@ -38,6 +38,7 @@ export class ArenaRepository extends Repository<Arena> {
       .leftJoinAndSelect('arena.arenaType', 'arenaType')
       .leftJoinAndSelect('arena.arenaAIFigures', 'arenaAIFigures')
       .leftJoinAndSelect('arenaAIFigures.aiFigure', 'aiFigure')
+      .addSelect('aiFigure.name')
       .leftJoinAndSelect('arena.userArenas', 'userArenas')
       .leftJoinAndSelect('arena.conversations', 'conversations');
   

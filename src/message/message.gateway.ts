@@ -238,7 +238,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
                 // Introduce a delay before sending the AI response
            
                   try {
-                    const aiResponse = await this.generateAIResponse(models.length>0?models:[llmModels], previousMessages, arenaAiFigure);
+                    const aiResponse = await this.generateAIResponse(arena,models.length>0?models:[llmModels], previousMessages, arenaAiFigure);
                     const message = await this.messageService.createMessage({
                       senderId: aiFigure.id,
                       content: aiResponse,
@@ -276,6 +276,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
  
   async generateAIResponse(
+    arena,
     models: LlmModel[],
     previousMessages: Message[],
     arenaAiFigure: ArenaAIFigure
@@ -285,7 +286,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
       const userMessage = previousMessages.length > 0 ? previousMessages[previousMessages.length - 1].content : '';
 
       // Pass all relevant data to langchainService's processMessage method
-      return this.langchainService.processMessage( models[0],  arenaAiFigure, context,userMessage);
+      return this.langchainService.processMessage(arena, models[0],  arenaAiFigure, context,userMessage);
   }
    
 }

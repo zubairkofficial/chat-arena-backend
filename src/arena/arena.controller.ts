@@ -27,22 +27,27 @@ export class ArenaController {
 
   @Post()
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file', {
-    storage: storageConfig('./uploads'), // Specify the uploads directory
-  }))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: storageConfig('./uploads'), // Specify the uploads directory
+    }),
+  )
   async createArena(
-  
     @Body() input: ArenaDtos.CreateArenaDto,
     @UploadedFile() file,
     @Req() req,
   ): Promise<Arena> {
     try {
-        const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
-    return await this.arenaService.createArena(file, input, user);
-  } catch (error) {
-    handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
+      const user = req.user as CommonDTOs.CurrentUser; // Extract user from request
+      return await this.arenaService.createArena(file, input, user);
+    } catch (error) {
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.NOT_FOUND,
+        'Arena not found',
+      );
+    }
   }
-}
 
   @Post('join-arena')
   @UseGuards(AuthGuard)
@@ -51,12 +56,15 @@ export class ArenaController {
     @Req() req,
   ): Promise<Arena> {
     try {
-    const user = req.user as CommonDTOs.CurrentUser; 
-    return await this.arenaService.joinArena(input.arenaId, user.id);
-
-  } catch (error) {
-    handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
-  }
+      const user = req.user as CommonDTOs.CurrentUser;
+      return await this.arenaService.joinArena(input.arenaId, user.id);
+    } catch (error) {
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.NOT_FOUND,
+        'Arena not found',
+      );
+    }
   }
 
   @Get(':id')
@@ -64,18 +72,26 @@ export class ArenaController {
     try {
       return await this.arenaService.getArenaById(id);
     } catch (error) {
-      handleServiceError(error.errorLogService, HttpStatus.NOT_FOUND, 'Arena not found');
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.NOT_FOUND,
+        'Arena not found',
+      );
     }
   }
 
   @Get()
   @UseGuards(AuthGuard)
-  async getAllArenas( @Req() req): Promise<Arena[]> {
+  async getAllArenas(@Req() req): Promise<Arena[]> {
     try {
-      const user = req.user as CommonDTOs.CurrentUser; 
+      const user = req.user as CommonDTOs.CurrentUser;
       return await this.arenaService.getAllArenas(user);
     } catch (error) {
-      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to retrieve arenas');
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to retrieve arenas',
+      );
     }
   }
 
@@ -85,16 +101,20 @@ export class ArenaController {
       storage: storageConfig('./uploads'), // Specify the uploads directory for file storage
     }),
   )
-   async updateArena(
+  async updateArena(
     @Param('id') id: string,
     @Body() updateArenaDto: ArenaDtos.UpdateArenaDto,
-    @UploadedFile() file,  // If you have a file
+    @UploadedFile() file, // If you have a file
   ): Promise<Arena> {
     try {
       const dataToUpdate = { ...updateArenaDto, file };
-      return await this.arenaService.updateArena(id, dataToUpdate);
-    }  catch (error) {
-      handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Failed to update arena');
+      return await this.arenaService.updateArena(id,file, dataToUpdate);
+    } catch (error) {
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.BAD_REQUEST,
+        'Failed to update arena',
+      );
     }
   }
 
@@ -103,7 +123,11 @@ export class ArenaController {
     try {
       return await this.arenaService.deleteArena(id);
     } catch (error) {
-      handleServiceError(error.errorLogService, HttpStatus.INTERNAL_SERVER_ERROR, 'Failed to delete arena');
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        'Failed to delete arena',
+      );
     }
   }
 }
