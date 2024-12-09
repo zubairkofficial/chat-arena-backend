@@ -23,11 +23,13 @@ import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigu
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
+import { SystemPromptModule } from 'src/system-prompt/system-prompt.module';
 
 @Module({
+  imports:[SystemPromptModule,ErrorLogModule],
   controllers: [MessageController],
   providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService,FigureRoleService,FigureRoleRepository,UserAifigureMessageService,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService],
-  imports: [ErrorLogModule],
+
 
 })
 export class MessageModule {}

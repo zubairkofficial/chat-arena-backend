@@ -19,10 +19,11 @@ import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigu
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
+import { SystemPromptModule } from '../system-prompt/system-prompt.module';
 
 
 @Module({
-  imports: [UserModule,ErrorLogModule],
+  imports: [UserModule,ErrorLogModule,SystemPromptModule],
   controllers: [ArenaController],
   providers: [
     ArenaService,

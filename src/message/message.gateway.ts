@@ -276,7 +276,7 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
 
  
   async generateAIResponse(
-    arena,
+    arena: Arena,
     models: LlmModel[],
     previousMessages: Message[],
     arenaAiFigure: ArenaAIFigure

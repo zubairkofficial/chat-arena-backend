@@ -25,8 +25,10 @@ import { CardModule } from './card/card.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { LlmModelModule } from './llm-model/llm-model.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { SystemPromptModule } from './system-prompt/system-prompt.module';
 @Module({
   imports: [
+    SystemPromptModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads', // Files will be accessible via /uploads
