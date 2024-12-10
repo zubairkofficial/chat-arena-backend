@@ -192,7 +192,7 @@ export class LangChainService {
       const contextFormatted = context
         .map(
           (entry) =>
-            `User: "${entry.sendMessage}"\nAI: "${entry.receiveMessage}"\n`
+            `User: ${entry.sendMessage}"\nAI: "${entry.receiveMessage} \n`
         )
         .join('\n');
 
