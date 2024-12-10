@@ -40,7 +40,7 @@ export class LangChainService {
     arena = {} as Arena // Include arena parameter with default empty object
   ): Promise<string> {
     const arenaName = arena?.name || 'Unnamed Arena';
-    const arenaTypePrompt = arena?.arenaType.prompt || 'Arena Type Prompt';
+    const arenaTypePrompt = arena?.arenaType?.prompt || 'Arena Type Prompt';
     const arenaDescription = arena?.description || 'No description available';
     const arenaType = arena?.arenaType?.name || 'General';
     const arenaMaxParticipants = arena?.maxParticipants || 0;
