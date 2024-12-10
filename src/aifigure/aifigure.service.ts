@@ -38,26 +38,43 @@ export class AIFigureService extends BaseService {
 
 
   // Create a new AIFigure
-  async createAIFigure(file: { filename: any; }, input: AIFigureDtos.CreateAIFigureDto): Promise<AIFigure> {
+
+  async createAIFigure(
+    file: { filename: any; }, input: AIFigureDtos.CreateAIFigureDto,currentUser: CommonDTOs.CurrentUser): Promise<AIFigure> {
     if (file) {
       const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
       input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
     }
-  
-    // Ensure 'input.llmModel' is a proper array, if it's a stringified JSON
+    const existUser = await this.userService.getUserById(currentUser.id);
+    if (!existUser) throw new NotFoundException('Invalid user specified');
     if (input.llmModel && typeof input.llmModel === 'string') {
       input.llmModel = JSON.parse(input.llmModel); // Parse it to an array
     }
-  
+
+    // Ensure the 'name' field is present
     if (!input.name) {
-      throw new BadRequestException('Name is required field.');
+      throw new BadRequestException('Name is a required field.');
     }
-  
+
+    // Create an instance of the AiFigure entity from the DTO
+    const aiFigure = new AIFigure();
+    aiFigure.name = input.name;
+    aiFigure.description = input.description;
+    aiFigure.image = input.image;
+    aiFigure.type = input.type;
+    aiFigure.prompt = input.prompt;
+    aiFigure.isAiPrivate = input.isAiPrivate;
+    aiFigure.llmModel = input.llmModel;
+    
+    // Set the createdBy field with the current user's ID (or the user object)
+    aiFigure.createdBy = existUser;
+
     try {
-      const newAIFigure = await this.aiFigureRepository.save(input);
+      // Save the new AiFigure instance
+      const newAIFigure = await this.aiFigureRepository.save(aiFigure); // Save the entity, not the DTO
       return newAIFigure;
     } catch (error) {
-      throw new AllExceptionsFilter(error);
+      throw new AllExceptionsFilter(error); // Handle any errors (make sure your custom filter is set up)
     }
   }
   

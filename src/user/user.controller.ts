@@ -66,6 +66,21 @@ export class UserController {
       );
     }
   }
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  async logout(@Req() req) {
+    try {
+      const currentUser = req.user as CommonDTOs.CurrentUser; // Access the user object from request
+
+      return await this.userService.logout(currentUser);
+    } catch (error) {
+      handleServiceError(
+        error.errorLogService,
+        HttpStatus.UNAUTHORIZED,
+        'Login failed',
+      );
+    }
+  }
 
   @Get('verify')
   async emailVerify(@Query('token') token: string, @Res() res) {

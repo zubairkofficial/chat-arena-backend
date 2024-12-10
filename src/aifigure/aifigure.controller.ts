@@ -29,15 +29,19 @@ export class AIFigureController {
 
   // Create a new AIFigure
   @Post()
+  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file', {
       storage: storageConfig('./uploads'), // Specify the uploads directory
     }))
   async createAIFigure(
     @Body() createAIFigureDto: AIFigureDtos.CreateAIFigureDto,
     @UploadedFile() file,
+    @Req() req,
   ): Promise<AIFigure> {
     try {
-      return await this.aiFigureService.createAIFigure(file,createAIFigureDto);
+      const currentUser = req.user as CommonDTOs.CurrentUser;
+
+      return await this.aiFigureService.createAIFigure(file,createAIFigureDto,currentUser);
     } catch (error) {
       handleServiceError(
         error.errorLogService,

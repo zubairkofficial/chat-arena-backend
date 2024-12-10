@@ -119,6 +119,8 @@ export class UserService extends BaseService {
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid credentials');
       }
+      user.isOnline=true
+      await this.userRepository.save(user);
 
       const payload = {
         email: user.email,
@@ -130,6 +132,24 @@ export class UserService extends BaseService {
 
       const { password, ...userWithoutPassword } = user;
       return { user: userWithoutPassword, token };
+    } catch (error) {
+      throw new AllExceptionsFilter(error);
+    }
+  }
+  async logout(
+    currentUser: CommonDTOs.CurrentUser
+  ): Promise<{ message: string }> {
+    try {
+      const user = await this.getUserByEmail(currentUser.email);
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      
+      user.isOnline=false
+      await this.userRepository.save(user);
+
+      
+      return {message:"logout successfully"} ;
     } catch (error) {
       throw new AllExceptionsFilter(error);
     }
@@ -268,7 +288,7 @@ const numberOfArenas=await this.arenaRepository.count()
   async updateUser(
     input: UserDtos.UpdateUser,
     currentUser: CommonDTOs.CurrentUser,
-    file,
+    file: { filename: any; },
   ) {
     try {
       const userEmail = currentUser.isAdmin ? input.email : currentUser.email;
@@ -303,6 +323,7 @@ const numberOfArenas=await this.arenaRepository.count()
       throw new AllExceptionsFilter(error);
     }
   }
+  
   async updateUserTier(input: UserDtos.UpdateUserTier, user: User) {
     try {
       user.tier = input.tier;

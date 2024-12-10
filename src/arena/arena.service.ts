@@ -121,11 +121,7 @@ export class ArenaService extends BaseService {
         arenaModel: formattedArenaModel, // Save only UUIDs
       });
 
-      // Update user's arena request status
-      existUser.createArenaRequestStatus = ArenaRequestStatus.STATUS;
-
-      // Add objects to the transaction scope
-      transactionScope.update(existUser);
+      
       transactionScope.add(arena);
 
       // Create ArenaAIFigure entries

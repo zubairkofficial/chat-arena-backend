@@ -1,8 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
 import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
 import { AIFigureType } from '../../common/enums';
 import { UserAifigureMessage } from '../../user-aifigure-message/entities/user-aifigure-message.entity';
 import { EntityBase } from '../../base/entityBase';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class AIFigure extends EntityBase {
@@ -33,6 +34,9 @@ export class AIFigure extends EntityBase {
   @Column({ type: 'text', array: true, nullable: true, default: [] }) // Array of strings (text)
   llmModel: string[];  // This is the array column for arenaModel
 
+    @ManyToOne(() => User, (user) => user.aiFigures)
+  @JoinColumn({ name: 'createdBy' })
+  createdBy: User;
 
   @OneToMany(() => ArenaAIFigure, (arenaAIFigure) => arenaAIFigure.aiFigure)
   arenaAIFigures: ArenaAIFigure[];

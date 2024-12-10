@@ -10,6 +10,7 @@ import { Transaction } from '../../transaction/entities/transaction.entity';
 import { AIFigureStatus, ArenaRequestStatus, UserTier } from '../../common/enums';
 import { LlmModel } from '../../llm-model/entities/llm-model.entity';
 import { Subscription } from '../../subscription/entities/subscription.entity';
+import { AIFigure } from '../../aifigure/entities/aifigure.entity';
 // import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user' })
@@ -42,6 +43,9 @@ export class User extends EntityBase {
   @Column({ name: 'is_admin', type: 'boolean', default: false })
   isAdmin: boolean;
 
+  @Column({ name: 'is_online', type: 'boolean', default: false })
+  isOnline: boolean;
+
   @Column({ type: 'enum', enum: UserTier, default: UserTier.FREE })
   tier: UserTier;
 
@@ -65,6 +69,9 @@ export class User extends EntityBase {
 
   @OneToMany(() => Arena, (arena) => arena.createdBy)
   arenas: Arena[];
+
+  @OneToMany(() => AIFigure, (aiFigure) => aiFigure.createdBy)
+  aiFigures: AIFigure[];
   
   @OneToMany(() => UserAifigureMessage, (userAifigureMessage) => userAifigureMessage.user)
   userAifigureMessage: UserAifigureMessage[];

@@ -32,7 +32,7 @@ export class UserRepository extends Repository<User> {
     return this.dataSource
       .getRepository(User)
       .createQueryBuilder('user')
-      .where('user.isActive = :isActive', { isActive: true })
+      .where('user.isOnline = :isOnline', { isOnline: true })
       .andWhere('user.isAdmin = :isAdmin', { isAdmin: false });
   }
   
