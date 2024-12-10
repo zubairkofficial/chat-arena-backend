@@ -23,7 +23,7 @@ import { UserAifigureMessageService } from '../user-aifigure-message/user-aifigu
 import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aifigure-message.repository';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
-import { SystemPromptModule } from 'src/system-prompt/system-prompt.module';
+import { SystemPromptModule } from '../system-prompt/system-prompt.module';
 
 @Module({
   imports:[SystemPromptModule,ErrorLogModule],
