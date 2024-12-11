@@ -18,7 +18,7 @@ import { LlmModel } from '../llm-model/entities/llm-model.entity';
 import { handleServiceError } from '../errors/error-handling';
 require('dotenv').config();
 @WebSocketGateway({
-  // namespace: '/api/v1/socket',
+  namespace: '/api/v1/',
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
@@ -251,6 +251,10 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
                     this.server.to(arenaId).emit('receiveMessage', {message,user:{...aiFigureRes}});
                   } catch (responseError) {
                     console.error(`Error generating AI response for ${aiFigure.name} in arena ${arenaId}:`, responseError);
+                    
+                    this.server.to(arenaId).emit('error', { message: `Error processing conversation in arena ${arenaId} ${responseError}` });
+                    handleServiceError(responseError.errorLogService, HttpStatus.BAD_REQUEST, 'Arena AI Figure not work');
+               
                   }
               
               }

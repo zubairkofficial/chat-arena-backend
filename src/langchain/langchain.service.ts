@@ -20,8 +20,8 @@ export class LangChainService {
       throw new Error('Model API Key or Type is missing');
     }
     return new ChatOpenAI({
-      openAIApiKey: models.apiKey,
-      model: models.modelType,
+      openAIApiKey: models?.apiKey,
+      model: models?.modelType,
     });
   }
 
