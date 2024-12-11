@@ -12,6 +12,7 @@ async function bootstrap() {
   
   const app = await NestFactory.create(AppModule);
   const excludedRoutes = [
+    { path: '/', method: RequestMethod.GET },
     { path: 'google-auth/', method: RequestMethod.GET },
     { path: 'google-auth/redirect', method: RequestMethod.GET },
   ];

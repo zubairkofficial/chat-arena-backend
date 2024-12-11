@@ -18,7 +18,7 @@ import { LlmModel } from '../llm-model/entities/llm-model.entity';
 import { handleServiceError } from '../errors/error-handling';
 require('dotenv').config();
 @WebSocketGateway({
-  namespace: '/api/v1/',
+  // namespace: '/api/v1/socket',
   cors: {
     origin: '*',
     methods: ['GET', 'POST'],
