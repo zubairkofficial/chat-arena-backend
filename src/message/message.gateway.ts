@@ -5,7 +5,7 @@ import { Cron } from '@nestjs/schedule';
 import { MessageService } from './message.service';
 import { UserService } from '../user/user.service';
 import { ArenaService } from '../arena/arena.service';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { Message } from './entities/message.entity';
 import { LangChainService } from '../langchain/langchain.service';
 import { UserArenaService } from '../user-arena/user-arena.service';
@@ -15,6 +15,7 @@ import { TooManyRequestsException } from '../errors/exceptions';
 import { UserTier } from '../common/enums';
 import { LlmModelService } from '../llm-model/llm-model.service';
 import { LlmModel } from '../llm-model/entities/llm-model.entity';
+import { handleServiceError } from '../errors/error-handling';
 require('dotenv').config();
 @WebSocketGateway({
   // namespace: '/api/v1/socket',
@@ -257,6 +258,8 @@ async handleJoinRoom(client: Socket, { userId, arenaId }: { userId: string; aren
           }
         } catch (error) {
           console.error(`Error processing conversation for arena ${arenaId}:`, error);
+          this.server.to(arenaId).emit('error', { message: `Error processing conversation in arena ${arenaId} ${error}` });
+          handleServiceError(error.errorLogService, HttpStatus.BAD_REQUEST, 'Arena AI Figure not work');
         }
       } else {
         // If no recent message, remove arena from active conversations

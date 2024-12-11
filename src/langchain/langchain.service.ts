@@ -27,7 +27,7 @@ export class LangChainService {
 
   // Builds the context by combining previous context and the new user message.
   private buildContext(previousContext: string, userMessage: string): string {
-    return `${previousContext}\nUser: "${userMessage}"\nAI:`;
+    return `"${previousContext}"\nUser: "${userMessage}"\nAI:`;
   }
 
   // Creates a detailed prompt template for the AI model.
@@ -95,7 +95,7 @@ export class LangChainService {
     // Sample casual response
     const casualMessage = `
     **Sample Response:**
-    "Hmm, it looks like we’re in another round of greetings! It’s great to see so many friendly faces! Who's excited to share something fun today?"
+    Hmm, it looks like we’re in another round of greetings! It’s great to see so many friendly faces! Who's excited to share something fun today?
     `;
 
     // Final prompt assembly
