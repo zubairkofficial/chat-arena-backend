@@ -337,7 +337,7 @@ const numberOfArenas=await this.arenaRepository.count()
     const transactionScop = this.getTransactionScope();
 
     try {
-      user.availableCoins = coins;
+      user.availableCoins = coins??100;
       transactionScop.update(user);
       transactionScop.commit(this.entityManager);
       return user;
