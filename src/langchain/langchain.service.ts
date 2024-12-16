@@ -51,27 +51,27 @@ export class LangChainService {
     
     const arenaOverview = `
     **Arena Overview:**
-    - **Arena Name**: ${arenaName}
-    - **Arena Description**: ${arenaDescription}
-    - **Arena Type**: ${arenaType}
-    - **Maximum Participants**: ${arenaMaxParticipants}
-    - **Privacy**: ${isPrivate}
-    - **AI Figures in Arena**: ${aiFigures}
+    - **Arena Name**: ${{arenaName}}
+    - **Arena Description**: ${{arenaDescription}}
+    - **Arena Type**: ${{arenaType}}
+    - **Maximum Participants**: ${{arenaMaxParticipants}}
+    - **Privacy**: ${{isPrivate}}
+    - **AI Figures in Arena**: ${{aiFigures}}
     `;
     const arenaPrompt = `
     **Arena Prompt:**
-    - **Arena Type Prompt**: ${arenaTypePrompt}
+    - **Arena Type Prompt**: ${{arenaTypePrompt}}
     - **System Prompt**: ${systemPrompt[0]?.prompt}
-    - **Ai Figure Prompt**: ${basePrompt}
+    - **Ai Figure Prompt**: ${{basePrompt}}
    
     `;
 
     const yourRole = `
     **Your Role:**
-    - **Name**: ${name}
-    - **Description**: ${description}
-    - **Base Prompt**: ${basePrompt}
-    - **User Interaction**: ${userInteraction}
+    - **Name**: ${{name}}
+    - **Description**: ${{description}}
+    - **Base Prompt**: ${{basePrompt}}
+    - **User Interaction**: ${{userInteraction}}
     `;
 
     const guidelines = `

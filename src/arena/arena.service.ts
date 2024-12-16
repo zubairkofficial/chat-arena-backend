@@ -333,11 +333,11 @@ export class ArenaService extends BaseService {
       let parsedArenaModel = [];
       if (input.arenaModel && typeof input.arenaModel === 'string') {
         parsedArenaModel = JSON.parse(input.arenaModel);
-      } else {
+      } else if(input.arenaModel) {
         parsedArenaModel = input.arenaModel;
       }
   
-      parsedArenaModel.forEach((model) => {
+      parsedArenaModel?.forEach((model) => {
         if (!model.value || !model.label) {
           throw new BadRequestException('Each arenaModel item must have "value" and "label" properties.');
         }
