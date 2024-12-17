@@ -57,9 +57,18 @@ export class ArenaService extends BaseService {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`;
       }
+      let parsedArenaModel = [];
       if (input.arenaModel && typeof input.arenaModel === 'string') {
-        input.arenaModel = JSON.parse(input.arenaModel); // Parse it to an array
+        parsedArenaModel = JSON.parse(input.arenaModel);
+      } else if(input.arenaModel) {
+        parsedArenaModel = input.arenaModel;
       }
+  
+      parsedArenaModel?.forEach((model) => {
+        if (!model.value || !model.label) {
+          throw new BadRequestException('Each arenaModel item must have "value" and "label" properties.');
+        }
+      });
 
       // Validate the user
       const existUser = await this.userService.getUserById(user.id);
@@ -93,18 +102,18 @@ export class ArenaService extends BaseService {
         }
       }
 
-      parsedArenaModel.forEach((model) => {
-        if (!model.value || !model.label) {
-          throw new BadRequestException(
-            'Each arenaModel item must have "value" and "label" properties.',
-          );
-        }
-      });
-      // Process and format arenaModel
-      const formattedArenaModel = parsedArenaModel.map((model) => ({
-        value: model.value,
-        label: model.label,
-      }));
+      // parsedArenaModel.forEach((model) => {
+      //   if (!model.value || !model.label) {
+      //     throw new BadRequestException(
+      //       'Each arenaModel item must have "value" and "label" properties.',
+      //     );
+      //   }
+      // });
+      // // Process and format arenaModel
+      // const formattedArenaModel = parsedArenaModel.map((model) => ({
+      //   value: model.value,
+      //   label: model.label,
+      // }));
 
       // Create the Arena object
       const arena = new Arena();
@@ -118,7 +127,7 @@ export class ArenaService extends BaseService {
         createdBy: existUser,
         image: input.image,
         isPrivate: input.isPrivate ?? false,
-        arenaModel: formattedArenaModel, // Save only UUIDs
+        arenaModel: parsedArenaModel, // Save only UUIDs
       });
 
       
@@ -301,7 +310,7 @@ export class ArenaService extends BaseService {
         transactionScope.deleteCollection(arena.arenaAIFigures);
   
         // Create new ArenaAIFigure entries
-        const arenaAIFiguresPromises = Object.entries(input.aiFigureRoles).map(
+        const arenaAIFiguresPromises = Object.entries(input.aiFigureRoles)?.map(
           async ([aiFigureId, figureRoleId]) => {
             // Validate the figure role
             const figureRole = await this.figureRoleService.figureRoleById(figureRoleId);
