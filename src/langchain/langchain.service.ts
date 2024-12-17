@@ -37,7 +37,7 @@ export class LangChainService {
     basePrompt: string,
     userInteraction: string,
     context: string,
-    arena = {} as Arena // Include arena parameter with default empty object
+    arena = {} as Arena // Use existing structure
   ): Promise<string> {
     const arenaName = arena?.name || 'Unnamed Arena';
     const arenaTypePrompt = arena?.arenaType?.prompt || 'Arena Type Prompt';
@@ -46,76 +46,82 @@ export class LangChainService {
     const arenaMaxParticipants = arena?.maxParticipants || 0;
     const isPrivate = arena?.isPrivate ? 'Yes' : 'No';
     const systemPrompt = await this.systemPromptService.getAllSystemPrompts();
-    
-    const aiFigures = arena?.arenaAIFigures?.map((figure) => figure.aiFigure.name).join(', ') || 'No AI figures in this arena';
-    
+    const aiFigures = arena?.arenaAIFigures
+      ?.map((figure) => figure.aiFigure.name)
+      .join(', ') || 'No AI figures in this arena';
+  
+    // Updated system prompt
     const arenaOverview = `
-    **Arena Overview:**
-    - **Arena Name**: ${{arenaName}}
-    - **Arena Description**: ${{arenaDescription}}
-    - **Arena Type**: ${{arenaType}}
-    - **Maximum Participants**: ${{arenaMaxParticipants}}
-    - **Privacy**: ${{isPrivate}}
-    - **AI Figures in Arena**: ${{aiFigures}}
+      *Arena Overview:*
+      - Name: "${arenaName}"
+      - Type: "${arenaType}"
+      - Description: "${arenaDescription}"
+      - Maximum Participants: "${arenaMaxParticipants}"
+      - Private Arena: "${isPrivate}"
+      - AI Figures in Arena: "${aiFigures}"
     `;
-    const arenaPrompt = `
-    **Arena Prompt:**
-    - **Arena Type Prompt**: ${{arenaTypePrompt}}
-    - **System Prompt**: ${systemPrompt[0]?.prompt}
-    - **Ai Figure Prompt**: ${{basePrompt}}
-   
+  
+    const systemDetails = `
+      *System Details:*
+      - Arena-Specific Prompt: "${arenaTypePrompt}"
+      - System-Wide Prompt: "${systemPrompt[0]?.prompt}"
+      - Base AI Prompt: "${basePrompt}"
     `;
-
+  
     const yourRole = `
-    **Your Role:**
-    - **Name**: ${{name}}
-    - **Description**: ${{description}}
-    - **Base Prompt**: ${{basePrompt}}
-    - **User Interaction**: ${{userInteraction}}
+      *Your Role:*
+      - Name: "${name}"
+      - Description: "${description}"
+      - Base Behavior Prompt: "${basePrompt}"
     `;
-
-    const guidelines = `
-    **What you should do:**
-    - Be attentive. Only respond when necessary and relevant to the ongoing conversation.
-    - Match the tone. If the discussion is casual and friendly, keep your responses light. If it's serious, adjust accordingly.
-    - If you're unsure or out of context, acknowledge it gently. You can redirect the conversation or simply say, "I’m not sure how this fits, but feel free to share more!"
+  
+    const interactionGuidelines = `
+      *Interaction Guidelines:*
+      - Be attentive to ongoing discussions and respond meaningfully.
+      - Adapt your tone and content to match the discussion (e.g., formal, casual, humorous).
+      - Avoid repeating yourself unnecessarily or responding out of context.
+      - If unsure about a topic, acknowledge this and prompt for clarification or additional information.
     `;
-
-    const contextSection = `
-    **Context:** ${context}
+  
+    const contextualInfo = `
+      *Context Information:*
+      ${context || 'No previous context provided yet.'}
     `;
-
-    const responseGuidelines = `
-    **How to respond:**
-    - Respond like a human—keep your answers aligned with the chat's tone (casual, thoughtful, humorous, etc.).
-    - If the conversation changes, adapt. If you're lost, gracefully acknowledge it without making it awkward.
-    - If the topic isn’t your area, provide a friendly acknowledgment like, "That’s not quite my area, but I’d love to hear more about it!"
+  
+    const userInteractionDetails = `
+      *Latest User Interaction:*
+      ${userInteraction || 'No recent user interaction.'}
     `;
-
-    // Sample casual response
-    const casualMessage = `
-    **Sample Response:**
-    Hmm, it looks like we’re in another round of greetings! It’s great to see so many friendly faces! Who's excited to share something fun today?
+  
+    const responseFormatGuidelines = `
+      *Response Guidelines:*
+      - Keep responses aligned with the chat tone and purpose.
+      - Maintain coherence and context even when topics change.
+      - If context is unclear, gracefully redirect or acknowledge with a clarifying question.
     `;
-
-    // Final prompt assembly
+  
+    const exampleResponse = `
+      *Example Response:*
+      "Great question! Based on our current topic, I think we should explore X. What are your thoughts?"
+    `;
+  
+    // Assemble the final prompt
     return `
-    ${arenaPrompt},
-    You're an AI figure, participating in a lively, friendly chat arena. Here’s your role:
-
-    ${arenaOverview}
-
-    ${yourRole}
-
-    ${guidelines}
-
-    ${contextSection}
-
-    ${responseGuidelines}
-
-    ${casualMessage}
-
-    **Response:**
+      ${arenaOverview}
+      
+      ${systemDetails}
+      
+      ${yourRole}
+      
+      ${interactionGuidelines}
+      
+      ${contextualInfo}
+      
+      ${userInteractionDetails}
+      
+      ${responseFormatGuidelines}
+      
+      ${exampleResponse}
     `;
   }
 
