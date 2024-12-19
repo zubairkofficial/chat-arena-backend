@@ -24,11 +24,12 @@ import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aif
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
 import { SystemPromptModule } from '../system-prompt/system-prompt.module';
+import { AifigureTypeRepository } from '../aifigure-type/aiFigureTypeRepository';
 
 @Module({
   imports:[SystemPromptModule,ErrorLogModule],
   controllers: [MessageController],
-  providers: [MessageGateway,MessageService,MessageRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService,FigureRoleService,FigureRoleRepository,UserAifigureMessageService,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService],
+  providers: [MessageGateway,MessageService,MessageRepository,AifigureTypeRepository,ConversationService,ConversationRepository,ArenaService,ArenaRepository,AIFigureRepository,ArenaTypeRepository,UserService,UserRepository,AIFigureService,LangChainService,UserArenaService,UserArenaRepository,ConfigService,FigureRoleService,FigureRoleRepository,UserAifigureMessageService,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService],
 
 
 })

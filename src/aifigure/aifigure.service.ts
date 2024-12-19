@@ -18,6 +18,7 @@ import { UserAifigureMessage } from '../user-aifigure-message/entities/user-aifi
 import { UserService } from '../user/user.service';
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
+import { AifigureTypeRepository } from '../aifigure-type/aiFigureTypeRepository';
 
 @Injectable()
 export class AIFigureService extends BaseService {
@@ -30,6 +31,7 @@ export class AIFigureService extends BaseService {
     private readonly userAifigureMessageService: UserAifigureMessageService,
     private readonly arenaAIFigureRepository: ArenaAiFigureRepository,  // Inject ArenaAIFigureRepository here
     private readonly llmModelService: LlmModelService,  // Inject ArenaAIFigureRepository here
+    private readonly aifigureTypeRepository: AifigureTypeRepository,  // Inject ArenaAIFigureRepository here
 
     dataSource: DataSource,
   ) {
@@ -56,12 +58,19 @@ export class AIFigureService extends BaseService {
       throw new BadRequestException('Name is a required field.');
     }
 
+    const figureType = await this.aifigureTypeRepository.findOne({
+      where: { id: input.aifigureType }, // Use the correct field to fetch the type
+    });
+
+    if (!figureType) {
+      throw new NotFoundException(`AifigureType with ID ${input.aifigureType} not found`);
+    }
     // Create an instance of the AiFigure entity from the DTO
     const aiFigure = new AIFigure();
     aiFigure.name = input.name;
     aiFigure.description = input.description;
     aiFigure.image = input.image;
-    aiFigure.type = input.type;
+    aiFigure.aifigureType=figureType;
     aiFigure.prompt = input.prompt;
     aiFigure.isAiPrivate = input.isAiPrivate;
     aiFigure.llmModel = input.llmModel;
@@ -150,23 +159,42 @@ const userAiFigureContext=await this.userAifigureMessageService.getPreviousMessa
   async updateAIFigure(
     id: string,
     input: AIFigureDtos.UpdateAIFigureDto,
-    file
+    file: Express.Multer.File,
   ): Promise<AIFigure> {
     const aiFigure = await this.getAIFigureById(id);
     if (!aiFigure) throw new NotFoundException('Invalid AI figure specified.');
-
-
+  
     try {
+      // Handle file upload if provided
       if (file) {
         const baseUrl = this.configService.get('BACK_END_BASE_URL') || BASE_URL;
         input.image = `${baseUrl}/uploads/${file.filename}`; // Set complete URL path
       }
+  
+      // Handle AifigureType if aifigureType is provided
+      if (input.aifigureType) {
+        const figureType = await this.aifigureTypeRepository.findOne({
+          where: { id: input.aifigureType }, // Validate aifigureType
+        });
+  
+        if (!figureType) {
+          throw new NotFoundException(`AifigureType with ID ${input.aifigureType} not found`);
+        }
+  
+        // Assign the validated type
+        aiFigure.aifigureType = figureType;
+      }
+  
+      // Update the remaining fields
       Object.assign(aiFigure, input);
+  
+      // Save the updated AI figure
       return await this.aiFigureRepository.save(aiFigure);
     } catch (error) {
-      throw new AllExceptionsFilter(error);
+      throw new AllExceptionsFilter(error); // Handle any errors
     }
   }
+  
 
   // Delete AIFigure by ID
   async deleteAIFigure(aiFigureId: string): Promise<{ message: string }> {

@@ -12,10 +12,11 @@ import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repo
 import { LlmModelService } from '../llm-model/llm-model.service';
 import { ArenaRepository } from '../arena/arena.repository';
 import { SystemPromptModule } from '../system-prompt/system-prompt.module';
+import { AifigureTypeRepository } from '../aifigure-type/aiFigureTypeRepository';
 
 @Module({
   imports:[SystemPromptModule],
   controllers: [AIFigureController],
-  providers: [LangChainService,AIFigureService, AIFigureRepository,ConfigService,UserAifigureMessageService,UserService,UserRepository,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService,ArenaRepository],
+  providers: [LangChainService,AIFigureService, AIFigureRepository,ConfigService,UserAifigureMessageService,UserService,UserRepository,UserAifigureMessageRepository,ArenaAiFigureRepository,LlmModelService,ArenaRepository,AifigureTypeRepository],
 })
 export class AifigureModule {}

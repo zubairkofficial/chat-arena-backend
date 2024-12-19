@@ -37,7 +37,8 @@ export class LangChainService {
     basePrompt: string,
     userInteraction: string,
     context: string,
-    arena = {} as Arena // Use existing structure
+    aiFiguresType: string,
+    arena = {} as Arena
   ): Promise<string> {
     const arenaName = arena?.name || 'Unnamed Arena';
     const arenaTypePrompt = arena?.arenaType?.prompt || 'Arena Type Prompt';
@@ -50,29 +51,30 @@ export class LangChainService {
       ?.map((figure) => figure.aiFigure.name)
       .join(', ') || 'No AI figures in this arena';
   
-    // Updated system prompt
+    // Highlight AI Figures Type
     const arenaOverview = `
-      *Arena Overview:*
-      - Name: "${arenaName}"
-      - Type: "${arenaType}"
-      - Description: "${arenaDescription}"
-      - Maximum Participants: "${arenaMaxParticipants}"
-      - Private Arena: "${isPrivate}"
-      - AI Figures in Arena: "${aiFigures}"
+      **Arena Overview:**
+      - **Name:** "${arenaName}"
+      - **Type:** "${arenaType}"
+      - **Description:** "${arenaDescription}"
+      - **Maximum Participants:** "${arenaMaxParticipants}"
+      - **Private Arena:** "${isPrivate}"
+      - **AI Figures in Arena:** "${aiFigures}"
+      - **AI Figures Type in Arena:** **"${aiFiguresType}"**
     `;
   
     const systemDetails = `
-      *System Details:*
-      - Arena-Specific Prompt: "${arenaTypePrompt}"
-      - System-Wide Prompt: "${systemPrompt[0]?.prompt}"
-      - Base AI Prompt: "${basePrompt}"
+      **System Details:**
+      - **Arena-Specific Prompt:** "${arenaTypePrompt}"
+      - **System-Wide Prompt:** "${systemPrompt[0]?.prompt}"
+      - **Base AI Prompt:** "${basePrompt}"
     `;
   
     const yourRole = `
-      *Your Role:*
-      - Name: "${name}"
-      - Description: "${description}"
-      - Base Behavior Prompt: "${basePrompt}"
+      **Your Role:**
+      - **Name:** "${name}"
+      - **Description:** "${description}"
+      - **Base Behavior Prompt:** "${basePrompt}"
     `;
   
     const interactionGuidelines = `
@@ -101,11 +103,12 @@ export class LangChainService {
     `;
   
     const exampleResponse = `
-      *Example Response:*
-      "Great question! Based on our current topic, I think we should explore X. What are your thoughts?"
+      **Example Response:**
+      User: "Tell me about unrelated topic Y."
+      AI: "This seems outside the scope of our current discussion about the AI Figure (${name}, **${aiFiguresType}**). Let's refocus on the main topic. What would you like to explore further about it?"
     `;
   
-    // Assemble the final prompt
+    // Final Prompt Construction
     return `
       ${arenaOverview}
       
@@ -124,6 +127,8 @@ export class LangChainService {
       ${exampleResponse}
     `;
   }
+  
+  
 
   // Invokes the chosen model with the prompt template.
   private async invokeModel(prompt: string, modelToUse: ChatOpenAI): Promise<string> {
@@ -165,13 +170,16 @@ export class LangChainService {
   ): Promise<string> {
     try {
       const modelToUse = this.chooseModelFromArray(models);
+   
       const updatedContext = this.buildContext(context, userMessage);
+      const aiFiguresType = arenaAiFigure?.aiFigure?.aifigureType?.name 
       const promptTemplateString = await this.createPromptTemplate(
         arenaAiFigure.aiFigure.name,
         arenaAiFigure.aiFigure.description,
         arenaAiFigure.aiFigure.prompt,
         `The users in the arena will be communicating with each other and the AI. Below is the latest message:\n\n*User Message:*\n${userMessage}`,
         updatedContext,
+        aiFiguresType,
         arena
       );
       return this.invokeModel(promptTemplateString, modelToUse);
@@ -208,7 +216,8 @@ export class LangChainService {
         aiFigure.description,
         aiFigure.prompt,
         `The users in the arena will be communicating with each other and the AI. Below is the latest message:\n\n*User Message:*\n${message}`,
-        updatedContext
+        updatedContext,
+        aiFigure?.aifigureType?.name
       );
 
       return this.invokeModel(promptTemplateString, modelToUse);

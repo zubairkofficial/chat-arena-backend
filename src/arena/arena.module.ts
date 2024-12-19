@@ -20,6 +20,7 @@ import { UserAifigureMessageRepository } from '../user-aifigure-message/user-aif
 import { ArenaAiFigureRepository } from '../arena-ai-figure/arena-ai-figure.repository';
 import { LlmModelService } from '../llm-model/llm-model.service';
 import { SystemPromptModule } from '../system-prompt/system-prompt.module';
+import { AifigureTypeRepository } from '../aifigure-type/aiFigureTypeRepository';
 
 
 @Module({
@@ -42,7 +43,8 @@ import { SystemPromptModule } from '../system-prompt/system-prompt.module';
     UserAifigureMessageService,
     UserAifigureMessageRepository,
     ArenaAiFigureRepository,
-    LlmModelService
+    LlmModelService,
+    AifigureTypeRepository
   ],
 })
 export class ArenaModule {}

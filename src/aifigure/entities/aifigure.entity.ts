@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
 import { ArenaAIFigure } from '../../arena-ai-figure/entities/arena-ai-figure.entity';
-import { AIFigureType } from '../../common/enums';
 import { UserAifigureMessage } from '../../user-aifigure-message/entities/user-aifigure-message.entity';
 import { EntityBase } from '../../base/entityBase';
 import { User } from '../../user/entities/user.entity';
+import { AifigureType } from '../../aifigure-type/entities/aifigure-type.entity';
 
 @Entity()
 export class AIFigure extends EntityBase {
@@ -19,11 +19,12 @@ export class AIFigure extends EntityBase {
   @Column()
   description: string;
 
-  @Column({
-    type: 'enum',
-    enum: AIFigureType,
-  })
-  type: AIFigureType; // Use enum type here
+  
+  // @Column({
+  //   type: 'enum',
+  //   enum: AIFigureType,
+  // })
+  // type: AIFigureType; // Use enum type here
 
   @Column()
   prompt: string;
@@ -43,4 +44,9 @@ export class AIFigure extends EntityBase {
 
   @OneToMany(() => UserAifigureMessage, (userAifigureMessage) => userAifigureMessage.aiFigure)
   userAifigureMessage: UserAifigureMessage[];
+  
+  @ManyToOne(() => AifigureType, (type) => type.aiFigures, { eager: true })
+  @JoinColumn({ name: 'aifigureTypeId' })
+  aifigureType: AifigureType;
+
 }

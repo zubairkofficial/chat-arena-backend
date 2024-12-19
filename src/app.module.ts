@@ -26,6 +26,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { LlmModelModule } from './llm-model/llm-model.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { SystemPromptModule } from './system-prompt/system-prompt.module';
+import { AifigureTypeModule } from './aifigure-type/aifigure-type.module';
 @Module({
   imports: [
     SystemPromptModule,
@@ -53,6 +54,7 @@ import { SystemPromptModule } from './system-prompt/system-prompt.module';
     TransactionModule,
     LlmModelModule,
     SubscriptionModule,
+    AifigureTypeModule
   ],
   controllers: [AppController],
   providers: [AppService,LangChainService],

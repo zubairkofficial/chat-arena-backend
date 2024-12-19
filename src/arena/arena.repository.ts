@@ -86,6 +86,7 @@ public getArenaWithAIFigure(arenaId: string): SelectQueryBuilder<Arena> {
     .createQueryBuilder('arena')
     .leftJoinAndSelect('arena.arenaAIFigures', 'arenaAIFigures') // Correct relation name
     .leftJoinAndSelect('arenaAIFigures.aiFigure', 'aiFigure') // Join and select the User entity
+    .leftJoinAndSelect('aiFigure.aifigureType', 'aifigureType')
     .leftJoinAndSelect('arenaAIFigures.figureRole', 'figureRole') // Join and select the User entity
     .where('arena.id = :arenaId', { arenaId }) // Filter on arena.id
 }

@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { AIFigureType } from '../../common/enums';
 
 export namespace AIFigureDtos {
@@ -16,8 +16,9 @@ export namespace AIFigureDtos {
     description?: string;
   
     @IsNotEmpty()
-    @IsEnum(AIFigureType) // Ensure type is a valid enum value
-    type: AIFigureType;
+    @IsUUID('4') // Ensure the type ID is a valid UUID (v4)
+    aifigureType: string; // This field corresponds to the ID of the AIFigureType entity
+  
   
     @IsNotEmpty()
     @IsString()
@@ -42,6 +43,11 @@ export namespace AIFigureDtos {
     @IsString()
     role?: string;
 
+
+    @IsOptional()
+    @IsUUID('4') // Ensure the type ID is a valid UUID (v4)
+    aifigureType: string; // This field corresponds to the ID of the AIFigureType entity
+  
 
     @IsOptional() // Image is optional
     @IsString()

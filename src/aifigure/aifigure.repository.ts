@@ -21,6 +21,7 @@ export class AIFigureRepository extends Repository<AIFigure> {
     return this.dataSource
       .getRepository(AIFigure)
       .createQueryBuilder('aifigure')
+      .leftJoinAndSelect('aifigure.aifigureType', 'aifigureType')
       .leftJoinAndSelect('aifigure.arenaAIFigures', 'arenaAIFigures')
       .leftJoinAndSelect('arenaAIFigures.figureRole', 'figureRole')
       .where('aifigure.id = :id', { id });
@@ -37,6 +38,9 @@ export class AIFigureRepository extends Repository<AIFigure> {
     const query = this.dataSource
       .getRepository(AIFigure)
       .createQueryBuilder('aifigure')
+      .leftJoinAndSelect('aifigure.aifigureType', 'aifigureType'); // Add left join to include AifigureType
+
+
       
     if (user?.isAdmin) {
       // Admin users can access all AI figures
